@@ -3827,6 +3827,9 @@ function renderSidebarGroups() {
       const fresh = globalPicker.cloneNode();
       globalPicker.parentNode.replaceChild(fresh, globalPicker);
       fresh.id = 'groupColorPickerGlobal';
+      // Position near the clicked swatch
+      const rect = swatch.getBoundingClientRect();
+      fresh.style.cssText = `position:fixed;width:0;height:0;opacity:0;pointer-events:none;top:${rect.bottom}px;left:${rect.left}px;`;
       fresh.oninput = () => { swatch.style.background = fresh.value; };
       fresh.onchange = () => {
         const gs = loadGroups();
