@@ -1772,6 +1772,9 @@ main { flex: 1; padding: 20px; min-width: 0; }
 </div>
 
 <!-- DAY CLICK POPUP -->
+<!-- Persistent group color picker (outside sidebar so re-renders don't destroy it) -->
+<input type="color" id="groupColorPickerGlobal" style="position:fixed;width:0;height:0;opacity:0;pointer-events:none;top:0;left:0">
+
 <div class="day-popup" id="dayPopup">
   <div class="day-popup-header" id="dayPopupHeader"></div>
   <button class="day-popup-item" id="dayPopupViewDay">
@@ -3818,22 +3821,24 @@ function renderSidebarGroups() {
     };
     swatch.onclick = (e) => {
       e.stopPropagation();
-      colorPicker.click();
-    };
-
-    colorPicker.oninput = () => {
-      swatch.style.background = colorPicker.value;
-    };
-    colorPicker.onchange = () => {
-      const gs = loadGroups();
-      const idx = gs.findIndex(x => x.id === g.id);
-      if (idx >= 0) { gs[idx].color = colorPicker.value; g.color = colorPicker.value; saveGroups(gs); }
-      // Update group page header if open
-      if (currentGroupPageId === g.id) {
-        document.getElementById('groupPageSwatch').style.background = colorPicker.value;
-        document.getElementById('groupPageSwatch').style.boxShadow = `0 0 12px ${colorPicker.value}88`;
-      }
-      render();
+      const globalPicker = document.getElementById('groupColorPickerGlobal');
+      globalPicker.value = g.color;
+      // Remove old listeners
+      const fresh = globalPicker.cloneNode();
+      globalPicker.parentNode.replaceChild(fresh, globalPicker);
+      fresh.id = 'groupColorPickerGlobal';
+      fresh.oninput = () => { swatch.style.background = fresh.value; };
+      fresh.onchange = () => {
+        const gs = loadGroups();
+        const idx = gs.findIndex(x => x.id === g.id);
+        if (idx >= 0) { gs[idx].color = fresh.value; g.color = fresh.value; saveGroups(gs); }
+        if (currentGroupPageId === g.id) {
+          document.getElementById('groupPageSwatch').style.background = fresh.value;
+          document.getElementById('groupPageSwatch').style.boxShadow = `0 0 12px ${fresh.value}88`;
+        }
+        render();
+      };
+      fresh.click();
     };
 
     swatchWrap.appendChild(colorPicker);
