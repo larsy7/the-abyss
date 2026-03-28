@@ -160,6 +160,10 @@ body.light-mode textarea {
   color: #0D2535;
   border-color: rgba(0,122,116,0.25);
 }
+body.light-mode select option {
+  background: #ffffff;
+  color: #0D2535;
+}
 body.light-mode input::placeholder,
 body.light-mode textarea::placeholder { color: rgba(13,37,53,0.35); }
 body.light-mode .modal-overlay { background: rgba(0,0,0,0.3); }
@@ -2356,19 +2360,28 @@ function renderMonth() {
       header.replaceChild(input, annEl);
       input.focus();
       input.select();
-      const save = () => {
+
+      // Pause Firebase-triggered re-renders while editing
+      state._editingAnnotation = true;
+
+      let committed = false;
+      const commit = () => {
+        if (committed) return;
+        committed = true;
+        state._editingAnnotation = false;
         const val = input.value.trim();
         const anns = loadAnnotations();
         if (val) anns[ds] = val; else delete anns[ds];
         saveAnnotations(anns);
         render();
       };
-      input.onblur = save;
+
+      input.onblur = () => { setTimeout(() => { if (!committed) commit(); }, 150); };
       input.onclick = (ke) => ke.stopPropagation();
       input.onkeydown = (ke) => {
-        if (ke.key === 'Enter') { input.blur(); }
-        if (ke.key === 'Escape') { input.value = note; input.blur(); }
         ke.stopPropagation();
+        if (ke.key === 'Enter') { committed = false; commit(); }
+        if (ke.key === 'Escape') { committed = true; state._editingAnnotation = false; render(); }
       };
     };
 
@@ -2782,6 +2795,7 @@ function renderDay() {
 // RENDER ALL
 // ============================================================
 function render() {
+  if (state._editingAnnotation) return; // don't re-render while user is typing a note
   renderHeader();
   renderSidebar();
   renderFilterBanner();
