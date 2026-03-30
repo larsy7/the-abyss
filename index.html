@@ -579,7 +579,7 @@ header {
   border-left: 3px solid var(--kraken-teal);
   border-radius: 0 4px 4px 0;
   padding: 2px 5px; margin-bottom: 2px;
-  font-size: 11px; color: var(--ice-blue);
+  font-size: 11px; font-weight: 700; color: var(--ice-blue);
   cursor: pointer; transition: all 0.15s;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
@@ -1608,7 +1608,7 @@ main { flex: 1; padding: 20px; min-width: 0; }
 .detail-meta { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
 .detail-row { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--silver-ice); }
 .detail-icon { color: var(--kraken-teal); width: 18px; text-align: center; }
-.detail-desc { font-size: 13px; color: var(--text-dim); line-height: 1.5; margin-bottom: 16px; }
+.detail-desc { font-size: 13px; color: var(--text-dim); line-height: 1.6; margin-bottom: 16px; white-space: pre-wrap; word-break: break-word; }
 .detail-actions { display: flex; gap: 8px; margin-top: 16px; }
 .btn-edit {
   flex: 1; background: var(--surface); border: 1px solid var(--border-bright);
@@ -3871,7 +3871,7 @@ function openDetail(id) {
       ${subEvents.length?`<div class="detail-row"><span class="detail-icon">📎</span>${subEvents.length} sub-event${subEvents.length>1?'s':''}</div>`:''}
       ${ev.groupId ? (()=>{ const g=getGroupById(ev.groupId); return g?`<div class="detail-row"><span class="detail-icon">🏷️</span><span style="background:${g.color}22;color:${g.color};border:1px solid ${g.color}44;border-radius:5px;padding:2px 9px;font-size:12px;font-weight:700;cursor:pointer" class="gp-group-link" data-gid="${g.id}">${g.name} ↗</span></div>`:''; })() : ''}
     </div>
-    ${ev.desc?`<div class="detail-desc">${ev.desc}</div>`:''}
+    ${ev.desc?`<div class="detail-desc">${ev.desc.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div>`:''}
     ${subEvents.length?`
     <div class="subevents-section" style="margin-top:12px">
       <div class="subevents-label" style="margin-bottom:10px">📎 Sub-Events</div>
