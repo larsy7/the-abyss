@@ -284,6 +284,8 @@ function recurMatches(ev, dateStr) {
   // Check exceptions (moved occurrences)
   if (ev.recurrence.exceptions && ev.recurrence.exceptions.includes(dateStr)) return false;
 
+  if (dateStr === ev.date) return true;
+
   const start = new Date(ev.date + 'T00:00:00');
   const target = new Date(dateStr + 'T00:00:00');
   const interval = ev.recurrence.interval || 1;
@@ -296,9 +298,12 @@ function recurMatches(ev, dateStr) {
   if (freq === 'weekly') {
     const days = ev.recurrence.days && ev.recurrence.days.length ? ev.recurrence.days : [start.getDay()];
     if (!days.includes(target.getDay())) return false;
-    // Find the Monday of each week relative to start to check interval
-    const msPerWeek = 7 * 86400000;
-    const weekDiff = Math.floor((target - start) / msPerWeek);
+    // Align to week boundaries (Sunday=0) so intervals work regardless of start day
+    const startSun = new Date(start);
+    startSun.setDate(startSun.getDate() - startSun.getDay());
+    const targetSun = new Date(target);
+    targetSun.setDate(targetSun.getDate() - targetSun.getDay());
+    const weekDiff = Math.round((targetSun - startSun) / (7 * 86400000));
     return weekDiff >= 0 && weekDiff % interval === 0;
   }
   if (freq === 'monthly') {
