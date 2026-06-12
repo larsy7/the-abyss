@@ -502,8 +502,8 @@ function renderMonth() {
       // build pill content — title on start and on each new week row (Sun col) for mid/end spans
       let pillHTML = '';
       if (!mdPos || mdPos === 'start' || (mdPos && isNewRow)) {
-        if (ev.parentId) pillHTML += `<span style="opacity:.5;font-size:11px;margin-right:2px">↳</span>`;
-        if (mdPos && isNewRow && mdPos !== 'start') pillHTML += `<span style="opacity:.5;font-size:11px;margin-right:2px">↩</span>`;
+        if (ev.parentId) pillHTML += `<span style="opacity:.5;font-size:13px;margin-right:2px">↳</span>`;
+        if (mdPos && isNewRow && mdPos !== 'start') pillHTML += `<span style="opacity:.5;font-size:13px;margin-right:2px">↩</span>`;
         if (!ev.allDay && !mdPos && ev.start) pillHTML += `<span class="pill-time">${fmtTimeShort(ev.start)}</span>`;
         pillHTML += `<span style="flex:1;overflow:hidden;text-overflow:ellipsis">${ev.title}</span>`;
         pillHTML += recurLabel(ev);
@@ -623,7 +623,7 @@ function renderWeek() {
 
   const allDayGutter = document.createElement('div');
   allDayGutter.className = 'week-allday-gutter';
-  allDayGutter.style.cssText = 'font-size:11px;color:var(--text-dim);text-align:right;padding:4px 6px 0 0;font-family:"Barlow Condensed",sans-serif;letter-spacing:1px';
+  allDayGutter.style.cssText = 'font-size:13px;color:var(--text-dim);text-align:right;padding:4px 6px 0 0;font-family:"Barlow Condensed",sans-serif;letter-spacing:1px';
   allDayRow.appendChild(allDayGutter);
 
   // Span columns 2-8 (all 7 day columns), relative container for absolute banners
@@ -684,7 +684,7 @@ function renderWeek() {
         top:${BANNER_TOP + row * BANNER_H}px;
         height:22px;
         padding:3px 8px;
-        font-size:14px; font-weight:700;
+        font-size:16px; font-weight:700;
         white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
         cursor:pointer;
         background:${evColor + (startsThisWeek || endsThisWeek ? '28' : 'AA')};
@@ -767,8 +767,8 @@ function renderWeek() {
       el.style.borderLeftColor = evColor;
       el.style.background = evColor + (ev.parentId ? '18' : '28');
       el.style.color = evColor;
-      const parentLabel = ev.parentId && parent ? `<div style="font-size:11px;opacity:0.6;margin-bottom:1px">↳ ${parent.title}</div>` : '';
-      const groupLabel = weekGroup ? `<span style="font-size:11px;background:${weekGroup.color}22;color:${weekGroup.color};border-radius:3px;padding:0 4px;margin-right:3px">${weekGroup.name}</span>` : '';
+      const parentLabel = ev.parentId && parent ? `<div style="font-size:13px;opacity:0.6;margin-bottom:1px">↳ ${parent.title}</div>` : '';
+      const groupLabel = weekGroup ? `<span style="font-size:13px;background:${weekGroup.color}22;color:${weekGroup.color};border-radius:3px;padding:0 4px;margin-right:3px">${weekGroup.name}</span>` : '';
       el.innerHTML = `${parentLabel}<strong>${groupLabel}${ev.title}</strong>${recurLabel(ev)}<br>${fmtTime(ev.start)}`;
       el.title = `${ev.title}\n${fmtTime(ev.start)} – ${fmtTime(ev.end)}${ev.location ? '\n📍 ' + ev.location : ''}${weekGroup ? '\n🏷 ' + weekGroup.name : ''}`;
       if (matches || !state.activeFilters.length) el.onclick = e => { e.stopPropagation(); openDetail(ev.id); };
@@ -793,7 +793,7 @@ function renderDay() {
   const allDayRow = document.getElementById('dayAllDayRow');
   allDayRow.innerHTML = '';
   const adGutter = document.createElement('div');
-  adGutter.style.cssText = 'font-size:11px;color:var(--text-dim);text-align:right;padding:4px 6px 0 0;font-family:"Barlow Condensed",sans-serif;letter-spacing:1px';
+  adGutter.style.cssText = 'font-size:13px;color:var(--text-dim);text-align:right;padding:4px 6px 0 0;font-family:"Barlow Condensed",sans-serif;letter-spacing:1px';
   allDayRow.appendChild(adGutter);
   const adCol = document.createElement('div');
   adCol.className = 'week-allday-col';
@@ -869,8 +869,8 @@ function renderDay() {
     el.style.borderLeftColor = evColor;
     el.style.background = evColor + (ev.parentId ? '18' : '22');
     el.style.color = evColor;
-    const parentLabel = ev.parentId && parent ? `<div style="font-size:12px;opacity:0.6;margin-bottom:2px">↳ ${parent.title}</div>` : '';
-    const groupLabel = dayGroup ? `<span style="font-size:12px;background:${dayGroup.color}22;color:${dayGroup.color};border-radius:3px;padding:0 5px;margin-right:4px">${dayGroup.name}</span>` : '';
+    const parentLabel = ev.parentId && parent ? `<div style="font-size:14px;opacity:0.6;margin-bottom:2px">↳ ${parent.title}</div>` : '';
+    const groupLabel = dayGroup ? `<span style="font-size:14px;background:${dayGroup.color}22;color:${dayGroup.color};border-radius:3px;padding:0 5px;margin-right:4px">${dayGroup.name}</span>` : '';
     el.innerHTML = `${parentLabel}<strong>${groupLabel}${ev.title}</strong>${recurLabel(ev)}<br>${fmtTime(ev.start)} – ${fmtTime(ev.end)}${ev.location?'<br>📍 '+ev.location:''}`;
     if (matches || !state.activeFilters.length) el.onclick = e => { e.stopPropagation(); openDetail(ev.id); };
     makeDraggable(el, ev, ds);
@@ -1018,7 +1018,7 @@ function renderSidebar() {
 
   if (!people.length) {
     const hint = document.createElement('div');
-    hint.style.cssText = 'font-size:13px;color:var(--text-dim);padding:4px 2px;line-height:1.5';
+    hint.style.cssText = 'font-size:15px;color:var(--text-dim);padding:4px 2px;line-height:1.5';
     hint.textContent = 'Add people below to filter events & tasks by person.';
     list.appendChild(hint);
   }
@@ -1179,7 +1179,7 @@ function renderAttendeeChips() {
     const av = document.createElement('div');
     av.className = 'assignee-avatar';
     av.style.background = avatarColor(name);
-    av.style.width = '20px'; av.style.height = '20px'; av.style.fontSize = '12px';
+    av.style.width = '20px'; av.style.height = '20px'; av.style.fontSize = '14px';
     av.textContent = initials(name);
     const nm = document.createElement('span'); nm.textContent = name;
     const del = document.createElement('button'); del.textContent = '✕';
@@ -1550,7 +1550,7 @@ function renderTasksList() {
 
     // assignee select
     const assignSel = document.createElement('select');
-    assignSel.style.cssText = 'flex:1;min-width:90px;padding:4px 8px;font-size:14px;border-radius:6px;background:rgba(0,0,0,0.3);border:1px solid var(--border-bright);color:var(--silver-ice);';
+    assignSel.style.cssText = 'flex:1;min-width:90px;padding:4px 8px;font-size:16px;border-radius:6px;background:rgba(0,0,0,0.3);border:1px solid var(--border-bright);color:var(--silver-ice);';
     const blankOpt = document.createElement('option');
     blankOpt.value = ''; blankOpt.textContent = '— Assign to —';
     assignSel.appendChild(blankOpt);
@@ -1634,7 +1634,7 @@ function renderSubeventsPanel(selfId) {
   section.style.display = 'block';
   list.innerHTML = '';
   if (!subs.length) {
-    list.innerHTML = '<div style="font-size:14px;color:var(--text-dim);padding:4px 0">No sub-events yet. Click "+ Add Sub-Event" to create one.</div>';
+    list.innerHTML = '<div style="font-size:16px;color:var(--text-dim);padding:4px 0">No sub-events yet. Click "+ Add Sub-Event" to create one.</div>';
     return;
   }
   subs.forEach(sub => {
@@ -1821,12 +1821,12 @@ function openDetail(id) {
     const icon = a.type==='link' ? '🔗' : fileIcon(a.mimeType);
     const sub = a.type==='link' ? (a.url.length>50?a.url.slice(0,50)+'…':a.url) : fmtBytes(a.size||0);
     return `<div class="detail-attach-item" data-attach-id="${a.id}">
-      <span style="font-size:20px">${icon}</span>
+      <span style="font-size:22px">${icon}</span>
       <div style="flex:1;min-width:0">
-        <div style="font-size:15px;color:var(--silver-ice);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.label||a.name||a.url}</div>
-        <div style="font-size:13px;color:var(--text-dim)">${sub}</div>
+        <div style="font-size:17px;color:var(--silver-ice);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.label||a.name||a.url}</div>
+        <div style="font-size:15px;color:var(--text-dim)">${sub}</div>
       </div>
-      <span style="font-size:14px;color:var(--kraken-teal);font-family:'Barlow Condensed',sans-serif;font-weight:700">${a.type==='link'?'Open ↗':'Download'}</span>
+      <span style="font-size:16px;color:var(--kraken-teal);font-family:'Barlow Condensed',sans-serif;font-weight:700">${a.type==='link'?'Open ↗':'Download'}</span>
     </div>`;
   }
 
@@ -1835,7 +1835,7 @@ function openDetail(id) {
     let dueTxt = '';
     if (t.dueDate) {
       const dt = new Date(t.dueDate + 'T00:00:00');
-      dueTxt = `<span style="font-size:13px;font-family:'Barlow Condensed',sans-serif;font-weight:700;color:${overdue?'var(--danger)':'var(--gold)'};">${overdue?'⚠':'📅'} ${MONTHS[dt.getMonth()].slice(0,3)} ${dt.getDate()}</span>`;
+      dueTxt = `<span style="font-size:15px;font-family:'Barlow Condensed',sans-serif;font-weight:700;color:${overdue?'var(--danger)':'var(--gold)'};">${overdue?'⚠':'📅'} ${MONTHS[dt.getMonth()].slice(0,3)} ${dt.getDate()}</span>`;
     }
     let assignTxt = '';
     if (t.assignee) {
@@ -1857,14 +1857,14 @@ function openDetail(id) {
 
   content.innerHTML = `
     <div class="detail-title">
-      ${ev.parentId && parent ? `<div style="font-size:13px;color:var(--text-dim);margin-bottom:4px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase">Sub-event of</div>` : ''}
+      ${ev.parentId && parent ? `<div style="font-size:15px;color:var(--text-dim);margin-bottom:4px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase">Sub-event of</div>` : ''}
       ${ev.title}
     </div>
     ${ev.parentId && parent ? `
       <div style="margin-bottom:10px">
         <span class="parent-badge" id="goToParentBtn" data-parent-id="${parent.id}">
           <span style="color:${parent.color||'var(--kraken-teal)'}">◈</span> ${parent.title}
-          <span style="opacity:.6;font-size:12px;margin-left:2px">↗</span>
+          <span style="opacity:.6;font-size:14px;margin-left:2px">↗</span>
         </span>
       </div>` : ''}
     <div class="detail-meta">
@@ -1878,15 +1878,15 @@ function openDetail(id) {
           <div class="detail-attendees">
             ${(ev.attendees||[]).map(name=>`
               <span class="attendee-chip">
-                <span class="assignee-avatar" style="background:${avatarColor(name)};width:20px;height:20px;font-size:12px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font-weight:800;color:var(--deep-sea)">${initials(name)}</span>
+                <span class="assignee-avatar" style="background:${avatarColor(name)};width:20px;height:20px;font-size:14px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font-weight:800;color:var(--deep-sea)">${initials(name)}</span>
                 ${name}
               </span>`).join('')}
           </div>
         </div>`:''}
-      ${tasksTotal?`<div class="detail-row"><span class="detail-icon">🎯</span>${tasksDone}/${tasksTotal} tasks complete${overdueCount?` &nbsp;<span style="color:var(--danger);font-size:13px;">⚠ ${overdueCount} overdue</span>`:''}</div>`:''}
+      ${tasksTotal?`<div class="detail-row"><span class="detail-icon">🎯</span>${tasksDone}/${tasksTotal} tasks complete${overdueCount?` &nbsp;<span style="color:var(--danger);font-size:15px;">⚠ ${overdueCount} overdue</span>`:''}</div>`:''}
       ${attachTotal?`<div class="detail-row"><span class="detail-icon">🔗</span>${attachTotal} attachment${attachTotal>1?'s':''}</div>`:''}
       ${subEvents.length?`<div class="detail-row"><span class="detail-icon">📎</span>${subEvents.length} sub-event${subEvents.length>1?'s':''}</div>`:''}
-      ${ev.groupId ? (()=>{ const g=getGroupById(ev.groupId); return g?`<div class="detail-row"><span class="detail-icon">🏷️</span><span style="background:${g.color}22;color:${g.color};border:1px solid ${g.color}44;border-radius:5px;padding:2px 9px;font-size:14px;font-weight:700;cursor:pointer" class="gp-group-link" data-gid="${g.id}">${g.name} ↗</span></div>`:''; })() : ''}
+      ${ev.groupId ? (()=>{ const g=getGroupById(ev.groupId); return g?`<div class="detail-row"><span class="detail-icon">🏷️</span><span style="background:${g.color}22;color:${g.color};border:1px solid ${g.color}44;border-radius:5px;padding:2px 9px;font-size:16px;font-weight:700;cursor:pointer" class="gp-group-link" data-gid="${g.id}">${g.name} ↗</span></div>`:''; })() : ''}
     </div>
     ${ev.desc?`<div class="detail-desc">${ev.desc.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div>`:''}
     ${subEvents.length?`
@@ -1908,7 +1908,7 @@ function openDetail(id) {
     </div>`:''}
     ${attachTotal?`
     <div class="attach-section" style="margin-top:12px;border-top:1px solid var(--border);padding-top:14px">
-      <div class="attach-label" style="margin-bottom:10px;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;letter-spacing:1px;color:var(--silver-ice);text-transform:uppercase">🔗 Links &amp; Files</div>
+      <div class="attach-label" style="margin-bottom:10px;font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:700;letter-spacing:1px;color:var(--silver-ice);text-transform:uppercase">🔗 Links &amp; Files</div>
       ${(ev.attachments||[]).map(a=>buildAttachHTML(a)).join('')}
     </div>`:''}
   `;
@@ -2000,7 +2000,7 @@ function renderSidebarGroups() {
   const list = document.getElementById('sidebarGroupsList');
   list.innerHTML = '';
   if (!groups.length) {
-    list.innerHTML = '<div style="font-size:13px;color:var(--text-dim);padding:4px 2px;line-height:1.5">Click "+ New" to create a topic group.</div>';
+    list.innerHTML = '<div style="font-size:15px;color:var(--text-dim);padding:4px 2px;line-height:1.5">Click "+ New" to create a topic group.</div>';
     return;
   }
   groups.forEach(g => {
@@ -2074,7 +2074,7 @@ function renderSidebarGroups() {
     nm.textContent = g.name;
 
     const countEl = document.createElement('div');
-    countEl.style.cssText = 'font-size:12px;color:var(--text-dim);flex-shrink:0';
+    countEl.style.cssText = 'font-size:14px;color:var(--text-dim);flex-shrink:0';
     countEl.textContent = evCount || '';
 
     const actions = document.createElement('div');
@@ -2122,7 +2122,7 @@ function renderGroupManagerList() {
   const list = document.getElementById('groupManagerList');
   list.innerHTML = '';
   if (!groups.length) {
-    list.innerHTML = '<div style="font-size:14px;color:var(--text-dim);padding:8px 0 12px">No groups yet. Create one below.</div>';
+    list.innerHTML = '<div style="font-size:16px;color:var(--text-dim);padding:8px 0 12px">No groups yet. Create one below.</div>';
     return;
   }
   groups.forEach((g, i) => {
@@ -2325,7 +2325,7 @@ function renderGroupPageBody(g) {
       const tasksTotal = (ev.tasks||[]).length;
 
       info.innerHTML = `
-        <div class="gp-event-title">${ev.parentId && parent ? `<span style="opacity:.5;font-size:13px">↳ ${parent.title} / </span>`:''} ${ev.title}</div>
+        <div class="gp-event-title">${ev.parentId && parent ? `<span style="opacity:.5;font-size:15px">↳ ${parent.title} / </span>`:''} ${ev.title}</div>
         <div class="gp-event-meta">
           <span>📅 ${fmtDate(ev.date)}</span>
           ${!ev.allDay?`<span>🕐 ${fmtTime(ev.start)} – ${fmtTime(ev.end)}</span>`:'<span>All Day</span>'}
