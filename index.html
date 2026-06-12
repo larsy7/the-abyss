@@ -9,11 +9,45 @@
 // Firebase REST API — no SDK needed, works everywhere
 const FB_URL = 'https://the-abyss-calendar-default-rtdb.firebaseio.com';
 
+// ============================================================
+// PRIVATE SPACE — all data lives under spaces/<key>/ where the
+// key is derived from a shared crew passphrase. The passphrase
+// itself is never stored or sent anywhere.
+// ============================================================
+let SPACE_KEY = null;
+try { SPACE_KEY = localStorage.getItem('abyssSpaceKey'); } catch(e) {}
+const fbPath = p => SPACE_KEY ? `spaces/${SPACE_KEY}/${p}` : p;
+
+async function deriveSpaceKey(pass) {
+  const txt = 'the-abyss::' + pass.trim();
+  if (window.crypto && crypto.subtle) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt));
+    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+  // Fallback hash for non-secure contexts (e.g. some file:// setups)
+  let h1 = 0x811c9dc5, h2 = 0x1c9dc581;
+  for (let i = 0; i < txt.length; i++) {
+    h1 ^= txt.charCodeAt(i); h1 = Math.imul(h1, 0x01000193) >>> 0;
+    h2 ^= txt.charCodeAt(i); h2 = (Math.imul(h2, 0x01000193) + 7) >>> 0;
+  }
+  return 'f' + h1.toString(16) + h2.toString(16) + txt.length.toString(16);
+}
+
 const db = {
   _listeners: {},
   _pollIntervals: {},
+  _pollFns: {},
+  _lastJSON: {},
 
   async get(path) {
+    try {
+      const r = await fetch(`${FB_URL}/${fbPath(path)}.json`);
+      return r.ok ? await r.json() : null;
+    } catch(e) { return null; }
+  },
+
+  // Reads the old un-prefixed location — used once to migrate legacy data
+  async getRaw(path) {
     try {
       const r = await fetch(`${FB_URL}/${path}.json`);
       return r.ok ? await r.json() : null;
@@ -22,7 +56,7 @@ const db = {
 
   async set(path, data) {
     try {
-      const r = await fetch(`${FB_URL}/${path}.json`, {
+      const r = await fetch(`${FB_URL}/${fbPath(path)}.json`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -31,15 +65,27 @@ const db = {
     } catch(e) { return false; }
   },
 
-  // Polling-based "real-time" listener (polls every 3 seconds)
+  // Polling-based "real-time" listener (polls every 3 seconds).
+  // Skips polls while the tab is hidden, and only fires the callback
+  // when the data actually changed — no more re-render churn.
   on(path, callback) {
-    // Fire immediately
-    this.get(path).then(val => callback({ val: () => val }));
-    // Then poll
-    if (this._pollIntervals[path]) clearInterval(this._pollIntervals[path]);
-    this._pollIntervals[path] = setInterval(async () => {
+    const fire = async () => {
       const val = await this.get(path);
+      const j = JSON.stringify(val);
+      if (this._lastJSON[path] === j) return;
+      this._lastJSON[path] = j;
       callback({ val: () => val });
+    };
+    // Initial load always fires so the app knows the data arrived
+    this.get(path).then(val => {
+      this._lastJSON[path] = JSON.stringify(val);
+      callback({ val: () => val });
+    });
+    if (this._pollIntervals[path]) clearInterval(this._pollIntervals[path]);
+    this._pollFns[path] = fire;
+    this._pollIntervals[path] = setInterval(() => {
+      if (document.hidden) return; // don't poll background tabs
+      fire();
     }, 3000);
   },
 
@@ -47,6 +93,7 @@ const db = {
     if (this._pollIntervals[path]) {
       clearInterval(this._pollIntervals[path]);
       delete this._pollIntervals[path];
+      delete this._pollFns[path];
     }
   },
 
@@ -58,6 +105,11 @@ const db = {
     };
   }
 };
+
+// Catch up immediately when the tab becomes visible again
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) Object.values(db._pollFns).forEach(fn => fn());
+});
 </script>
 <style>
 :root {
@@ -813,6 +865,7 @@ textarea { resize: vertical; min-height: 72px; }
   transition: all 0.2s;
 }
 .task-check.done { background: var(--gold); }
+.task-check:hover { box-shadow: 0 0 8px rgba(255,184,77,0.55); transform: scale(1.08); }
 .task-check.done::after { content: '✓'; font-size: 11px; color: var(--deep-sea); font-weight: 800; }
 .task-text { flex: 1; font-size: 13px; color: var(--silver-ice); line-height: 1.4; word-break: break-word; }
 .task-text.done { text-decoration: line-through; color: var(--text-dim); }
@@ -1945,6 +1998,60 @@ body.light-mode .header-search input[type=text] {
   color: var(--white);
 }
 body.light-mode .header-search input[type=text]::placeholder { color: var(--text-dim); }
+
+/* ---------- Crew passphrase unlock screen ---------- */
+.unlock-screen {
+  position: fixed; inset: 0; z-index: 3000;
+  display: none;
+  align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at 30% 20%, rgba(0,63,92,0.55) 0%, transparent 55%),
+              radial-gradient(ellipse at 75% 85%, rgba(0,178,169,0.12) 0%, transparent 50%),
+              var(--deep-sea);
+}
+.unlock-screen.open { display: flex; }
+.unlock-card {
+  width: min(400px, calc(100vw - 40px));
+  background: rgba(0,22,40,0.85);
+  border: 1px solid var(--border-bright);
+  border-radius: 16px;
+  box-shadow: var(--glow), 0 24px 60px rgba(0,0,0,0.55);
+  padding: 36px 32px;
+  text-align: center;
+}
+.unlock-card .unlock-emoji { font-size: 44px; filter: drop-shadow(0 0 14px rgba(0,178,169,0.6)); }
+.unlock-card h1 {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 30px; font-weight: 800; letter-spacing: 4px;
+  color: var(--kraken-teal); text-transform: uppercase;
+  margin: 10px 0 4px;
+}
+.unlock-card .unlock-sub { font-size: 13px; color: var(--text-dim); margin-bottom: 22px; line-height: 1.5; }
+.unlock-card input {
+  width: 100%; box-sizing: border-box;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--white);
+  font-family: 'Barlow', sans-serif;
+  font-size: 15px; text-align: center;
+  padding: 12px 14px;
+}
+.unlock-card input:focus { border-color: var(--border-bright); box-shadow: var(--glow-sm); outline: none; }
+.unlock-card button {
+  width: 100%; margin-top: 12px;
+  background: var(--kraken-teal); border: none; border-radius: 9px;
+  color: var(--deep-sea);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+  padding: 12px; cursor: pointer;
+  transition: all 0.2s;
+}
+.unlock-card button:hover { background: var(--ice-blue); box-shadow: var(--glow); }
+.unlock-card button:disabled { opacity: 0.5; cursor: wait; }
+.unlock-note {
+  margin-top: 18px; font-size: 11.5px; color: var(--text-dim); line-height: 1.6;
+  text-align: left; border-top: 1px solid var(--border); padding-top: 14px;
+}
 </style>
 </head>
 <body>
@@ -2043,6 +2150,9 @@ body.light-mode .header-search input[type=text]::placeholder { color: var(--text
         <div class="sidebar-shortcut-hint" id="shortcutHint" title="View keyboard shortcuts">
           <span>⌨</span><span>Press <strong style="color:var(--ice-blue)">?</strong> for keyboard shortcuts</span>
         </div>
+        <div class="sidebar-shortcut-hint" id="changePassHint" title="Switch to a different crew passphrase" style="margin-top:8px;padding-top:0;border-top:none">
+          <span>🔑</span><span>Change passphrase</span>
+        </div>
       </div>
     </div><!-- end sidebar-inner -->
   </aside>
@@ -2129,6 +2239,21 @@ body.light-mode .header-search input[type=text]::placeholder { color: var(--text
     <div class="shortcut-row"><span class="shortcut-desc">Jump to a month or year</span><span class="shortcut-desc" style="font-size:12px;color:var(--text-dim)">Click the month name in the header</span></div>
     <div class="shortcut-row"><span class="shortcut-desc">Close any window</span><span class="shortcut-keys"><kbd>Esc</kbd></span></div>
     <div class="shortcut-row"><span class="shortcut-desc">This guide</span><span class="shortcut-keys"><kbd>?</kbd></span></div>
+  </div>
+</div>
+
+<!-- CREW PASSPHRASE UNLOCK -->
+<div class="unlock-screen" id="unlockOverlay">
+  <div class="unlock-card">
+    <div class="unlock-emoji">🦑</div>
+    <h1>The Abyss</h1>
+    <div class="unlock-sub">Enter your crew passphrase to open the calendar.</div>
+    <input type="password" id="unlockInput" placeholder="Crew passphrase" autocomplete="current-password" aria-label="Crew passphrase">
+    <button id="unlockBtn">Dive In</button>
+    <div class="unlock-note">
+      <strong style="color:var(--ice-blue)">First time?</strong> Whatever you enter becomes your crew's passphrase — share it with everyone who uses this calendar.<br><br>
+      <strong style="color:var(--ice-blue)">Calendar looks empty?</strong> The passphrase doesn't match. Use "Change passphrase" at the bottom of the sidebar to try again — nothing is lost.
+    </div>
   </div>
 </div>
 
@@ -4116,7 +4241,7 @@ function openDetail(id) {
     </div>`;
   }
 
-  function buildTaskHTML(t) {
+  function buildTaskHTML(t, idx) {
     const overdue = taskIsOverdue(t);
     let dueTxt = '';
     if (t.dueDate) {
@@ -4131,7 +4256,7 @@ function openDetail(id) {
     }
     return `<div class="task-item${overdue?' overdue':''}">
       <div class="task-top-row">
-        <div class="task-check${t.done?' done':''}"></div>
+        <div class="task-check${t.done?' done':''}" data-task-idx="${idx}" role="checkbox" aria-checked="${!!t.done}" tabindex="0" title="${t.done?'Mark incomplete':'Mark complete'}"></div>
         <div class="task-text${t.done?' done':''}">${t.text}</div>
       </div>
       ${(dueTxt||assignTxt)?`<div class="task-meta-row" style="padding-left:28px;gap:8px;flex-wrap:wrap">${dueTxt}${assignTxt}</div>`:''}
@@ -4190,7 +4315,7 @@ function openDetail(id) {
     ${tasksTotal?`
     <div class="tasks-section" style="margin-top:12px">
       <div class="tasks-label" style="margin-bottom:10px">🎯 Tasks</div>
-      ${(ev.tasks||[]).map(t=>buildTaskHTML(t)).join('')}
+      ${(ev.tasks||[]).map((t,i)=>buildTaskHTML(t,i)).join('')}
     </div>`:''}
     ${attachTotal?`
     <div class="attach-section" style="margin-top:12px;border-top:1px solid var(--border);padding-top:14px">
@@ -4215,6 +4340,21 @@ function openDetail(id) {
       document.getElementById('detailModalOverlay').classList.remove('open');
       openDetail(el.dataset.subId);
     };
+  });
+
+  // wire up task checkboxes — toggle done directly from the detail view
+  content.querySelectorAll('.task-check[data-task-idx]').forEach(el => {
+    const toggle = (e) => {
+      e.stopPropagation();
+      const t = (ev.tasks || [])[parseInt(el.dataset.taskIdx)];
+      if (!t) return;
+      t.done = !t.done;
+      save();
+      render();          // refresh calendar markers + Up Next overdue count
+      openDetail(ev.id); // re-render the detail view with updated progress
+    };
+    el.onclick = toggle;
+    el.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(e); } };
   });
 
   content.querySelectorAll('.detail-attach-item').forEach(el => {
@@ -5446,7 +5586,53 @@ function initFirebase() {
   });
 }
 
-initFirebase();
+// ============================================================
+// UNLOCK FLOW — derive the space key from the crew passphrase,
+// migrate any legacy root-level data into the space once, then
+// start syncing. The key is remembered per device.
+// ============================================================
+async function migrateLegacyData() {
+  try {
+    const existing = await db.get('krakenEvents');
+    if (existing) return; // this space already has data
+    const keys = ['krakenEvents', 'krakenGroups', 'krakenHiddenGroups', 'krakenAnnotations', 'krakenPeople'];
+    for (const k of keys) {
+      const old = await db.getRaw(k); // pre-lockdown location
+      if (old != null) await db.set(k, old);
+    }
+  } catch(e) { /* root may already be locked down — that's fine */ }
+}
+
+async function unlockWithPassphrase(pass) {
+  if (!pass.trim()) return;
+  const btn = document.getElementById('unlockBtn');
+  btn.disabled = true; btn.textContent = 'Diving…';
+  SPACE_KEY = await deriveSpaceKey(pass);
+  try { localStorage.setItem('abyssSpaceKey', SPACE_KEY); } catch(e) {}
+  await migrateLegacyData();
+  document.getElementById('unlockOverlay').classList.remove('open');
+  btn.disabled = false; btn.textContent = 'Dive In';
+  initFirebase();
+}
+
+document.getElementById('unlockBtn').onclick = () => unlockWithPassphrase(document.getElementById('unlockInput').value);
+document.getElementById('unlockInput').addEventListener('keydown', e => {
+  e.stopPropagation();
+  if (e.key === 'Enter') unlockWithPassphrase(e.target.value);
+});
+
+document.getElementById('changePassHint').onclick = () => {
+  if (!confirm('Switch to a different crew passphrase?\n\nYour calendar data stays safe — you can come right back by entering the same passphrase again.')) return;
+  try { localStorage.removeItem('abyssSpaceKey'); } catch(e) {}
+  location.reload();
+};
+
+if (SPACE_KEY) {
+  initFirebase();
+} else {
+  document.getElementById('unlockOverlay').classList.add('open');
+  setTimeout(() => document.getElementById('unlockInput').focus(), 150);
+}
 </script>
 <button class="mobile-fab" id="mobileFab" title="Add Event">+</button>
 </body>
