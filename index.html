@@ -1777,6 +1777,174 @@ main { flex: 1; padding: 20px; min-width: 0; }
 }
 .detail-attach-item:hover { background: rgba(127,206,205,0.14); border-color: rgba(127,206,205,0.4); }
 
+/* ============================================================
+   UX POLISH PASS — search, up next, shortcuts, accessibility
+   ============================================================ */
+
+/* Visible keyboard focus everywhere */
+:focus-visible {
+  outline: 2px solid var(--kraken-teal);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---------- Global event search ---------- */
+.header-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.header-search input {
+  width: 200px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--white);
+  font-family: 'Barlow', sans-serif;
+  font-size: 13px;
+  padding: 7px 28px 7px 30px;
+  transition: width 0.2s ease, border-color 0.2s, box-shadow 0.2s;
+}
+.header-search input::placeholder { color: var(--text-dim); }
+.header-search input:focus {
+  width: 260px;
+  border-color: var(--border-bright);
+  box-shadow: var(--glow-sm);
+  outline: none;
+}
+.header-search .search-icon {
+  position: absolute; left: 9px;
+  font-size: 13px; color: var(--text-dim); pointer-events: none;
+}
+.header-search .search-kbd-hint {
+  position: absolute; right: 8px;
+  font-size: 10px; color: var(--text-dim);
+  border: 1px solid var(--border); border-radius: 4px;
+  padding: 0 5px; line-height: 16px; pointer-events: none;
+  font-family: 'Barlow Condensed', sans-serif;
+}
+.search-results {
+  position: absolute; top: calc(100% + 6px); right: 0;
+  width: 340px; max-height: 380px; overflow-y: auto;
+  background: rgba(0,12,26,0.98);
+  border: 1px solid var(--border-bright);
+  border-radius: 10px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.6), var(--glow-sm);
+  z-index: 600;
+  display: none;
+  padding: 6px;
+}
+.search-results.open { display: block; }
+.search-result {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 10px; border-radius: 7px; cursor: pointer;
+}
+.search-result:hover, .search-result.selected { background: var(--surface); }
+.search-result .sr-dot {
+  width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
+  box-shadow: 0 0 6px currentColor;
+}
+.search-result .sr-body { flex: 1; min-width: 0; }
+.search-result .sr-title {
+  font-size: 13px; color: var(--silver-ice); font-weight: 500;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.search-result .sr-meta {
+  font-size: 11px; color: var(--text-dim);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.search-empty {
+  padding: 14px 12px; font-size: 12px; color: var(--text-dim); text-align: center;
+}
+
+/* ---------- Up Next sidebar panel ---------- */
+.upnext-list { display: flex; flex-direction: column; gap: 2px; }
+.upnext-day-label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; font-weight: 700; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--text-dim);
+  margin: 8px 0 3px;
+}
+.upnext-day-label.is-today { color: var(--kraken-teal); }
+.upnext-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 7px; border-radius: 7px; cursor: pointer;
+  transition: background 0.15s;
+}
+.upnext-item:hover { background: var(--surface); }
+.upnext-item .un-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.upnext-item .un-title {
+  flex: 1; min-width: 0; font-size: 12.5px; color: var(--silver-ice);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.upnext-item .un-time {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; font-weight: 600; color: var(--text-dim); flex-shrink: 0;
+}
+.upnext-empty {
+  font-size: 11.5px; color: var(--text-dim); line-height: 1.5; padding: 4px 2px;
+}
+.upnext-overdue {
+  display: flex; align-items: center; gap: 7px;
+  background: rgba(255,107,107,0.12);
+  border: 1px solid rgba(255,107,107,0.35);
+  border-radius: 8px; padding: 7px 10px; margin-bottom: 6px;
+  font-size: 12px; color: var(--danger); font-weight: 600;
+  cursor: pointer;
+}
+.upnext-overdue:hover { background: rgba(255,107,107,0.2); }
+
+/* ---------- Keyboard shortcuts overlay ---------- */
+.shortcut-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 2px; border-bottom: 1px solid var(--border);
+}
+.shortcut-row:last-child { border-bottom: none; }
+.shortcut-desc { font-size: 13.5px; color: var(--silver-ice); }
+.shortcut-keys { display: flex; gap: 5px; }
+kbd {
+  background: var(--surface);
+  border: 1px solid var(--border-bright);
+  border-bottom-width: 2px;
+  border-radius: 5px;
+  color: var(--ice-blue);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px; font-weight: 700;
+  padding: 2px 8px; min-width: 24px; text-align: center;
+  display: inline-block;
+}
+.sidebar-shortcut-hint {
+  margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--border);
+  font-size: 11px; color: var(--text-dim); cursor: pointer;
+  display: flex; align-items: center; gap: 6px;
+}
+.sidebar-shortcut-hint:hover { color: var(--ice-blue); }
+
+/* ---------- Month pill time prefix ---------- */
+.pill-time {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px; font-weight: 700; opacity: 0.7;
+  margin-right: 3px; flex-shrink: 0;
+}
+
+/* Responsive: tighten search on smaller screens */
+@media (max-width: 1100px) {
+  .header-search input { width: 130px; }
+  .header-search input:focus { width: 180px; }
+  .header-search .search-kbd-hint { display: none; }
+}
+@media (max-width: 768px) {
+  .header-search { display: none; }
+}
+/* Header stays dark in light mode, so the search box does too */
+body.light-mode .header-search input[type=text] {
+  background: rgba(0,0,0,0.3);
+  border-color: var(--border);
+  color: var(--white);
+}
+body.light-mode .header-search input[type=text]::placeholder { color: var(--text-dim); }
 </style>
 </head>
 <body>
@@ -1794,6 +1962,12 @@ main { flex: 1; padding: 20px; min-width: 0; }
     <button class="today-btn" id="todayBtn">Today</button>
   </div>
   <div class="header-right">
+    <div class="header-search" id="headerSearch">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Search events…" autocomplete="off" aria-label="Search events">
+      <span class="search-kbd-hint">/</span>
+      <div class="search-results" id="searchResults" role="listbox"></div>
+    </div>
     <div class="view-tabs">
       <button class="view-tab active" data-view="month">Month</button>
       <button class="view-tab" data-view="week">Week</button>
@@ -1854,12 +2028,20 @@ main { flex: 1; padding: 20px; min-width: 0; }
           </div>
         </div>
       </div>
+      <div style="border-top:1px solid var(--border);padding-top:16px;margin-bottom:16px">
+        <div class="sidebar-section-title">Up Next · 7 Days</div>
+        <div id="upNextOverdue"></div>
+        <div class="upnext-list" id="upNextList"></div>
+      </div>
       <div style="border-top:1px solid var(--border);padding-top:16px">
         <div class="sidebar-section-title">Display</div>
         <div class="filter-person" id="taskToggleRow" style="cursor:pointer" title="Toggle task due-date markers on calendar">
           <span style="font-size:16px;flex-shrink:0">◆</span>
           <span class="fp-name" style="color:var(--gold)">Task Markers</span>
           <div class="fp-check" id="taskToggleCheck">✓</div>
+        </div>
+        <div class="sidebar-shortcut-hint" id="shortcutHint" title="View keyboard shortcuts">
+          <span>⌨</span><span>Press <strong style="color:var(--ice-blue)">?</strong> for keyboard shortcuts</span>
         </div>
       </div>
     </div><!-- end sidebar-inner -->
@@ -1931,6 +2113,24 @@ main { flex: 1; padding: 20px; min-width: 0; }
 <!-- DAY CLICK POPUP -->
 <!-- Persistent group color picker (outside sidebar so re-renders don't destroy it) -->
 <input type="color" id="groupColorPickerGlobal" style="position:fixed;width:0;height:0;opacity:0;pointer-events:none;top:0;left:0">
+
+<!-- KEYBOARD SHORTCUTS OVERLAY -->
+<div class="modal-overlay" id="shortcutsOverlay">
+  <div class="modal" style="max-width:420px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;letter-spacing:1px;color:var(--silver-ice);text-transform:uppercase">⌨ Keyboard Shortcuts</div>
+      <button id="shortcutsClose" style="background:none;border:none;color:var(--text-dim);font-size:20px;cursor:pointer;line-height:1">✕</button>
+    </div>
+    <div class="shortcut-row"><span class="shortcut-desc">Previous / next period</span><span class="shortcut-keys"><kbd>←</kbd><kbd>→</kbd></span></div>
+    <div class="shortcut-row"><span class="shortcut-desc">Month / Week / Day view</span><span class="shortcut-keys"><kbd>M</kbd><kbd>W</kbd><kbd>D</kbd></span></div>
+    <div class="shortcut-row"><span class="shortcut-desc">Jump to today</span><span class="shortcut-keys"><kbd>T</kbd></span></div>
+    <div class="shortcut-row"><span class="shortcut-desc">New event</span><span class="shortcut-keys"><kbd>N</kbd></span></div>
+    <div class="shortcut-row"><span class="shortcut-desc">Search events</span><span class="shortcut-keys"><kbd>/</kbd><kbd>Ctrl K</kbd></span></div>
+    <div class="shortcut-row"><span class="shortcut-desc">Jump to a month or year</span><span class="shortcut-desc" style="font-size:12px;color:var(--text-dim)">Click the month name in the header</span></div>
+    <div class="shortcut-row"><span class="shortcut-desc">Close any window</span><span class="shortcut-keys"><kbd>Esc</kbd></span></div>
+    <div class="shortcut-row"><span class="shortcut-desc">This guide</span><span class="shortcut-keys"><kbd>?</kbd></span></div>
+  </div>
+</div>
 
 <div class="day-popup" id="dayPopup">
   <div class="day-popup-header" id="dayPopupHeader"></div>
@@ -2336,6 +2536,13 @@ function fmtTime(t) {
   const hr = parseInt(h); const ampm = hr >= 12 ? 'PM' : 'AM';
   return `${hr%12||12}:${m} ${ampm}`;
 }
+// Compact time for tight spaces: "9a", "1:30p"
+function fmtTimeShort(t) {
+  if (!t) return '';
+  const [h,m] = t.split(':');
+  const hr = parseInt(h); const ap = hr >= 12 ? 'p' : 'a';
+  return `${hr%12||12}${m!=='00'?':'+m:''}${ap}`;
+}
 function eventMatchesFilter(ev) {
   if (!state.activeFilters.length) return true;
   // event matches if any filter person is an attendee OR has a task assigned to them
@@ -2584,10 +2791,18 @@ function renderMonth() {
       if (!mdPos || mdPos === 'start' || (mdPos && isNewRow)) {
         if (ev.parentId) pillHTML += `<span style="opacity:.5;font-size:9px;margin-right:2px">↳</span>`;
         if (mdPos && isNewRow && mdPos !== 'start') pillHTML += `<span style="opacity:.5;font-size:9px;margin-right:2px">↩</span>`;
+        if (!ev.allDay && !mdPos && ev.start) pillHTML += `<span class="pill-time">${fmtTimeShort(ev.start)}</span>`;
         pillHTML += `<span style="flex:1;overflow:hidden;text-overflow:ellipsis">${ev.title}</span>`;
         pillHTML += recurLabel(ev);
       }
       pill.innerHTML = pillHTML;
+      // Full details on hover — truncated pills no longer hide information
+      const tipParts = [ev.title];
+      tipParts.push(ev.allDay ? 'All day' : `${fmtTime(ev.start)} – ${fmtTime(ev.end)}`);
+      if (ev.location) tipParts.push('📍 ' + ev.location);
+      if (group) tipParts.push('🏷 ' + group.name);
+      if (ev.tasks && ev.tasks.length) tipParts.push(`🎯 ${ev.tasks.filter(t=>t.done).length}/${ev.tasks.length} tasks`);
+      pill.title = tipParts.join('\n');
       if (matches || !state.activeFilters.length) pill.onclick = e => { e.stopPropagation(); openDetail(ev.id); };
       makeDraggable(pill, ev, ds);
       cell.appendChild(pill);
@@ -2596,7 +2811,14 @@ function renderMonth() {
       const more = document.createElement('div');
       more.className = 'more-label';
       more.textContent = `+${allEvs.length - max} more`;
-      more.onclick = e => { e.stopPropagation(); openAddModal(ds); };
+      more.title = 'View all events on this day';
+      more.onclick = e => {
+        e.stopPropagation();
+        state.date = new Date(ds + 'T00:00:00');
+        state.view = 'day';
+        document.querySelectorAll('.view-tab').forEach(t => t.classList.toggle('active', t.dataset.view === 'day'));
+        render();
+      };
       cell.appendChild(more);
     }
 
@@ -2835,6 +3057,7 @@ function renderWeek() {
       const parentLabel = ev.parentId && parent ? `<div style="font-size:9px;opacity:0.6;margin-bottom:1px">↳ ${parent.title}</div>` : '';
       const groupLabel = weekGroup ? `<span style="font-size:9px;background:${weekGroup.color}22;color:${weekGroup.color};border-radius:3px;padding:0 4px;margin-right:3px">${weekGroup.name}</span>` : '';
       el.innerHTML = `${parentLabel}<strong>${groupLabel}${ev.title}</strong>${recurLabel(ev)}<br>${fmtTime(ev.start)}`;
+      el.title = `${ev.title}\n${fmtTime(ev.start)} – ${fmtTime(ev.end)}${ev.location ? '\n📍 ' + ev.location : ''}${weekGroup ? '\n🏷 ' + weekGroup.name : ''}`;
       if (matches || !state.activeFilters.length) el.onclick = e => { e.stopPropagation(); openDetail(ev.id); };
       makeDraggable(el, ev, ds);
       col.appendChild(el);
@@ -2952,12 +3175,84 @@ function render() {
   renderHeader();
   renderSidebar();
   renderFilterBanner();
+  renderUpNext();
   document.getElementById('monthView').className = 'month-grid' + (state.view==='month'?' active':'');
   document.getElementById('weekView').className = 'week-grid' + (state.view==='week'?' active':'');
   document.getElementById('dayView').className = 'day-view' + (state.view==='day'?' active':'');
   if (state.view === 'month') renderMonth();
   else if (state.view === 'week') renderWeek();
   else renderDay();
+}
+
+// ============================================================
+// UP NEXT — 7-day agenda in the sidebar
+// ============================================================
+function renderUpNext() {
+  const list = document.getElementById('upNextList');
+  const overdueBox = document.getElementById('upNextOverdue');
+  if (!list || !overdueBox) return;
+  list.innerHTML = '';
+  overdueBox.innerHTML = '';
+
+  // Overdue task alert across all visible events
+  const overdue = [];
+  state.events.filter(Boolean).forEach(ev => {
+    if (!eventIsVisible(ev)) return;
+    (ev.tasks || []).forEach(t => { if (taskIsOverdue(t)) overdue.push({ ev, t }); });
+  });
+  if (overdue.length) {
+    const chip = document.createElement('div');
+    chip.className = 'upnext-overdue';
+    chip.innerHTML = `<span>⚠</span><span>${overdue.length} overdue task${overdue.length > 1 ? 's' : ''}</span>`;
+    chip.title = overdue.slice(0, 8).map(o => `${o.ev.title} — ${o.t.text}`).join('\n')
+      + (overdue.length > 8 ? `\n…and ${overdue.length - 8} more` : '')
+      + '\n\nClick to open the first one';
+    chip.onclick = () => openDetail(overdue[0].ev.id);
+    overdueBox.appendChild(chip);
+  }
+
+  // Next 7 days of events
+  const start = new Date(); start.setHours(0, 0, 0, 0);
+  let shown = 0;
+  const MAX_ITEMS = 10;
+  for (let i = 0; i < 7 && shown < MAX_ITEMS; i++) {
+    const d = new Date(start); d.setDate(start.getDate() + i);
+    const ds = isoDate(d);
+    let evs = eventsForDate(ds);
+    if (state.activeFilters.length) evs = evs.filter(e => eventMatchesFilter(e));
+    if (!evs.length) continue;
+    // All-day events first, then by start time
+    evs.sort((a, b) => (a.allDay ? '' : a.start || '99') < (b.allDay ? '' : b.start || '99') ? -1 : 1);
+
+    const label = document.createElement('div');
+    label.className = 'upnext-day-label' + (i === 0 ? ' is-today' : '');
+    label.textContent = i === 0 ? 'Today' : i === 1 ? 'Tomorrow'
+      : `${DAYS[d.getDay()]} ${MONTHS[d.getMonth()].slice(0, 3)} ${d.getDate()}`;
+    list.appendChild(label);
+
+    for (const ev of evs) {
+      if (shown >= MAX_ITEMS) break;
+      const group = ev.groupId ? getGroupById(ev.groupId) : null;
+      const color = (group ? group.color : null) || ev.color || 'var(--kraken-teal)';
+      const row = document.createElement('div');
+      row.className = 'upnext-item';
+      row.innerHTML = `
+        <span class="un-dot" style="background:${color}"></span>
+        <span class="un-title">${ev.parentId ? '↳ ' : ''}${ev.title}</span>
+        <span class="un-time">${ev.allDay ? 'All day' : fmtTimeShort(ev.start)}</span>`;
+      row.title = `${ev.title}\n${ev.allDay ? 'All day' : fmtTime(ev.start) + ' – ' + fmtTime(ev.end)}${ev.location ? '\n📍 ' + ev.location : ''}`;
+      row.onclick = () => openDetail(ev.id);
+      list.appendChild(row);
+      shown++;
+    }
+  }
+
+  if (!shown && !overdue.length) {
+    const empty = document.createElement('div');
+    empty.className = 'upnext-empty';
+    empty.textContent = 'Calm seas — nothing scheduled in the next 7 days. Press N to add an event.';
+    list.appendChild(empty);
+  }
 }
 
 // ============================================================
@@ -4898,15 +5193,128 @@ function applyWeekDayColDrop(col, dateStr) {
 }
 
 // ============================================================
+// GLOBAL EVENT SEARCH
+// ============================================================
+(function() {
+  const input = document.getElementById('searchInput');
+  const resultsEl = document.getElementById('searchResults');
+  if (!input || !resultsEl) return;
+  let results = [];
+  let selectedIdx = -1;
+
+  // For recurring events, find the next occurrence on/after today (within a year);
+  // otherwise fall back to the event's own date.
+  function bestDateFor(ev) {
+    if (!ev.recurrence || ev.recurrence.freq === 'none') return ev.date;
+    const start = new Date(); start.setHours(0, 0, 0, 0);
+    for (let i = 0; i < 366; i++) {
+      const d = new Date(start); d.setDate(start.getDate() + i);
+      const ds = isoDate(d);
+      if (recurMatches(ev, ds)) return ds;
+    }
+    return ev.date;
+  }
+
+  function runSearch(q) {
+    q = q.trim().toLowerCase();
+    results = [];
+    selectedIdx = -1;
+    if (q.length < 2) { resultsEl.classList.remove('open'); return; }
+
+    results = state.events.filter(Boolean).filter(ev => {
+      const group = ev.groupId ? getGroupById(ev.groupId) : null;
+      const hay = [ev.title, ev.location, ev.desc, (ev.attendees || []).join(' '), group ? group.name : '']
+        .join(' ').toLowerCase();
+      return hay.includes(q);
+    }).map(ev => ({ ev, ds: bestDateFor(ev) }))
+      .sort((a, b) => a.ds < b.ds ? -1 : 1)
+      .slice(0, 8);
+
+    resultsEl.innerHTML = '';
+    if (!results.length) {
+      resultsEl.innerHTML = `<div class="search-empty">No events match "${q.replace(/</g,'&lt;')}"</div>`;
+      resultsEl.classList.add('open');
+      return;
+    }
+    results.forEach((r, i) => {
+      const { ev, ds } = r;
+      const group = ev.groupId ? getGroupById(ev.groupId) : null;
+      const color = (group ? group.color : null) || ev.color || 'var(--kraken-teal)';
+      const dt = new Date(ds + 'T00:00:00');
+      const row = document.createElement('div');
+      row.className = 'search-result';
+      row.setAttribute('role', 'option');
+      row.innerHTML = `
+        <span class="sr-dot" style="background:${color};color:${color}"></span>
+        <span class="sr-body">
+          <span class="sr-title">${ev.title}</span>
+          <span class="sr-meta" style="display:block">${DAYS[dt.getDay()]}, ${MONTHS[dt.getMonth()].slice(0,3)} ${dt.getDate()}, ${dt.getFullYear()}${ev.allDay ? ' · All day' : ev.start ? ' · ' + fmtTime(ev.start) : ''}${ev.location ? ' · 📍 ' + ev.location : ''}${ev.recurrence && ev.recurrence.freq !== 'none' ? ' · 🔁' : ''}</span>
+        </span>`;
+      row.onmousedown = (e) => { e.preventDefault(); goTo(i); };
+      resultsEl.appendChild(row);
+    });
+    resultsEl.classList.add('open');
+  }
+
+  function goTo(i) {
+    const r = results[i];
+    if (!r) return;
+    state.date = new Date(r.ds + 'T00:00:00');
+    closeSearch();
+    render();
+    openDetail(r.ev.id);
+  }
+
+  function closeSearch() {
+    resultsEl.classList.remove('open');
+    input.blur();
+    input.value = '';
+  }
+
+  function highlight() {
+    resultsEl.querySelectorAll('.search-result').forEach((el, i) =>
+      el.classList.toggle('selected', i === selectedIdx));
+  }
+
+  input.addEventListener('input', () => runSearch(input.value));
+  input.addEventListener('focus', () => { if (input.value.trim().length >= 2) runSearch(input.value); });
+  input.addEventListener('blur', () => setTimeout(() => resultsEl.classList.remove('open'), 150));
+  input.addEventListener('keydown', (e) => {
+    e.stopPropagation();
+    if (e.key === 'Escape') { closeSearch(); }
+    if (e.key === 'ArrowDown') { e.preventDefault(); selectedIdx = Math.min(selectedIdx + 1, results.length - 1); highlight(); }
+    if (e.key === 'ArrowUp') { e.preventDefault(); selectedIdx = Math.max(selectedIdx - 1, 0); highlight(); }
+    if (e.key === 'Enter' && results.length) { goTo(selectedIdx >= 0 ? selectedIdx : 0); }
+  });
+
+  window._focusSearch = () => { input.focus(); input.select(); };
+})();
+
+// ============================================================
+// KEYBOARD SHORTCUTS OVERLAY
+// ============================================================
+function openShortcuts() { document.getElementById('shortcutsOverlay').classList.add('open'); }
+document.getElementById('shortcutsClose').onclick = () => document.getElementById('shortcutsOverlay').classList.remove('open');
+document.getElementById('shortcutsOverlay').onclick = (e) => { if (e.target.id === 'shortcutsOverlay') e.target.classList.remove('open'); };
+document.getElementById('shortcutHint').onclick = openShortcuts;
+
+// ============================================================
 // KEYBOARD
 // ============================================================
 document.addEventListener('keydown', e => {
+  // Ctrl/Cmd+K focuses search from anywhere
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault();
+    if (window._focusSearch) window._focusSearch();
+    return;
+  }
   if (e.key==='Escape') {
     document.getElementById('eventModalOverlay').classList.remove('open');
     document.getElementById('detailModalOverlay').classList.remove('open');
     document.getElementById('monthPickerOverlay').classList.remove('open');
     document.getElementById('groupManagerOverlay').classList.remove('open');
     document.getElementById('groupPage').classList.remove('open');
+    document.getElementById('shortcutsOverlay').classList.remove('open');
   }
   // Don't fire shortcuts when typing in any input/textarea/select/contenteditable
   const tag = document.activeElement && document.activeElement.tagName;
@@ -4923,6 +5331,8 @@ document.addEventListener('keydown', e => {
   if (e.key==='d') { document.querySelector('[data-view=day]').click(); }
   if (e.key==='t') document.getElementById('todayBtn').click();
   if (e.key==='n') openAddModal();
+  if (e.key==='/') { e.preventDefault(); if (window._focusSearch) window._focusSearch(); }
+  if (e.key==='?') openShortcuts();
 });
 
 // ============================================================
