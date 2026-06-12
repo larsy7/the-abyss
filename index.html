@@ -2052,6 +2052,141 @@ body.light-mode .header-search input[type=text]::placeholder { color: var(--text
   margin-top: 18px; font-size: 11.5px; color: var(--text-dim); line-height: 1.6;
   text-align: left; border-top: 1px solid var(--border); padding-top: 14px;
 }
+
+/* MONDAY MEETINGS */
+.monday-btn {
+  background: var(--surface); border: 1px solid var(--border-bright);
+  color: var(--silver-ice); padding: 6px 12px; border-radius: 7px;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 14px;
+  font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+  cursor: pointer; transition: all 0.2s;
+  display: flex; align-items: center; gap: 5px; white-space: nowrap;
+}
+.monday-btn:hover { background: var(--tentacle); color: var(--white); box-shadow: var(--glow); }
+#mondayPage .group-page-header { height: auto; min-height: 62px; flex-wrap: wrap; padding: 10px 28px; row-gap: 8px; }
+.monday-subtitle { font-size: 13px; font-weight: 600; letter-spacing: 1px; color: var(--text-dim); margin-left: 4px; text-transform: none; }
+.monday-tabs { display: flex; gap: 4px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 3px; }
+.monday-tab {
+  background: none; border: none; color: var(--text-dim); padding: 5px 14px; border-radius: 6px;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+}
+.monday-tab.active { background: var(--kraken-teal); color: var(--deep-sea); }
+.monday-header-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.monday-name-wrap { display: flex; align-items: center; gap: 6px; }
+.monday-name-label { font-size: 12px; color: var(--text-dim); }
+.monday-name-wrap input {
+  background: rgba(0,0,0,0.35); border: 1px solid var(--border); color: var(--white);
+  border-radius: 7px; padding: 6px 10px; width: 120px; font-size: 13px; font-family: 'Barlow', sans-serif;
+}
+.monday-name-wrap input:focus { outline: none; border-color: var(--kraken-teal); }
+.monday-meeting-btn {
+  background: var(--kraken-teal); border: 1px solid var(--kraken-teal); color: var(--deep-sea);
+  padding: 7px 14px; border-radius: 7px; cursor: pointer; transition: all 0.2s;
+  font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 800;
+  letter-spacing: 1px; text-transform: uppercase; white-space: nowrap;
+}
+.monday-meeting-btn:hover { background: var(--ice-blue); border-color: var(--ice-blue); }
+.monday-meeting-btn.live { background: rgba(255,107,107,0.12); border-color: var(--danger); color: var(--danger); }
+.monday-meeting-btn.live:hover { background: rgba(255,107,107,0.25); }
+.monday-meeting-banner {
+  background: rgba(255,184,77,0.08); border: 1px solid rgba(255,184,77,0.3);
+  color: var(--gold); border-radius: 8px; padding: 9px 14px; margin-bottom: 18px; font-size: 13px;
+}
+.mm-hint { font-size: 11px; color: var(--text-dim); letter-spacing: 0.5px; text-transform: none; font-weight: 600; }
+.mm-badge {
+  border-radius: 4px; padding: 2px 7px; font-size: 10px;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700; letter-spacing: 0.5px;
+  text-transform: uppercase; flex-shrink: 0;
+}
+.mm-badge.new { background: rgba(0,178,169,0.15); border: 1px solid rgba(0,178,169,0.4); color: var(--kraken-teal); }
+.mm-badge.changed { background: rgba(255,184,77,0.12); border: 1px solid rgba(255,184,77,0.35); color: var(--gold); }
+.mm-badge.overdue { background: rgba(255,107,107,0.12); border: 1px solid rgba(255,107,107,0.4); color: var(--danger); }
+.mm-badge.carry { background: none; border: 1px dashed rgba(255,184,77,0.5); color: var(--gold); }
+.gp-event-card.mm-overdue { border-color: rgba(255,107,107,0.45); }
+.mm-row {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+  padding: 9px 12px; margin-bottom: 7px; display: flex; align-items: center; gap: 10px;
+  cursor: pointer; transition: all 0.2s; flex-wrap: wrap;
+}
+.mm-row:hover { border-color: var(--border-bright); background: rgba(0,63,92,0.5); }
+.mm-row-title { font-size: 13.5px; font-weight: 600; color: var(--white); }
+.mm-row-meta { font-size: 12px; color: var(--text-dim); display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.mm-week-label {
+  font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 800;
+  letter-spacing: 2px; text-transform: uppercase; color: var(--ice-blue); margin: 16px 0 8px;
+}
+.mm-task { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--silver-ice); padding: 3px 0; flex-wrap: wrap; }
+.mm-task .mm-task-due { color: var(--text-dim); font-size: 11px; }
+.mm-task.overdue, .mm-task.overdue .mm-task-due { color: var(--danger); }
+.mm-task.verify { color: var(--gold); }
+.mm-assignee {
+  width: 18px; height: 18px; border-radius: 50%; font-size: 9px; font-weight: 800;
+  display: inline-flex; align-items: center; justify-content: center; color: var(--deep-sea); flex-shrink: 0;
+}
+.monday-note-row {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+  padding: 9px 12px; margin-bottom: 7px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.monday-note-text { flex: 1; min-width: 160px; font-size: 13.5px; color: var(--white); cursor: text; overflow-wrap: anywhere; }
+.monday-note-meta { font-size: 11px; color: var(--text-dim); display: flex; gap: 8px; align-items: center; }
+.monday-note-del { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 14px; line-height: 1; padding: 2px; }
+.monday-note-del:hover { color: var(--danger); }
+.monday-note-add { display: flex; gap: 8px; margin-top: 4px; }
+.monday-note-add input {
+  flex: 1; background: rgba(0,0,0,0.35); border: 1px solid var(--border); color: var(--white);
+  border-radius: 8px; padding: 10px 12px; font-size: 13.5px; font-family: 'Barlow', sans-serif;
+}
+.monday-note-add input:focus { outline: none; border-color: var(--kraken-teal); }
+.monday-note-add button {
+  background: var(--kraken-teal); border: none; color: var(--deep-sea); padding: 8px 16px;
+  border-radius: 8px; cursor: pointer; font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px; font-weight: 800; white-space: nowrap; transition: all 0.2s;
+}
+.monday-note-add button:hover { background: var(--ice-blue); }
+.monday-note-edit {
+  flex: 1; background: rgba(0,0,0,0.35); border: 1px solid var(--kraken-teal); color: var(--white);
+  border-radius: 6px; padding: 6px 9px; font-size: 13.5px; font-family: 'Barlow', sans-serif; outline: none;
+}
+.mm-discuss { display: flex; align-items: center; gap: 8px; margin-top: 8px; width: 100%; cursor: default; }
+.mm-discuss-check {
+  width: 17px; height: 17px; border-radius: 4px; border: 2px solid var(--kraken-teal);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
+  font-size: 11px; font-weight: 800; color: var(--deep-sea); flex-shrink: 0; transition: all 0.15s;
+}
+.mm-discuss-check.done { background: var(--kraken-teal); }
+.mm-discuss-label {
+  font-size: 11px; color: var(--text-dim); letter-spacing: 0.5px; text-transform: uppercase;
+  font-family: 'Barlow Condensed', sans-serif; font-weight: 700;
+}
+.monday-outcome {
+  flex: 1; min-width: 140px; background: none; border: none; border-bottom: 1px solid var(--border);
+  color: var(--silver-ice); padding: 4px 2px; font-size: 12.5px; font-family: 'Barlow', sans-serif;
+}
+.monday-outcome:focus { outline: none; border-bottom-color: var(--kraken-teal); }
+.mm-history { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; overflow: hidden; }
+.mm-history summary {
+  padding: 12px 16px; cursor: pointer; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+  list-style: none; font-size: 14px; color: var(--white); font-weight: 600;
+}
+.mm-history summary::-webkit-details-marker { display: none; }
+.mm-history[open] summary { border-bottom: 1px solid var(--border); }
+.mm-history-meta { font-size: 12px; color: var(--text-dim); font-weight: 400; }
+.mm-history-items { padding: 10px 16px 14px; }
+.mm-history-item { display: flex; gap: 9px; padding: 5px 0; font-size: 13px; color: var(--silver-ice); align-items: baseline; flex-wrap: wrap; }
+.mm-history-item.skipped { opacity: 0.55; }
+.mm-history-outcome { color: var(--gold); font-size: 12px; }
+@media (max-width: 768px) {
+  .monday-subtitle { display: none; }
+  #mondayPage .group-page-header { padding: 10px 14px; gap: 10px; }
+  .monday-name-label { display: none; }
+  .monday-name-wrap input { width: 90px; }
+}
+@media (max-width: 480px) {
+  .monday-btn-label { display: none; }
+  .monday-btn { padding: 6px 9px; }
+  .monday-tab { padding: 5px 9px; font-size: 11px; }
+}
 </style>
 </head>
 <body>
@@ -2080,6 +2215,7 @@ body.light-mode .header-search input[type=text]::placeholder { color: var(--text
       <button class="view-tab" data-view="week">Week</button>
       <button class="view-tab" data-view="day">Day</button>
     </div>
+    <button class="monday-btn" id="mondayBtn" title="Monday Meeting agenda (A)">📋<span class="monday-btn-label">Monday</span></button>
     <div class="sync-status syncing" id="syncStatus">
       <div class="sync-dot"></div>
       <span id="syncLabel">Connecting…</span>
@@ -2235,6 +2371,7 @@ body.light-mode .header-search input[type=text]::placeholder { color: var(--text
     <div class="shortcut-row"><span class="shortcut-desc">Month / Week / Day view</span><span class="shortcut-keys"><kbd>M</kbd><kbd>W</kbd><kbd>D</kbd></span></div>
     <div class="shortcut-row"><span class="shortcut-desc">Jump to today</span><span class="shortcut-keys"><kbd>T</kbd></span></div>
     <div class="shortcut-row"><span class="shortcut-desc">New event</span><span class="shortcut-keys"><kbd>N</kbd></span></div>
+    <div class="shortcut-row"><span class="shortcut-desc">Monday meeting agenda</span><span class="shortcut-keys"><kbd>A</kbd></span></div>
     <div class="shortcut-row"><span class="shortcut-desc">Search events</span><span class="shortcut-keys"><kbd>/</kbd><kbd>Ctrl K</kbd></span></div>
     <div class="shortcut-row"><span class="shortcut-desc">Jump to a month or year</span><span class="shortcut-desc" style="font-size:12px;color:var(--text-dim)">Click the month name in the header</span></div>
     <div class="shortcut-row"><span class="shortcut-desc">Close any window</span><span class="shortcut-keys"><kbd>Esc</kbd></span></div>
@@ -2326,6 +2463,37 @@ body.light-mode .header-search input[type=text]::placeholder { color: var(--text
     </div>
   </div>
   <div class="group-page-body" id="groupPageBody"></div>
+</div>
+
+<!-- MONDAY MEETINGS PAGE -->
+<div class="group-page" id="mondayPage">
+  <div class="group-page-header">
+    <button class="group-page-back" id="mondayPageBack">‹ Back</button>
+    <div class="group-page-title"><span style="font-size:20px">📋</span><span>Monday Meeting</span><span class="monday-subtitle" id="mondaySubtitle"></span></div>
+    <div class="monday-tabs">
+      <button class="monday-tab active" id="mondayTabAgenda">Agenda</button>
+      <button class="monday-tab" id="mondayTabHistory">History</button>
+    </div>
+    <div class="monday-header-right">
+      <div class="monday-name-wrap" title="Used to sign your quick notes">
+        <span class="monday-name-label">You:</span>
+        <input type="text" id="mondayNameInput" list="mondayNameList" placeholder="Your name…" maxlength="40" autocomplete="off">
+        <datalist id="mondayNameList"></datalist>
+      </div>
+      <button class="monday-meeting-btn" id="mondayMeetingBtn">▶ Start meeting</button>
+    </div>
+  </div>
+  <div class="group-page-body" id="mondayAgendaView">
+    <div class="monday-meeting-banner" id="mondayMeetingBanner" style="display:none"></div>
+    <div id="mondayAgendaBody"></div>
+    <div class="group-page-section-title"><span style="color:var(--gold)">✎</span> Quick Notes <span class="mm-hint">— small things to bring up Monday; they stick around until marked discussed in a meeting</span></div>
+    <div id="mondayNotesList"></div>
+    <div class="monday-note-add">
+      <input type="text" id="mondayNoteInput" placeholder="Add a quick agenda item… (Enter to add)" maxlength="200">
+      <button id="mondayNoteAddBtn">+ Add</button>
+    </div>
+  </div>
+  <div class="group-page-body" id="mondayHistoryView" style="display:none"></div>
 </div>
 
 <!-- MONTH PICKER -->
@@ -2619,6 +2787,20 @@ function saveAnnotations(anns) {
   _localAnnotations = anns;
   db.set('krakenAnnotations', anns);
 }
+function loadMondayNotes() { return _localMondayNotes || []; }
+function saveMondayNotes(notes) {
+  _localMondayNotes = notes;
+  setSyncStatus('syncing');
+  return db.set('krakenMondayNotes', notes.filter(Boolean))
+    .then(ok => { setSyncStatus(ok ? 'synced' : 'error'); return ok; });
+}
+function loadMondayMeetings() { return _localMondayMeetings || []; }
+function saveMondayMeetings(meetings) {
+  _localMondayMeetings = meetings;
+  setSyncStatus('syncing');
+  return db.set('krakenMondayMeetings', meetings.filter(Boolean))
+    .then(ok => { setSyncStatus(ok ? 'synced' : 'error'); return ok; });
+}
 
 function setSyncStatus(status) {
   const el = document.getElementById('syncStatus');
@@ -2631,6 +2813,8 @@ function setSyncStatus(status) {
 let _localGroups = [];
 let _localAnnotations = {};
 let _localPeople = [];
+let _localMondayNotes = [];
+let _localMondayMeetings = [];
 let _firebaseReady = false;
 function getGroupById(id) { return loadGroups().find(g => g.id === id) || null; }
 function eventIsVisible(ev) {
@@ -3307,6 +3491,7 @@ function render() {
   if (state.view === 'month') renderMonth();
   else if (state.view === 'week') renderWeek();
   else renderDay();
+  renderMondayPageIfOpen();
 }
 
 // ============================================================
@@ -5431,6 +5616,689 @@ function applyWeekDayColDrop(col, dateStr) {
 })();
 
 // ============================================================
+// MONDAY MEETINGS — department agenda, quick notes, meeting
+// mode with carry-over, history, and new/changed badges
+// ============================================================
+const MONDAY_WINDOW_DAYS = 30;  // how far ahead the agenda looks
+const MONDAY_VERIFY_DAYS = 14;  // done tasks due within this window get a "verify" check-in
+// Tweak this list to change what counts as an away-from-the-rink event title
+const AWAY_RE = /\b(away|out|ooo|vacation|pto|sick|on leave|day off|out of office|holiday|absent)\b/i;
+
+let mondayState = { tab: 'agenda', draft: null, openHistory: {}, _editingInput: false };
+
+function getMondayName() { try { return localStorage.getItem('abyssMondayName') || ''; } catch(e) { return ''; } }
+function setMondayName(name) { try { localStorage.setItem('abyssMondayName', name.trim()); } catch(e) {} }
+
+// FNV-1a over the fields that matter for "changed since last meeting"
+function eventHash(ev) {
+  const s = JSON.stringify([ev.title, ev.date, ev.start, ev.end, ev.desc, ev.location,
+    ev.groupId, ev.endDate, ev.allDay, ev.recurrence || null,
+    (ev.tasks || []).map(t => [t.text, !!t.done, t.dueDate || '', t.assignee || ''])]);
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+  return h.toString(36);
+}
+
+// The meeting reviews everything — ignore the per-device hidden-group display filter
+function mondayEventsForDate(ds) {
+  return state.events.filter(e => e && recurMatches(e, ds));
+}
+
+function nextMondayDate() {
+  const d = new Date(); d.setHours(0,0,0,0);
+  while (d.getDay() !== 1) d.setDate(d.getDate() + 1);
+  return d;
+}
+
+function fmtShortDs(ds) {
+  const dt = new Date(ds + 'T00:00:00');
+  return MONTHS[dt.getMonth()].slice(0,3) + ' ' + dt.getDate();
+}
+
+function relAge(iso) {
+  if (!iso) return '';
+  const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+  if (days <= 0) return 'today';
+  if (days === 1) return 'yesterday';
+  if (days < 14) return days + 'd ago';
+  return Math.floor(days / 7) + 'w ago';
+}
+
+function ordinal(n) { const s = ['th','st','nd','rd'], v = n % 100; return n + (s[(v-20)%10] || s[v] || s[0]); }
+
+function lastArchivedMeeting() {
+  const ms = loadMondayMeetings();
+  if (!ms.length) return null;
+  return ms.reduce((a, b) => ((a.endedAt || '') > (b.endedAt || '') ? a : b));
+}
+
+function getAgendaData() {
+  const todayD = new Date(); todayD.setHours(0,0,0,0);
+  const todayDs = isoDate(todayD);
+  const verifyEnd = new Date(todayD); verifyEnd.setDate(verifyEnd.getDate() + MONDAY_VERIFY_DAYS);
+  const verifyEndDs = isoDate(verifyEnd);
+
+  // one pass over the window, collecting occurrences per event
+  const occ = new Map();        // event id → [dates it occurs on]
+  const byId = new Map();       // event id → event
+  const dayEvents = new Map();  // date → [events]
+  for (let i = 0; i < MONDAY_WINDOW_DAYS; i++) {
+    const d = new Date(todayD); d.setDate(todayD.getDate() + i);
+    const ds = isoDate(d);
+    const evs = mondayEventsForDate(ds);
+    dayEvents.set(ds, evs);
+    for (const ev of evs) {
+      if (!occ.has(ev.id)) { occ.set(ev.id, []); byId.set(ev.id, ev); }
+      occ.get(ev.id).push(ds);
+    }
+  }
+
+  // needs attention — one card per event with three task buckets
+  const attMap = new Map();
+  const bucketFor = ev => {
+    if (!attMap.has(ev.id)) attMap.set(ev.id, {
+      ev,
+      firstDs: (occ.get(ev.id) || [])[0] || ev.date,
+      dates: occ.get(ev.id) || [],
+      openTasks: [], overdueTasks: [], verifyTasks: []
+    });
+    return attMap.get(ev.id);
+  };
+  state.events.filter(Boolean).forEach(ev => {
+    (ev.tasks || []).forEach(t => {
+      if (taskIsOverdue(t)) bucketFor(ev).overdueTasks.push(t);
+      else if (!t.done && occ.has(ev.id)) bucketFor(ev).openTasks.push(t);
+      else if (t.done && t.dueDate && t.dueDate >= todayDs && t.dueDate <= verifyEndDs) bucketFor(ev).verifyTasks.push(t);
+    });
+  });
+  const attention = [...attMap.values()].sort((a, b) =>
+    (b.overdueTasks.length - a.overdueTasks.length) || a.firstDs.localeCompare(b.firstDs));
+
+  // away from the rink — keyword match on titles
+  const away = [];
+  for (const [id, dates] of occ) {
+    const ev = byId.get(id);
+    if (AWAY_RE.test(ev.title || '')) away.push({ ev, dates });
+  }
+  away.sort((a, b) => a.dates[0].localeCompare(b.dates[0]));
+  const awayIds = new Set(away.map(a => a.ev.id));
+
+  // everything else, grouped by week
+  const weeks = [];
+  let wk = null;
+  for (let i = 0; i < MONDAY_WINDOW_DAYS; i++) {
+    const d = new Date(todayD); d.setDate(todayD.getDate() + i);
+    const ds = isoDate(d);
+    if (!wk || d.getDay() === 0) { wk = { startDs: ds, rows: [], seen: new Set() }; weeks.push(wk); }
+    for (const ev of dayEvents.get(ds) || []) {
+      if (attMap.has(ev.id) || awayIds.has(ev.id) || wk.seen.has(ev.id)) continue;
+      wk.seen.add(ev.id);
+      wk.rows.push({ ev, ds, recurring: (occ.get(ev.id) || []).length > 1 && !(ev.endDate && ev.endDate > ev.date) });
+    }
+  }
+  weeks.forEach((w, i) => {
+    w.label = i === 0 ? 'This week' : i === 1 ? 'Next week' : 'Week of ' + fmtShortDs(w.startDs);
+  });
+
+  // what's new / changed since the last archived meeting
+  const lastMeeting = lastArchivedMeeting();
+  const badges = new Map();
+  if (lastMeeting && lastMeeting.snapshot) {
+    const check = ev => {
+      if (badges.has(ev.id)) return;
+      const h = lastMeeting.snapshot[ev.id];
+      if (h === undefined) badges.set(ev.id, 'new');
+      else if (h !== eventHash(ev)) badges.set(ev.id, 'changed');
+    };
+    byId.forEach(check);
+    attention.forEach(a => check(a.ev));
+  }
+
+  const notes = loadMondayNotes().slice().sort((a, b) =>
+    ((b.carriedOver || 0) - (a.carriedOver || 0)) || (a.createdAt || '').localeCompare(b.createdAt || ''));
+
+  return { todayDs, attention, away, weeks, notes, badges, lastMeeting };
+}
+
+// ---- meeting draft (in memory + localStorage so a refresh can't lose a live meeting) ----
+function draftKeyFor(type, refId) { return type + ':' + refId; }
+function getDraftItem(key) { return (mondayState.draft && mondayState.draft.items[key]) || null; }
+function setDraftItem(type, refId, title, patch) {
+  if (!mondayState.draft) return;
+  const key = draftKeyFor(type, refId);
+  const cur = mondayState.draft.items[key] || { type, refId, title, discussed: false, outcome: '' };
+  cur.title = title;
+  Object.assign(cur, patch);
+  mondayState.draft.items[key] = cur;
+  saveMondayDraft();
+}
+function saveMondayDraft() {
+  try {
+    if (mondayState.draft) localStorage.setItem('abyssMondayDraft', JSON.stringify(mondayState.draft));
+    else localStorage.removeItem('abyssMondayDraft');
+  } catch(e) {}
+}
+function restoreMondayDraft() {
+  try {
+    const raw = localStorage.getItem('abyssMondayDraft');
+    if (raw) mondayState.draft = JSON.parse(raw);
+  } catch(e) {}
+}
+
+function startMeeting() {
+  mondayState.draft = {
+    id: uid(),
+    date: isoDate(new Date()),
+    startedAt: new Date().toISOString(),
+    facilitator: getMondayName() || '',
+    items: {}
+  };
+  saveMondayDraft();
+  renderMondayBody();
+}
+
+async function endMeeting() {
+  if (!mondayState.draft) return;
+  if (!confirm('End the meeting and archive this agenda?\n\nQuick notes marked discussed will be cleared; the rest carry over to next week.')) return;
+  const draft = mondayState.draft;
+  const data = getAgendaData();
+
+  const items = [];
+  const seen = new Set();
+  const pushItem = (type, refId, title) => {
+    const key = draftKeyFor(type, refId);
+    seen.add(key);
+    const d = draft.items[key];
+    items.push({ type, refId, title, discussed: !!(d && d.discussed), outcome: ((d && d.outcome) || '').trim() });
+  };
+  data.attention.forEach(a => pushItem('event', a.ev.id, a.ev.title));
+  data.attention.forEach(a => a.verifyTasks.forEach(t =>
+    pushItem('verify', a.ev.id + '::' + (t.id || t.text), (t.text || '') + ' (' + a.ev.title + ')')));
+  data.away.forEach(a => pushItem('away', a.ev.id, a.ev.title));
+  data.notes.forEach(n => pushItem('note', n.id, n.text));
+  // anything ticked during the meeting whose row has since disappeared (e.g. event deleted)
+  Object.entries(draft.items).forEach(([key, d]) => {
+    if (!seen.has(key) && (d.discussed || d.outcome)) {
+      items.push({ type: d.type, refId: d.refId, title: d.title, discussed: !!d.discussed, outcome: (d.outcome || '').trim() });
+    }
+  });
+
+  const record = {
+    id: draft.id,
+    date: draft.date,
+    startedAt: draft.startedAt,
+    endedAt: new Date().toISOString(),
+    facilitator: draft.facilitator || getMondayName() || '',
+    items,
+    snapshot: Object.fromEntries(state.events.filter(Boolean).map(e => [e.id, eventHash(e)]))
+  };
+
+  const ok = await saveMondayMeetings([...loadMondayMeetings(), record]);
+  if (!ok) {
+    alert('Could not save the meeting — check the connection and try End Meeting again.');
+    return; // stay in meeting mode; nothing is lost
+  }
+
+  // carry-over: discussed notes retire with the meeting, the rest stick around
+  const discussedNoteIds = new Set(items.filter(it => it.type === 'note' && it.discussed).map(it => it.refId));
+  const remaining = loadMondayNotes()
+    .filter(n => !discussedNoteIds.has(n.id))
+    .map(n => (n.createdAt && n.createdAt < draft.startedAt) ? { ...n, carriedOver: (n.carriedOver || 0) + 1 } : n);
+  await saveMondayNotes(remaining);
+
+  mondayState.draft = null;
+  saveMondayDraft();
+  renderMondayBody();
+}
+
+// ---- quick notes ----
+function addMondayNote() {
+  const input = document.getElementById('mondayNoteInput');
+  const text = input.value.trim();
+  if (!text) { input.focus(); return; }
+  const name = (document.getElementById('mondayNameInput').value || '').trim();
+  if (name) setMondayName(name);
+  const note = { id: uid(), text, createdBy: name || 'Someone', createdAt: new Date().toISOString(), carriedOver: 0 };
+  input.value = '';
+  saveMondayNotes([...loadMondayNotes(), note]);
+  renderMondayBody();
+  input.focus();
+}
+function updateMondayNote(id, text) {
+  saveMondayNotes(loadMondayNotes().map(n => n.id === id ? { ...n, text } : n));
+  renderMondayBody();
+}
+function deleteMondayNote(id) {
+  saveMondayNotes(loadMondayNotes().filter(n => n.id !== id));
+  renderMondayBody();
+}
+
+// ---- small DOM builders (user text always goes in via textContent) ----
+function mmBadgeEl(cls, text) {
+  const b = document.createElement('span');
+  b.className = 'mm-badge ' + cls;
+  b.textContent = text;
+  return b;
+}
+function mmSectionTitle(icon, color, text, hint) {
+  const el = document.createElement('div');
+  el.className = 'group-page-section-title';
+  const ic = document.createElement('span'); ic.style.color = color; ic.textContent = icon;
+  const tx = document.createElement('span'); tx.textContent = text;
+  el.appendChild(ic); el.appendChild(tx);
+  if (hint) { const h = document.createElement('span'); h.className = 'mm-hint'; h.textContent = '— ' + hint; el.appendChild(h); }
+  return el;
+}
+function mmEmpty(text) {
+  const el = document.createElement('div');
+  el.className = 'gp-empty';
+  el.textContent = text;
+  return el;
+}
+function mmAssigneeChip(name) {
+  const av = document.createElement('span');
+  av.className = 'mm-assignee';
+  av.style.background = avatarColor(name || '?');
+  av.textContent = initials(name || '?');
+  av.title = name || '';
+  return av;
+}
+function mmDiscussRow(type, refId, title, withOutcome) {
+  const key = draftKeyFor(type, refId);
+  const cur = getDraftItem(key);
+  const row = document.createElement('div');
+  row.className = 'mm-discuss';
+  row.onclick = e => e.stopPropagation();
+  const check = document.createElement('div');
+  check.className = 'mm-discuss-check' + (cur && cur.discussed ? ' done' : '');
+  check.textContent = cur && cur.discussed ? '✓' : '';
+  check.title = 'Mark as discussed';
+  check.onclick = e => {
+    e.stopPropagation();
+    setDraftItem(type, refId, title, { discussed: !(cur && cur.discussed) });
+    renderMondayBody();
+  };
+  const lbl = document.createElement('span');
+  lbl.className = 'mm-discuss-label';
+  lbl.textContent = 'Discussed';
+  row.appendChild(check); row.appendChild(lbl);
+  if (withOutcome) {
+    const inp = document.createElement('input');
+    inp.className = 'monday-outcome';
+    inp.placeholder = 'Outcome / decision…';
+    inp.maxLength = 140;
+    inp.value = (cur && cur.outcome) || '';
+    inp.oninput = () => setDraftItem(type, refId, title, { outcome: inp.value });
+    inp.onfocus = () => { mondayState._editingInput = true; };
+    inp.onblur = () => { mondayState._editingInput = false; setTimeout(renderMondayBody, 150); };
+    inp.onkeydown = e => { e.stopPropagation(); if (e.key === 'Enter') inp.blur(); };
+    row.appendChild(inp);
+  }
+  return row;
+}
+function mmTaskLine(t, kind, ev) {
+  const line = document.createElement('div');
+  line.className = 'mm-task' + (kind ? ' ' + kind : '');
+  const mark = document.createElement('span');
+  mark.textContent = kind === 'overdue' ? '⚠' : kind === 'verify' ? '✔?' : '○';
+  const txt = document.createElement('span');
+  txt.textContent = t.text;
+  line.appendChild(mark); line.appendChild(txt);
+  if (t.dueDate) {
+    const due = document.createElement('span');
+    due.className = 'mm-task-due';
+    due.textContent = (kind === 'overdue' ? 'was due ' : 'due ') + fmtShortDs(t.dueDate);
+    line.appendChild(due);
+  }
+  if (t.assignee) line.appendChild(mmAssigneeChip(t.assignee));
+  // in meeting mode, "verify" tasks get their own tick: yes, this is really done
+  if (kind === 'verify' && mondayState.draft && ev) {
+    const refId = ev.id + '::' + (t.id || t.text);
+    const cur = getDraftItem(draftKeyFor('verify', refId));
+    const chk = document.createElement('span');
+    chk.className = 'mm-discuss-check' + (cur && cur.discussed ? ' done' : '');
+    chk.style.width = '15px'; chk.style.height = '15px';
+    chk.title = 'Verified — really done';
+    chk.textContent = cur && cur.discussed ? '✓' : '';
+    chk.onclick = e => {
+      e.stopPropagation();
+      setDraftItem('verify', refId, (t.text || '') + ' (' + ev.title + ')', { discussed: !(cur && cur.discussed) });
+      renderMondayBody();
+    };
+    line.appendChild(chk);
+  }
+  return line;
+}
+function mmEventCard(a, badges) {
+  const ev = a.ev;
+  const group = ev.groupId ? getGroupById(ev.groupId) : null;
+  const color = (group && group.color) || ev.color || '#00B2A9';
+  const card = document.createElement('div');
+  card.className = 'gp-event-card' + (a.overdueTasks.length ? ' mm-overdue' : '');
+  card.style.borderLeftColor = color;
+  const dot = document.createElement('div');
+  dot.className = 'gp-event-dot';
+  dot.style.background = color;
+  const info = document.createElement('div');
+  info.className = 'gp-event-info';
+
+  const titleRow = document.createElement('div');
+  titleRow.className = 'gp-event-title';
+  titleRow.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap';
+  const tspan = document.createElement('span');
+  tspan.textContent = ev.title;
+  titleRow.appendChild(tspan);
+  const b = badges.get(ev.id);
+  if (b) titleRow.appendChild(mmBadgeEl(b, b === 'new' ? 'New' : 'Changed'));
+  if (a.overdueTasks.length) titleRow.appendChild(mmBadgeEl('overdue', a.overdueTasks.length + ' overdue'));
+  info.appendChild(titleRow);
+
+  const meta = document.createElement('div');
+  meta.className = 'gp-event-meta';
+  const bits = ['📅 ' + fmtDate(a.firstDs)];
+  if (a.dates.length > 1) bits.push('↻ ' + a.dates.length + '× in the next ' + MONDAY_WINDOW_DAYS + ' days');
+  if (!ev.allDay && ev.start) bits.push('🕐 ' + fmtTime(ev.start));
+  if (ev.location) bits.push('📍 ' + ev.location);
+  if (group) bits.push('◈ ' + group.name);
+  bits.forEach(x => { const s = document.createElement('span'); s.textContent = x; meta.appendChild(s); });
+  info.appendChild(meta);
+
+  a.overdueTasks.forEach(t => info.appendChild(mmTaskLine(t, 'overdue', ev)));
+  a.openTasks.forEach(t => info.appendChild(mmTaskLine(t, '', ev)));
+  a.verifyTasks.forEach(t => info.appendChild(mmTaskLine(t, 'verify', ev)));
+  if (mondayState.draft) info.appendChild(mmDiscussRow('event', ev.id, ev.title, true));
+
+  card.appendChild(dot); card.appendChild(info);
+  // keep the agenda open underneath — the detail modal floats above it
+  card.onclick = () => openDetail(ev.id);
+  return card;
+}
+function mmAwayRow(a, badges) {
+  const ev = a.ev;
+  const row = document.createElement('div');
+  row.className = 'mm-row';
+  const title = document.createElement('span');
+  title.className = 'mm-row-title';
+  title.textContent = ev.title;
+  row.appendChild(title);
+  const meta = document.createElement('span');
+  meta.className = 'mm-row-meta';
+  let range;
+  if (ev.endDate && ev.endDate > ev.date) range = fmtShortDs(ev.date) + ' → ' + fmtShortDs(ev.endDate);
+  else if (a.dates.length > 1) range = a.dates.slice(0,3).map(fmtShortDs).join(', ') + (a.dates.length > 3 ? ' +' + (a.dates.length - 3) + ' more' : '');
+  else range = fmtDate(a.dates[0]);
+  const rs = document.createElement('span');
+  rs.textContent = '📅 ' + range;
+  meta.appendChild(rs);
+  (ev.attendees || []).forEach(n => meta.appendChild(mmAssigneeChip(n)));
+  row.appendChild(meta);
+  const b = badges.get(ev.id);
+  if (b) row.appendChild(mmBadgeEl(b, b === 'new' ? 'New' : 'Changed'));
+  if (mondayState.draft) row.appendChild(mmDiscussRow('away', ev.id, ev.title, false));
+  row.onclick = () => openDetail(ev.id);
+  return row;
+}
+function mmWeekRow(r, badges) {
+  const ev = r.ev;
+  const group = ev.groupId ? getGroupById(ev.groupId) : null;
+  const color = (group && group.color) || ev.color || '#00B2A9';
+  const row = document.createElement('div');
+  row.className = 'mm-row';
+  const dot = document.createElement('span');
+  dot.className = 'gp-event-dot';
+  dot.style.background = color;
+  row.appendChild(dot);
+  const title = document.createElement('span');
+  title.className = 'mm-row-title';
+  title.textContent = (ev.parentId ? '↳ ' : '') + ev.title;
+  row.appendChild(title);
+  const meta = document.createElement('span');
+  meta.className = 'mm-row-meta';
+  const dt = new Date(r.ds + 'T00:00:00');
+  const bits = [DAYS[dt.getDay()] + ' ' + fmtShortDs(r.ds)];
+  if (ev.endDate && ev.endDate > ev.date) bits.push('→ ' + fmtShortDs(ev.endDate));
+  bits.push(ev.allDay ? 'All day' : fmtTimeShort(ev.start));
+  if (r.recurring) bits.push('↻ recurring');
+  if (ev.location) bits.push('📍 ' + ev.location);
+  bits.forEach(x => { const s = document.createElement('span'); s.textContent = x; meta.appendChild(s); });
+  row.appendChild(meta);
+  const b = badges.get(ev.id);
+  if (b) row.appendChild(mmBadgeEl(b, b === 'new' ? 'New' : 'Changed'));
+  row.onclick = () => openDetail(ev.id);
+  return row;
+}
+function mmNoteRow(n) {
+  const row = document.createElement('div');
+  row.className = 'monday-note-row';
+  row.appendChild(mmAssigneeChip(n.createdBy));
+  const text = document.createElement('span');
+  text.className = 'monday-note-text';
+  text.textContent = n.text;
+  text.title = 'Click to edit';
+  text.onclick = () => mondayNoteEditInline(n, text, row);
+  row.appendChild(text);
+  const meta = document.createElement('span');
+  meta.className = 'monday-note-meta';
+  meta.textContent = (n.createdBy || 'Someone') + ' · ' + relAge(n.createdAt);
+  row.appendChild(meta);
+  if ((n.carriedOver || 0) >= 1) row.appendChild(mmBadgeEl('carry', ordinal((n.carriedOver || 0) + 1) + ' week'));
+  if (mondayState.draft) row.appendChild(mmDiscussRow('note', n.id, n.text, true));
+  const del = document.createElement('button');
+  del.className = 'monday-note-del';
+  del.textContent = '✕';
+  del.title = 'Remove note';
+  del.onclick = e => {
+    e.stopPropagation();
+    if (confirm('Remove this note?\n\n“' + n.text + '”')) deleteMondayNote(n.id);
+  };
+  row.appendChild(del);
+  return row;
+}
+function mondayNoteEditInline(note, textEl, row) {
+  const inp = document.createElement('input');
+  inp.className = 'monday-note-edit';
+  inp.value = note.text;
+  inp.maxLength = 200;
+  let done = false;
+  const commit = () => {
+    if (done) return;
+    done = true;
+    mondayState._editingInput = false;
+    const v = inp.value.trim();
+    if (v && v !== note.text) updateMondayNote(note.id, v);
+    else renderMondayBody();
+  };
+  inp.onkeydown = e => {
+    e.stopPropagation();
+    if (e.key === 'Enter') commit();
+    if (e.key === 'Escape') { done = true; mondayState._editingInput = false; renderMondayBody(); }
+  };
+  inp.onblur = () => setTimeout(commit, 150);
+  mondayState._editingInput = true;
+  row.replaceChild(inp, textEl);
+  inp.focus();
+  inp.select();
+}
+
+// ---- page rendering ----
+function renderMondayBody() {
+  const body = document.getElementById('mondayAgendaBody');
+  const notesList = document.getElementById('mondayNotesList');
+  if (!body || !notesList) return;
+  if (mondayState._editingInput) return; // someone is mid-keystroke in an outcome/edit field
+
+  const data = getAgendaData();
+  const meeting = !!mondayState.draft;
+
+  document.getElementById('mondaySubtitle').textContent = 'Agenda for ' + fmtDate(isoDate(nextMondayDate()));
+  const btn = document.getElementById('mondayMeetingBtn');
+  btn.textContent = meeting ? '■ End meeting' : '▶ Start meeting';
+  btn.classList.toggle('live', meeting);
+  const banner = document.getElementById('mondayMeetingBanner');
+  banner.style.display = meeting ? '' : 'none';
+  banner.textContent = '● Meeting in progress — tick items as you cover them. Quick notes marked discussed are cleared when the meeting ends; the rest carry over to next week.';
+
+  body.innerHTML = '';
+
+  // stat strip
+  const overdueCount = data.attention.reduce((n, a) => n + a.overdueTasks.length, 0);
+  const openCount = data.attention.reduce((n, a) => n + a.openTasks.length, 0);
+  const verifyCount = data.attention.reduce((n, a) => n + a.verifyTasks.length, 0);
+  const stats = document.createElement('div');
+  stats.className = 'group-page-stats';
+  const statDefs = [
+    [overdueCount, 'Overdue tasks', overdueCount ? 'var(--danger)' : null],
+    [openCount, 'Open tasks', null],
+    [verifyCount, 'To verify', verifyCount ? 'var(--gold)' : null],
+    [data.away.length, 'Away', null],
+  ];
+  if (data.lastMeeting) statDefs.push([data.badges.size, 'New / changed', null]);
+  statDefs.forEach(([num, label, color]) => {
+    const s = document.createElement('div'); s.className = 'gp-stat';
+    const nEl = document.createElement('div'); nEl.className = 'gp-stat-num'; nEl.textContent = num;
+    if (color) nEl.style.color = color;
+    const l = document.createElement('div'); l.className = 'gp-stat-label'; l.textContent = label;
+    s.appendChild(nEl); s.appendChild(l); stats.appendChild(s);
+  });
+  body.appendChild(stats);
+
+  // needs attention
+  body.appendChild(mmSectionTitle('⚠', 'var(--danger)', 'Needs Attention', '⚠ overdue · ○ open · ✔? done, confirm it · click an item to view or edit'));
+  if (!data.attention.length) body.appendChild(mmEmpty('No open or overdue tasks in the next ' + MONDAY_WINDOW_DAYS + ' days — smooth sailing.'));
+  else data.attention.forEach(a => body.appendChild(mmEventCard(a, data.badges)));
+
+  // away from the rink
+  body.appendChild(mmSectionTitle('🏒', 'var(--ice-blue)', 'Away From The Rink', null));
+  if (!data.away.length) body.appendChild(mmEmpty('Nobody away in the next ' + MONDAY_WINDOW_DAYS + ' days.'));
+  else data.away.forEach(a => body.appendChild(mmAwayRow(a, data.badges)));
+
+  // everything else coming up
+  body.appendChild(mmSectionTitle('📅', 'var(--kraken-teal)', 'Coming Up', 'everything else in the next ' + MONDAY_WINDOW_DAYS + ' days'));
+  const weeksWithRows = data.weeks.filter(w => w.rows.length);
+  if (!weeksWithRows.length) body.appendChild(mmEmpty('Nothing else on the calendar.'));
+  weeksWithRows.forEach(w => {
+    const lbl = document.createElement('div');
+    lbl.className = 'mm-week-label';
+    lbl.textContent = w.label;
+    body.appendChild(lbl);
+    w.rows.forEach(r => body.appendChild(mmWeekRow(r, data.badges)));
+  });
+
+  // quick notes
+  notesList.innerHTML = '';
+  if (!data.notes.length) notesList.appendChild(mmEmpty('No quick notes yet — add one below.'));
+  else data.notes.forEach(n => notesList.appendChild(mmNoteRow(n)));
+}
+
+function renderMondayHistory() {
+  const view = document.getElementById('mondayHistoryView');
+  if (!view) return;
+  view.innerHTML = '';
+  view.appendChild(mmSectionTitle('🗃', 'var(--kraken-teal)', 'Meeting History', 'what got covered, week by week'));
+  const ms = loadMondayMeetings().slice().sort((a, b) => (b.endedAt || '').localeCompare(a.endedAt || ''));
+  if (!ms.length) {
+    view.appendChild(mmEmpty('No meetings archived yet — run one from the Agenda tab and it will show up here.'));
+    return;
+  }
+  const ICONS = { event: '◈', task: '◆', verify: '✔', away: '🏒', note: '✎' };
+  ms.forEach(m => {
+    const det = document.createElement('details');
+    det.className = 'mm-history';
+    det.open = !!mondayState.openHistory[m.id];
+    det.addEventListener('toggle', () => { mondayState.openHistory[m.id] = det.open; });
+    const sum = document.createElement('summary');
+    const items = m.items || [];
+    const done = items.filter(i => i.discussed).length;
+    const t1 = document.createElement('span');
+    t1.textContent = '📋 ' + fmtDate(m.date);
+    const t2 = document.createElement('span');
+    t2.className = 'mm-history-meta';
+    t2.textContent = done + ' of ' + items.length + ' items discussed' + (m.facilitator ? ' · run by ' + m.facilitator : '');
+    sum.appendChild(t1); sum.appendChild(t2);
+    det.appendChild(sum);
+    const box = document.createElement('div');
+    box.className = 'mm-history-items';
+    items.forEach(it => {
+      const r = document.createElement('div');
+      r.className = 'mm-history-item' + (it.discussed ? '' : ' skipped');
+      const mark = document.createElement('span');
+      mark.textContent = it.discussed ? '✓' : '—';
+      mark.style.color = it.discussed ? 'var(--kraken-teal)' : 'var(--text-dim)';
+      const ic = document.createElement('span');
+      ic.textContent = ICONS[it.type] || '·';
+      ic.style.opacity = '0.6';
+      const tt = document.createElement('span');
+      tt.textContent = it.title;
+      r.appendChild(mark); r.appendChild(ic); r.appendChild(tt);
+      if (it.outcome) {
+        const oc = document.createElement('span');
+        oc.className = 'mm-history-outcome';
+        oc.textContent = '→ ' + it.outcome;
+        r.appendChild(oc);
+      }
+      box.appendChild(r);
+    });
+    if (!items.length) box.appendChild(mmEmpty('(empty agenda)'));
+    det.appendChild(box);
+    view.appendChild(det);
+  });
+}
+
+function setMondayTab(tab) {
+  mondayState.tab = tab;
+  document.getElementById('mondayTabAgenda').classList.toggle('active', tab === 'agenda');
+  document.getElementById('mondayTabHistory').classList.toggle('active', tab === 'history');
+  document.getElementById('mondayAgendaView').style.display = tab === 'agenda' ? '' : 'none';
+  document.getElementById('mondayHistoryView').style.display = tab === 'history' ? '' : 'none';
+  if (tab === 'agenda') renderMondayBody();
+  else renderMondayHistory();
+}
+
+// Hook called from render() — keeps the page live for local edits AND Firebase polls
+function renderMondayPageIfOpen() {
+  const page = document.getElementById('mondayPage');
+  if (!page || !page.classList.contains('open')) return;
+  if (mondayState.tab === 'agenda') renderMondayBody();
+  else renderMondayHistory();
+}
+
+function openMondayPage() {
+  const nameInput = document.getElementById('mondayNameInput');
+  if (!nameInput.value) nameInput.value = getMondayName();
+  const dl = document.getElementById('mondayNameList');
+  dl.innerHTML = '';
+  _localPeople.forEach(p => {
+    const o = document.createElement('option');
+    o.value = p.name;
+    dl.appendChild(o);
+  });
+  setMondayTab(mondayState.tab || 'agenda');
+  document.getElementById('mondayPage').classList.add('open');
+  window.scrollTo(0, 0);
+}
+function closeMondayPage() {
+  // a live meeting draft survives close/reopen (and refresh, via localStorage)
+  document.getElementById('mondayPage').classList.remove('open');
+}
+
+document.getElementById('mondayBtn').onclick = openMondayPage;
+document.getElementById('mondayPageBack').onclick = closeMondayPage;
+document.getElementById('mondayTabAgenda').onclick = () => setMondayTab('agenda');
+document.getElementById('mondayTabHistory').onclick = () => setMondayTab('history');
+document.getElementById('mondayMeetingBtn').onclick = () => { mondayState.draft ? endMeeting() : startMeeting(); };
+document.getElementById('mondayNoteAddBtn').onclick = addMondayNote;
+document.getElementById('mondayNoteInput').addEventListener('keydown', e => {
+  e.stopPropagation(); // keep global shortcuts (and Esc-close) out of the way while typing
+  if (e.key === 'Enter') addMondayNote();
+});
+document.getElementById('mondayNameInput').addEventListener('keydown', e => {
+  e.stopPropagation();
+  if (e.key === 'Enter') e.target.blur();
+});
+document.getElementById('mondayNameInput').addEventListener('change', e => setMondayName(e.target.value));
+restoreMondayDraft();
+
+// ============================================================
 // KEYBOARD SHORTCUTS OVERLAY
 // ============================================================
 function openShortcuts() { document.getElementById('shortcutsOverlay').classList.add('open'); }
@@ -5454,6 +6322,7 @@ document.addEventListener('keydown', e => {
     document.getElementById('monthPickerOverlay').classList.remove('open');
     document.getElementById('groupManagerOverlay').classList.remove('open');
     document.getElementById('groupPage').classList.remove('open');
+    document.getElementById('mondayPage').classList.remove('open');
     document.getElementById('shortcutsOverlay').classList.remove('open');
   }
   // Don't fire shortcuts when typing in any input/textarea/select/contenteditable
@@ -5471,6 +6340,7 @@ document.addEventListener('keydown', e => {
   if (e.key==='d') { document.querySelector('[data-view=day]').click(); }
   if (e.key==='t') document.getElementById('todayBtn').click();
   if (e.key==='n') openAddModal();
+  if (e.key==='a') openMondayPage();
   if (e.key==='/') { e.preventDefault(); if (window._focusSearch) window._focusSearch(); }
   if (e.key==='?') openShortcuts();
 });
@@ -5539,7 +6409,7 @@ function toArr(val) {
 function initFirebase() {
   setSyncStatus('syncing');
 
-  let loaded = { events: false, groups: false, hidden: false, annotations: false, people: false };
+  let loaded = { events: false, groups: false, hidden: false, annotations: false, people: false, mondayNotes: false, mondayMeetings: false };
 
   function checkAllLoaded() {
     if (Object.values(loaded).every(Boolean)) {
@@ -5581,6 +6451,20 @@ function initFirebase() {
   db.on('krakenPeople', snap => {
     _localPeople = toArr(snap.val());
     loaded.people = true;
+    checkAllLoaded();
+    if (_firebaseReady) render();
+  });
+
+  db.on('krakenMondayNotes', snap => {
+    _localMondayNotes = toArr(snap.val());
+    loaded.mondayNotes = true;
+    checkAllLoaded();
+    if (_firebaseReady) render();
+  });
+
+  db.on('krakenMondayMeetings', snap => {
+    _localMondayMeetings = toArr(snap.val());
+    loaded.mondayMeetings = true;
     checkAllLoaded();
     if (_firebaseReady) render();
   });
