@@ -2842,18 +2842,16 @@ function applyMonthCellDrop(cell, dateStr) {
     if (!ev || ev.date === dateStr) { dragState = null; return; }
 
     if (dragState.isRecurring) {
-      // For recurring instances, ask whether to move just this occurrence or the whole series
-      const choice = confirm(`"${ev.title}" repeats. Click OK to move only this occurrence (${dragState.instanceDate}), or Cancel to move the entire series.`);
-      if (choice) {
-        // Create a one-off exception: duplicate event on new date, exclude original instance
-        const newEv = { ...JSON.parse(JSON.stringify(ev)), id: uid(), date: dateStr, recurrence: { freq: 'none' }, parentId: ev.id };
-        // Add exception date to original
-        ev.recurrence.exceptions = ev.recurrence.exceptions || [];
-        ev.recurrence.exceptions.push(dragState.instanceDate);
-        state.events.push(newEv);
-      } else {
-        ev.date = dateStr;
-      }
+      const newEv = { ...JSON.parse(JSON.stringify(ev)), id: uid(), date: dateStr, recurrence: { freq: 'none' }, parentId: ev.id };
+      ev.recurrence.exceptions = ev.recurrence.exceptions || [];
+      ev.recurrence.exceptions.push(dragState.instanceDate);
+      state.events.push(newEv);
+    } else if (ev.endDate && ev.endDate > ev.date) {
+      const draggedFrom = new Date(dragState.instanceDate + 'T00:00:00');
+      const droppedOn = new Date(dateStr + 'T00:00:00');
+      const offsetMs = droppedOn - draggedFrom;
+      ev.date = isoDate(new Date(new Date(ev.date + 'T00:00:00').getTime() + offsetMs));
+      ev.endDate = isoDate(new Date(new Date(ev.endDate + 'T00:00:00').getTime() + offsetMs));
     } else {
       ev.date = dateStr;
     }
@@ -2910,17 +2908,21 @@ function applyWeekDayColDrop(col, dateStr) {
     const newEnd = `${String(Math.floor(endMins/60)%24).padStart(2,'0')}:${String(endMins%60).padStart(2,'0')}`;
 
     if (dragState.isRecurring) {
-      const choice = confirm(`"${ev.title}" repeats. OK = move only this occurrence, Cancel = move entire series.`);
-      if (choice) {
-        const newEv = { ...JSON.parse(JSON.stringify(ev)), id: uid(), date: dateStr, start: newStart, end: newEnd, recurrence: { freq: 'none' }, parentId: ev.id };
-        ev.recurrence.exceptions = ev.recurrence.exceptions || [];
-        ev.recurrence.exceptions.push(dragState.instanceDate);
-        state.events.push(newEv);
-      } else {
-        ev.date = dateStr; ev.start = newStart; ev.end = newEnd;
-      }
+      const newEv = { ...JSON.parse(JSON.stringify(ev)), id: uid(), date: dateStr, start: newStart, end: newEnd, recurrence: { freq: 'none' }, parentId: ev.id };
+      ev.recurrence.exceptions = ev.recurrence.exceptions || [];
+      ev.recurrence.exceptions.push(dragState.instanceDate);
+      state.events.push(newEv);
     } else {
-      ev.date = dateStr; ev.start = newStart; ev.end = newEnd;
+      if (ev.endDate && ev.endDate > ev.date) {
+        const draggedFrom = new Date(dragState.instanceDate + 'T00:00:00');
+        const droppedOn = new Date(dateStr + 'T00:00:00');
+        const offsetMs = droppedOn - draggedFrom;
+        ev.date = isoDate(new Date(new Date(ev.date + 'T00:00:00').getTime() + offsetMs));
+        ev.endDate = isoDate(new Date(new Date(ev.endDate + 'T00:00:00').getTime() + offsetMs));
+      } else {
+        ev.date = dateStr;
+      }
+      ev.start = newStart; ev.end = newEnd;
     }
     save(); dragState = null; render();
   };
