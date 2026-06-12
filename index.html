@@ -74,7 +74,7 @@
       <div style="border-top:1px solid var(--border);padding-top:16px">
         <div class="sidebar-section-title" id="peopleFilterToggle" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;" title="Click to collapse">
           Filter by Person
-          <span id="peopleFilterChevron" style="font-size:12px;color:var(--text-dim);transition:transform 0.2s;display:inline-block;">▼</span>
+          <span id="peopleFilterChevron" style="font-size:14px;color:var(--text-dim);transition:transform 0.2s;display:inline-block;">▼</span>
         </div>
         <div id="peopleFilterBody">
           <button class="filter-all-btn showing-all" id="filterAllBtn">Show All</button>
@@ -97,7 +97,7 @@
       <div style="border-top:1px solid var(--border);padding-top:16px">
         <div class="sidebar-section-title">Display</div>
         <div class="filter-person" id="taskToggleRow" style="cursor:pointer" title="Toggle task due-date markers on calendar">
-          <span style="font-size:18px;flex-shrink:0">◆</span>
+          <span style="font-size:20px;flex-shrink:0">◆</span>
           <span class="fp-name" style="color:var(--gold)">Task Markers</span>
           <div class="fp-check" id="taskToggleCheck">✓</div>
         </div>
@@ -167,10 +167,10 @@
     <span class="ctx-item-icon">🗑</span> Delete person
   </button>
   <div id="ctxDeleteConfirm" style="display:none;padding:6px 8px;border-top:1px solid var(--border);margin-top:2px">
-    <div style="font-size:13px;color:var(--text-dim);margin-bottom:6px">Are you sure?</div>
+    <div style="font-size:15px;color:var(--text-dim);margin-bottom:6px">Are you sure?</div>
     <div style="display:flex;gap:6px">
-      <button id="ctxDeleteYes" style="flex:1;background:rgba(255,107,107,0.2);border:1px solid rgba(255,107,107,0.4);color:var(--danger);padding:5px;border-radius:6px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700">Delete</button>
-      <button id="ctxDeleteNo" style="flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text-dim);padding:5px;border-radius:6px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700">Cancel</button>
+      <button id="ctxDeleteYes" style="flex:1;background:rgba(255,107,107,0.2);border:1px solid rgba(255,107,107,0.4);color:var(--danger);padding:5px;border-radius:6px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700">Delete</button>
+      <button id="ctxDeleteNo" style="flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text-dim);padding:5px;border-radius:6px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700">Cancel</button>
     </div>
   </div>
 </div>
@@ -183,8 +183,8 @@
 <div class="modal-overlay" id="shortcutsOverlay">
   <div class="modal" style="max-width:420px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-      <div style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;letter-spacing:1px;color:var(--silver-ice);text-transform:uppercase">⌨ Keyboard Shortcuts</div>
-      <button id="shortcutsClose" style="background:none;border:none;color:var(--text-dim);font-size:22px;cursor:pointer;line-height:1">✕</button>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;letter-spacing:1px;color:var(--silver-ice);text-transform:uppercase">⌨ Keyboard Shortcuts</div>
+      <button id="shortcutsClose" style="background:none;border:none;color:var(--text-dim);font-size:24px;cursor:pointer;line-height:1">✕</button>
     </div>
     <div class="shortcut-row"><span class="shortcut-desc">Previous / next period</span><span class="shortcut-keys"><kbd>←</kbd><kbd>→</kbd></span></div>
     <div class="shortcut-row"><span class="shortcut-desc">Month / Week / Day view</span><span class="shortcut-keys"><kbd>M</kbd><kbd>W</kbd><kbd>D</kbd></span></div>
@@ -192,7 +192,7 @@
     <div class="shortcut-row"><span class="shortcut-desc">New event</span><span class="shortcut-keys"><kbd>N</kbd></span></div>
     <div class="shortcut-row"><span class="shortcut-desc">Monday meeting agenda</span><span class="shortcut-keys"><kbd>A</kbd></span></div>
     <div class="shortcut-row"><span class="shortcut-desc">Search events</span><span class="shortcut-keys"><kbd>/</kbd><kbd>Ctrl K</kbd></span></div>
-    <div class="shortcut-row"><span class="shortcut-desc">Jump to a month or year</span><span class="shortcut-desc" style="font-size:14px;color:var(--text-dim)">Click the month name in the header</span></div>
+    <div class="shortcut-row"><span class="shortcut-desc">Jump to a month or year</span><span class="shortcut-desc" style="font-size:16px;color:var(--text-dim)">Click the month name in the header</span></div>
     <div class="shortcut-row"><span class="shortcut-desc">Close any window</span><span class="shortcut-keys"><kbd>Esc</kbd></span></div>
     <div class="shortcut-row"><span class="shortcut-desc">This guide</span><span class="shortcut-keys"><kbd>?</kbd></span></div>
   </div>
@@ -206,7 +206,7 @@
     <div class="unlock-sub">Sign in to open the crew calendar.</div>
     <input type="email" id="loginEmail" placeholder="Email" autocomplete="username" aria-label="Email">
     <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password" aria-label="Password" style="margin-top:10px">
-    <div id="loginError" style="display:none;margin-top:10px;font-size:14.5px;color:var(--danger);line-height:1.5"></div>
+    <div id="loginError" style="display:none;margin-top:10px;font-size:16.5px;color:var(--danger);line-height:1.5"></div>
     <button id="loginBtn">Dive In</button>
     <div class="unlock-note">
       <strong style="color:var(--ice-blue)">Need access?</strong> Accounts are created by the calendar admin — ask them to add you. You'll stay signed in on this device.
@@ -249,10 +249,10 @@
     <span class="ctx-item-icon">🗑</span> Delete group
   </button>
   <div id="gctxDeleteConfirm" style="display:none;padding:6px 8px;border-top:1px solid var(--border);margin-top:2px">
-    <div style="font-size:13px;color:var(--text-dim);margin-bottom:6px">Are you sure?</div>
+    <div style="font-size:15px;color:var(--text-dim);margin-bottom:6px">Are you sure?</div>
     <div style="display:flex;gap:6px">
-      <button id="gctxDeleteYes" style="flex:1;background:rgba(255,107,107,0.2);border:1px solid rgba(255,107,107,0.4);color:var(--danger);padding:5px;border-radius:6px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;transition:all 0.15s">Delete</button>
-      <button id="gctxDeleteNo" style="flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text-dim);padding:5px;border-radius:6px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;transition:all 0.15s">Cancel</button>
+      <button id="gctxDeleteYes" style="flex:1;background:rgba(255,107,107,0.2);border:1px solid rgba(255,107,107,0.4);color:var(--danger);padding:5px;border-radius:6px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;transition:all 0.15s">Delete</button>
+      <button id="gctxDeleteNo" style="flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text-dim);padding:5px;border-radius:6px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;transition:all 0.15s">Cancel</button>
     </div>
   </div>
 </div>
@@ -289,7 +289,7 @@
 <div class="group-page" id="mondayPage">
   <div class="group-page-header">
     <button class="group-page-back" id="mondayPageBack">‹ Back</button>
-    <div class="group-page-title"><span style="font-size:22px">📋</span><span>Monday Meeting</span><span class="monday-subtitle" id="mondaySubtitle"></span></div>
+    <div class="group-page-title"><span style="font-size:24px">📋</span><span>Monday Meeting</span><span class="monday-subtitle" id="mondaySubtitle"></span></div>
     <div class="monday-tabs">
       <button class="monday-tab active" id="mondayTabAgenda">Agenda</button>
       <button class="monday-tab" id="mondayTabHistory">History</button>
@@ -412,7 +412,7 @@
       <div id="recurEndWrap" style="display:none;margin-top:8px">
         <div class="row-2">
           <div class="form-group" style="margin-bottom:0">
-            <label>End date <span style="color:var(--text-dim);font-size:12px">(optional)</span></label>
+            <label>End date <span style="color:var(--text-dim);font-size:14px">(optional)</span></label>
             <input type="date" id="recurEnd">
           </div>
         </div>
@@ -421,7 +421,7 @@
     <div class="attendees-field">
       <div class="attendees-label-row">
         <label style="margin-bottom:0">👤 Attendees</label>
-        <span style="font-size:13px;color:var(--text-dim)">People attending this event</span>
+        <span style="font-size:15px;color:var(--text-dim)">People attending this event</span>
       </div>
       <div class="attendees-chips" id="attendeeChips"></div>
       <div class="attendee-select-row">
@@ -436,7 +436,7 @@
     <div class="group-field">
       <div class="attendees-label-row" style="margin-bottom:10px">
         <label style="margin-bottom:0">🏷️ Topic Group</label>
-        <span style="font-size:13px;color:var(--text-dim)">Optional — categorize this event</span>
+        <span style="font-size:15px;color:var(--text-dim)">Optional — categorize this event</span>
       </div>
       <div class="group-select-row">
         <select id="groupSelect">
@@ -453,7 +453,7 @@
     <div class="parent-field" id="parentField">
       <div class="attendees-label-row" style="margin-bottom:10px">
         <label style="margin-bottom:0">🔗 Part of a Main Event</label>
-        <span style="font-size:13px;color:var(--text-dim)">Optional — link to a parent</span>
+        <span style="font-size:15px;color:var(--text-dim)">Optional — link to a parent</span>
       </div>
       <div class="parent-select-row">
         <select id="parentSelect">
@@ -535,7 +535,7 @@
       <div class="file-drop-zone" id="fileDropZone">
         <div class="file-drop-icon">📎</div>
         <div>Drop files here or <strong>click to browse</strong></div>
-        <div style="font-size:13px;margin-top:4px;opacity:0.7">Max 5MB per file</div>
+        <div style="font-size:15px;margin-top:4px;opacity:0.7">Max 5MB per file</div>
         <input type="file" id="fileInput" multiple>
       </div>
     </div>
@@ -560,10 +560,10 @@
       <button class="btn-delete" id="detailDeleteBtn">🗑 Delete</button>
     </div>
     <div id="detailDeleteConfirm" style="display:none;margin-top:10px;padding:10px 12px;background:rgba(255,107,107,0.08);border:1px solid rgba(255,107,107,0.3);border-radius:9px">
-      <div style="font-size:14px;color:var(--silver-ice);margin-bottom:8px">Delete this event? This cannot be undone.</div>
+      <div style="font-size:16px;color:var(--silver-ice);margin-bottom:8px">Delete this event? This cannot be undone.</div>
       <div style="display:flex;gap:8px">
-        <button id="detailDeleteYes" style="flex:1;background:rgba(255,107,107,0.2);border:1px solid rgba(255,107,107,0.5);color:var(--danger);padding:7px;border-radius:7px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:1px;transition:all 0.15s">Yes, Delete</button>
-        <button id="detailDeleteNo" style="flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text-dim);padding:7px;border-radius:7px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:1px;transition:all 0.15s">Cancel</button>
+        <button id="detailDeleteYes" style="flex:1;background:rgba(255,107,107,0.2);border:1px solid rgba(255,107,107,0.5);color:var(--danger);padding:7px;border-radius:7px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;letter-spacing:1px;transition:all 0.15s">Yes, Delete</button>
+        <button id="detailDeleteNo" style="flex:1;background:var(--surface);border:1px solid var(--border);color:var(--text-dim);padding:7px;border-radius:7px;cursor:pointer;font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;letter-spacing:1px;transition:all 0.15s">Cancel</button>
       </div>
     </div>
   </div>
