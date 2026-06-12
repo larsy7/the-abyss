@@ -8,29 +8,69 @@
 <script>
 // Firebase REST API — no SDK needed, works everywhere
 const FB_URL = 'https://the-abyss-calendar-default-rtdb.firebaseio.com';
+const FB_API_KEY = 'AIzaSyAzCyXRPkkegnKVHVM96jWFkBT3UG4CNp4';
 
 // ============================================================
-// PRIVATE SPACE — all data lives under spaces/<key>/ where the
-// key is derived from a shared crew passphrase. The passphrase
-// itself is never stored or sent anywhere.
+// AUTH — email/password sign-in via Firebase Identity Toolkit.
+// The admin creates accounts in the Firebase Console; users sign
+// in once per device and stay signed in (tokens auto-refresh).
 // ============================================================
-let SPACE_KEY = null;
-try { SPACE_KEY = localStorage.getItem('abyssSpaceKey'); } catch(e) {}
-const fbPath = p => SPACE_KEY ? `spaces/${SPACE_KEY}/${p}` : p;
+let AUTH = null; // { idToken, refreshToken, email, exp }
+try { const s = localStorage.getItem('abyssAuth'); if (s) AUTH = JSON.parse(s); } catch(e) {}
 
-async function deriveSpaceKey(pass) {
-  const txt = 'the-abyss::' + pass.trim();
-  if (window.crypto && crypto.subtle) {
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(txt));
-    return [...new Uint8Array(buf)].map(b => b.toString(16).padStart(2, '0')).join('');
+function saveAuth() {
+  try {
+    if (AUTH) localStorage.setItem('abyssAuth', JSON.stringify(AUTH));
+    else localStorage.removeItem('abyssAuth');
+  } catch(e) {}
+}
+
+async function signIn(email, password) {
+  const r = await fetch(`https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${FB_API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password, returnSecureToken: true })
+  });
+  const d = await r.json();
+  if (!r.ok) throw new Error((d.error && d.error.message) || 'SIGN_IN_FAILED');
+  AUTH = {
+    idToken: d.idToken,
+    refreshToken: d.refreshToken,
+    email: d.email,
+    exp: Date.now() + (parseInt(d.expiresIn || '3600') - 300) * 1000
+  };
+  saveAuth();
+}
+
+// Exchange the refresh token for a fresh id token (1hr lifetime each)
+async function refreshAuth() {
+  if (!AUTH || !AUTH.refreshToken) return false;
+  let r;
+  try {
+    r = await fetch(`https://securetoken.googleapis.com/v1/token?key=${FB_API_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: `grant_type=refresh_token&refresh_token=${encodeURIComponent(AUTH.refreshToken)}`
+    });
+  } catch(e) { return false; } // network hiccup — keep session, retry later
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) {
+    // Token rejected — account was disabled/deleted or session revoked
+    AUTH = null; saveAuth();
+    if (typeof showLogin === 'function') showLogin('Your session has ended. Please sign in again.');
+    return false;
   }
-  // Fallback hash for non-secure contexts (e.g. some file:// setups)
-  let h1 = 0x811c9dc5, h2 = 0x1c9dc581;
-  for (let i = 0; i < txt.length; i++) {
-    h1 ^= txt.charCodeAt(i); h1 = Math.imul(h1, 0x01000193) >>> 0;
-    h2 ^= txt.charCodeAt(i); h2 = (Math.imul(h2, 0x01000193) + 7) >>> 0;
-  }
-  return 'f' + h1.toString(16) + h2.toString(16) + txt.length.toString(16);
+  AUTH.idToken = d.id_token;
+  AUTH.refreshToken = d.refresh_token;
+  AUTH.exp = Date.now() + (parseInt(d.expires_in || '3600') - 300) * 1000;
+  saveAuth();
+  return true;
+}
+
+async function ensureToken() {
+  if (!AUTH) return null;
+  if (Date.now() > AUTH.exp) { if (!(await refreshAuth())) return null; }
+  return AUTH ? AUTH.idToken : null;
 }
 
 const db = {
@@ -39,24 +79,35 @@ const db = {
   _pollFns: {},
   _lastJSON: {},
 
+  // All requests carry the auth token; one automatic refresh+retry on 401
+  async _fetch(rawPath, opts) {
+    const url = `${FB_URL}/${rawPath}.json`;
+    const tok = await ensureToken();
+    let r = await fetch(tok ? `${url}?auth=${tok}` : url, opts);
+    if (r.status === 401 && AUTH && await refreshAuth()) {
+      r = await fetch(`${url}?auth=${AUTH.idToken}`, opts);
+    }
+    return r;
+  },
+
   async get(path) {
     try {
-      const r = await fetch(`${FB_URL}/${fbPath(path)}.json`);
+      const r = await this._fetch(path);
       return r.ok ? await r.json() : null;
     } catch(e) { return null; }
   },
 
-  // Reads the old un-prefixed location — used once to migrate legacy data
+  // Read an absolute legacy path (pre-lockdown root or old passphrase space)
   async getRaw(path) {
     try {
-      const r = await fetch(`${FB_URL}/${path}.json`);
+      const r = await this._fetch(path);
       return r.ok ? await r.json() : null;
     } catch(e) { return null; }
   },
 
   async set(path, data) {
     try {
-      const r = await fetch(`${FB_URL}/${fbPath(path)}.json`, {
+      const r = await this._fetch(path, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
@@ -67,7 +118,7 @@ const db = {
 
   // Polling-based "real-time" listener (polls every 3 seconds).
   // Skips polls while the tab is hidden, and only fires the callback
-  // when the data actually changed — no more re-render churn.
+  // when the data actually changed — no re-render churn.
   on(path, callback) {
     const fire = async () => {
       const val = await this.get(path);
@@ -2286,8 +2337,9 @@ body.light-mode .header-search input[type=text]::placeholder { color: var(--text
         <div class="sidebar-shortcut-hint" id="shortcutHint" title="View keyboard shortcuts">
           <span>⌨</span><span>Press <strong style="color:var(--ice-blue)">?</strong> for keyboard shortcuts</span>
         </div>
-        <div class="sidebar-shortcut-hint" id="changePassHint" title="Switch to a different crew passphrase" style="margin-top:8px;padding-top:0;border-top:none">
-          <span>🔑</span><span>Change passphrase</span>
+        <div class="sidebar-shortcut-hint" id="accountRow" title="Signed-in account" style="margin-top:8px;padding-top:0;border-top:none;cursor:default">
+          <span>👤</span><span id="accountEmail" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px"></span>
+          <span id="signOutBtn" style="margin-left:auto;color:var(--ice-blue);cursor:pointer;font-weight:600" title="Sign out of The Abyss on this device">Sign out</span>
         </div>
       </div>
     </div><!-- end sidebar-inner -->
@@ -2379,17 +2431,18 @@ body.light-mode .header-search input[type=text]::placeholder { color: var(--text
   </div>
 </div>
 
-<!-- CREW PASSPHRASE UNLOCK -->
-<div class="unlock-screen" id="unlockOverlay">
+<!-- SIGN IN -->
+<div class="unlock-screen" id="loginOverlay">
   <div class="unlock-card">
     <div class="unlock-emoji">🦑</div>
     <h1>The Abyss</h1>
-    <div class="unlock-sub">Enter your crew passphrase to open the calendar.</div>
-    <input type="password" id="unlockInput" placeholder="Crew passphrase" autocomplete="current-password" aria-label="Crew passphrase">
-    <button id="unlockBtn">Dive In</button>
+    <div class="unlock-sub">Sign in to open the crew calendar.</div>
+    <input type="email" id="loginEmail" placeholder="Email" autocomplete="username" aria-label="Email">
+    <input type="password" id="loginPass" placeholder="Password" autocomplete="current-password" aria-label="Password" style="margin-top:10px">
+    <div id="loginError" style="display:none;margin-top:10px;font-size:12.5px;color:var(--danger);line-height:1.5"></div>
+    <button id="loginBtn">Dive In</button>
     <div class="unlock-note">
-      <strong style="color:var(--ice-blue)">First time?</strong> Whatever you enter becomes your crew's passphrase — share it with everyone who uses this calendar.<br><br>
-      <strong style="color:var(--ice-blue)">Calendar looks empty?</strong> The passphrase doesn't match. Use "Change passphrase" at the bottom of the sidebar to try again — nothing is lost.
+      <strong style="color:var(--ice-blue)">Need access?</strong> Accounts are created by the calendar admin — ask them to add you. You'll stay signed in on this device.
     </div>
   </div>
 </div>
@@ -6471,51 +6524,91 @@ function initFirebase() {
 }
 
 // ============================================================
-// UNLOCK FLOW — derive the space key from the crew passphrase,
-// migrate any legacy root-level data into the space once, then
-// start syncing. The key is remembered per device.
+// SIGN-IN FLOW — authenticate, migrate any legacy data once,
+// then start syncing. Sessions persist per device.
 // ============================================================
 async function migrateLegacyData() {
   try {
     const existing = await db.get('krakenEvents');
-    if (existing) return; // this space already has data
-    const keys = ['krakenEvents', 'krakenGroups', 'krakenHiddenGroups', 'krakenAnnotations', 'krakenPeople'];
+    if (existing) return; // data already in place
+    // If this device used the interim passphrase version, pull from its space
+    let spaceKey = null;
+    try { spaceKey = localStorage.getItem('abyssSpaceKey'); } catch(e) {}
+    if (!spaceKey) return;
+    const keys = ['krakenEvents', 'krakenGroups', 'krakenHiddenGroups', 'krakenAnnotations', 'krakenPeople', 'krakenMondayNotes', 'krakenMondayMeetings'];
     for (const k of keys) {
-      const old = await db.getRaw(k); // pre-lockdown location
+      const old = await db.getRaw(`spaces/${spaceKey}/${k}`);
       if (old != null) await db.set(k, old);
     }
-  } catch(e) { /* root may already be locked down — that's fine */ }
+  } catch(e) {}
 }
 
-async function unlockWithPassphrase(pass) {
-  if (!pass.trim()) return;
-  const btn = document.getElementById('unlockBtn');
-  btn.disabled = true; btn.textContent = 'Diving…';
-  SPACE_KEY = await deriveSpaceKey(pass);
-  try { localStorage.setItem('abyssSpaceKey', SPACE_KEY); } catch(e) {}
+const LOGIN_ERRORS = {
+  'EMAIL_NOT_FOUND': "No account with that email. Ask the admin to add you.",
+  'INVALID_PASSWORD': "Email or password doesn't match.",
+  'INVALID_LOGIN_CREDENTIALS': "Email or password doesn't match.",
+  'USER_DISABLED': "This account has been disabled by the admin.",
+  'TOO_MANY_ATTEMPTS_TRY_LATER': "Too many attempts — wait a few minutes and try again.",
+  'OPERATION_NOT_ALLOWED': "Email sign-in isn't enabled yet in the Firebase console.",
+  'INVALID_EMAIL': "That doesn't look like a valid email address."
+};
+
+function showLogin(message) {
+  document.getElementById('loginOverlay').classList.add('open');
+  const errEl = document.getElementById('loginError');
+  if (message) { errEl.textContent = message; errEl.style.display = 'block'; }
+  setTimeout(() => document.getElementById('loginEmail').focus(), 150);
+}
+
+async function startApp() {
+  document.getElementById('loginOverlay').classList.remove('open');
+  document.getElementById('accountEmail').textContent = AUTH.email || '';
+  document.getElementById('accountEmail').title = AUTH.email || '';
+  // Default the Monday quick-note name to the signed-in identity (still editable)
+  if (!getMondayName() && AUTH.email) setMondayName(AUTH.email.split('@')[0]);
   await migrateLegacyData();
-  document.getElementById('unlockOverlay').classList.remove('open');
-  btn.disabled = false; btn.textContent = 'Dive In';
   initFirebase();
 }
 
-document.getElementById('unlockBtn').onclick = () => unlockWithPassphrase(document.getElementById('unlockInput').value);
-document.getElementById('unlockInput').addEventListener('keydown', e => {
-  e.stopPropagation();
-  if (e.key === 'Enter') unlockWithPassphrase(e.target.value);
+async function attemptSignIn() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const errEl = document.getElementById('loginError');
+  if (!email || !pass) { errEl.textContent = 'Enter your email and password.'; errEl.style.display = 'block'; return; }
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true; btn.textContent = 'Diving…';
+  errEl.style.display = 'none';
+  try {
+    await signIn(email, pass);
+    document.getElementById('loginPass').value = '';
+    startApp();
+  } catch(e) {
+    const code = (e.message || '').split(' ')[0].split(':')[0];
+    errEl.textContent = LOGIN_ERRORS[code] || "Couldn't sign in — check your connection and try again.";
+    errEl.style.display = 'block';
+  }
+  btn.disabled = false; btn.textContent = 'Dive In';
+}
+
+document.getElementById('loginBtn').onclick = attemptSignIn;
+['loginEmail', 'loginPass'].forEach(id => {
+  document.getElementById(id).addEventListener('keydown', e => {
+    e.stopPropagation();
+    if (e.key === 'Enter') attemptSignIn();
+  });
 });
 
-document.getElementById('changePassHint').onclick = () => {
-  if (!confirm('Switch to a different crew passphrase?\n\nYour calendar data stays safe — you can come right back by entering the same passphrase again.')) return;
-  try { localStorage.removeItem('abyssSpaceKey'); } catch(e) {}
+document.getElementById('signOutBtn').onclick = () => {
+  if (!confirm('Sign out of The Abyss on this device?')) return;
+  AUTH = null; saveAuth();
   location.reload();
 };
 
-if (SPACE_KEY) {
-  initFirebase();
+if (AUTH) {
+  // Validate the stored session; fall back to login if it's no longer good
+  ensureToken().then(tok => { if (tok) startApp(); else if (!document.getElementById('loginOverlay').classList.contains('open')) showLogin(); });
 } else {
-  document.getElementById('unlockOverlay').classList.add('open');
-  setTimeout(() => document.getElementById('unlockInput').focus(), 150);
+  showLogin();
 }
 </script>
 <button class="mobile-fab" id="mobileFab" title="Add Event">+</button>
