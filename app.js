@@ -2279,27 +2279,29 @@ document.getElementById('groupPageBack').onclick = () => {
 
 function renderGroupPageBody(g) {
   const body = document.getElementById('groupPageBody');
-  const groupEvents = state.events.filter(e => e.groupId === g.id)
+  const today = isoDate(new Date());
+  const allGroupEvents = state.events.filter(e => e.groupId === g.id)
     .sort((a,b) => a.date.localeCompare(b.date));
+  const upcomingEvents = allGroupEvents.filter(e => e.date >= today);
+  const pastEvents = allGroupEvents.filter(e => e.date < today).reverse(); // newest-first
 
   // collect all tasks from group events
   const allTasks = [];
-  groupEvents.forEach(ev => {
+  allGroupEvents.forEach(ev => {
     (ev.tasks||[]).forEach(t => allTasks.push({t, ev}));
   });
   const doneTasks = allTasks.filter(x => x.t.done).length;
   const overdueTasks = allTasks.filter(x => taskIsOverdue(x.t)).length;
-  const upcomingEvs = groupEvents.filter(e => e.date >= isoDate(new Date())).length;
 
   // Stats
   const statsHTML = `
     <div class="group-page-stats">
       <div class="gp-stat">
-        <div class="gp-stat-num ev-ink" style="--ev-color:${g.color}">${groupEvents.length}</div>
+        <div class="gp-stat-num ev-ink" style="--ev-color:${g.color}">${allGroupEvents.length}</div>
         <div class="gp-stat-label">Total Events</div>
       </div>
       <div class="gp-stat">
-        <div class="gp-stat-num ev-ink" style="--ev-color:${g.color}">${upcomingEvs}</div>
+        <div class="gp-stat-num ev-ink" style="--ev-color:${g.color}">${upcomingEvents.length}</div>
         <div class="gp-stat-label">Upcoming</div>
       </div>
       <div class="gp-stat">
@@ -2318,56 +2320,124 @@ function renderGroupPageBody(g) {
 
   body.innerHTML = statsHTML;
 
-  // Events section
+  // Helper to build an event card element
+  function buildEventCard(ev) {
+    const parent = getParent(ev);
+    const subs = getSubEvents(ev.id);
+    const card = document.createElement('div');
+    card.className = 'gp-event-card';
+    card.style.borderLeftColor = ev.color || g.color;
+    card.style.borderColor = (ev.color||g.color)+'55';
+
+    const dot = document.createElement('div');
+    dot.className = 'gp-event-dot';
+    dot.style.background = ev.color || g.color;
+
+    const info = document.createElement('div');
+    info.className = 'gp-event-info';
+
+    const tasksDone = (ev.tasks||[]).filter(t=>t.done).length;
+    const tasksTotal = (ev.tasks||[]).length;
+
+    info.innerHTML = `
+      <div class="gp-event-title">${ev.parentId && parent ? `<span style="opacity:.5;font-size:15px">↳ ${parent.title} / </span>`:''} ${ev.title}</div>
+      <div class="gp-event-meta">
+        <span>📅 ${fmtDate(ev.date)}</span>
+        ${!ev.allDay?`<span>🕐 ${fmtTime(ev.start)} – ${fmtTime(ev.end)}</span>`:'<span>All Day</span>'}
+        ${ev.location?`<span>📍 ${ev.location}</span>`:''}
+        ${tasksTotal?`<span>🎯 ${tasksDone}/${tasksTotal} tasks</span>`:''}
+        ${subs.length?`<span>📎 ${subs.length} sub-event${subs.length>1?'s':''}</span>`:''}
+      </div>
+      ${(ev.attendees||[]).length ? `
+      <div class="gp-event-badges">
+        ${(ev.attendees||[]).map(n=>`<span class="gp-badge">${n}</span>`).join('')}
+      </div>` : ''}`;
+
+    card.appendChild(dot); card.appendChild(info);
+    card.onclick = () => {
+      document.getElementById('groupPage').classList.remove('open');
+      openDetail(ev.id);
+    };
+    return card;
+  }
+
+  // Upcoming Events section
   const evSecTitle = document.createElement('div');
   evSecTitle.className = 'group-page-section-title';
-  evSecTitle.innerHTML = `<span class="ev-ink" style="--ev-color:${g.color}">◈</span> Events`;
+  evSecTitle.innerHTML = `<span class="ev-ink" style="--ev-color:${g.color}">◈</span> Upcoming Events`;
   body.appendChild(evSecTitle);
 
-  if (!groupEvents.length) {
+  if (!upcomingEvents.length) {
     const empty = document.createElement('div'); empty.className = 'gp-empty';
-    empty.textContent = 'No events in this group yet.'; body.appendChild(empty);
+    empty.textContent = 'No upcoming events in this group.'; body.appendChild(empty);
   } else {
-    groupEvents.forEach(ev => {
-      const parent = getParent(ev);
-      const subs = getSubEvents(ev.id);
-      const dt = new Date(ev.date+'T00:00:00');
-      const card = document.createElement('div');
-      card.className = 'gp-event-card';
-      card.style.borderLeftColor = ev.color || g.color;
-      card.style.borderColor = (ev.color||g.color)+'55';
+    upcomingEvents.forEach(ev => body.appendChild(buildEventCard(ev)));
+  }
 
-      const dot = document.createElement('div');
-      dot.className = 'gp-event-dot';
-      dot.style.background = ev.color || g.color;
+  // Past Events collapsible section
+  if (pastEvents.length) {
+    const pastSection = document.createElement('div');
+    pastSection.className = 'gp-past-section';
 
-      const info = document.createElement('div');
-      info.className = 'gp-event-info';
+    const pastHeader = document.createElement('div');
+    pastHeader.className = 'gp-past-header';
+    pastHeader.innerHTML = `
+      <span class="ev-ink" style="--ev-color:${g.color}">◈</span>
+      <span>Past Events</span>
+      <span class="gp-past-count">${pastEvents.length}</span>
+      <span class="gp-past-chevron">▸</span>`;
+    pastSection.appendChild(pastHeader);
 
-      const tasksDone = (ev.tasks||[]).filter(t=>t.done).length;
-      const tasksTotal = (ev.tasks||[]).length;
+    const pastBody = document.createElement('div');
+    pastBody.className = 'gp-past-body';
 
-      info.innerHTML = `
-        <div class="gp-event-title">${ev.parentId && parent ? `<span style="opacity:.5;font-size:15px">↳ ${parent.title} / </span>`:''} ${ev.title}</div>
-        <div class="gp-event-meta">
-          <span>📅 ${fmtDate(ev.date)}</span>
-          ${!ev.allDay?`<span>🕐 ${fmtTime(ev.start)} – ${fmtTime(ev.end)}</span>`:'<span>All Day</span>'}
-          ${ev.location?`<span>📍 ${ev.location}</span>`:''}
-          ${tasksTotal?`<span>🎯 ${tasksDone}/${tasksTotal} tasks</span>`:''}
-          ${subs.length?`<span>📎 ${subs.length} sub-event${subs.length>1?'s':''}</span>`:''}
-        </div>
-        ${(ev.attendees||[]).length ? `
-        <div class="gp-event-badges">
-          ${(ev.attendees||[]).map(n=>`<span class="gp-badge">${n}</span>`).join('')}
-        </div>` : ''}`;
+    // Filter bar
+    const filterBar = document.createElement('div');
+    filterBar.className = 'gp-past-filter-bar';
+    filterBar.innerHTML = `
+      <input class="gp-past-search" type="text" placeholder="Search past events…" />
+      <select class="gp-past-year-select">
+        <option value="">All Years</option>
+        ${[...new Set(pastEvents.map(e => e.date.slice(0,4)))].sort((a,b)=>b-a)
+          .map(y => `<option value="${y}">${y}</option>`).join('')}
+      </select>`;
+    pastBody.appendChild(filterBar);
 
-      card.appendChild(dot); card.appendChild(info);
-      card.onclick = () => {
-        document.getElementById('groupPage').classList.remove('open');
-        openDetail(ev.id);
-      };
-      body.appendChild(card);
-    });
+    const pastList = document.createElement('div');
+    pastList.className = 'gp-past-list';
+    pastBody.appendChild(pastList);
+
+    function renderPastList() {
+      const query = pastBody.querySelector('.gp-past-search').value.toLowerCase();
+      const year = pastBody.querySelector('.gp-past-year-select').value;
+      const filtered = pastEvents.filter(ev => {
+        if (year && !ev.date.startsWith(year)) return false;
+        if (query && !ev.title.toLowerCase().includes(query) && !ev.date.includes(query)) return false;
+        return true;
+      });
+      pastList.innerHTML = '';
+      if (!filtered.length) {
+        const empty = document.createElement('div'); empty.className = 'gp-empty';
+        empty.textContent = 'No past events match the filter.'; pastList.appendChild(empty);
+      } else {
+        filtered.forEach(ev => pastList.appendChild(buildEventCard(ev)));
+      }
+    }
+
+    renderPastList();
+    pastBody.querySelector('.gp-past-search').addEventListener('input', renderPastList);
+    pastBody.querySelector('.gp-past-year-select').addEventListener('change', renderPastList);
+    pastSection.appendChild(pastBody);
+
+    // Toggle expand/collapse
+    let expanded = false;
+    pastHeader.onclick = () => {
+      expanded = !expanded;
+      pastBody.classList.toggle('open', expanded);
+      pastHeader.querySelector('.gp-past-chevron').textContent = expanded ? '▾' : '▸';
+    };
+
+    body.appendChild(pastSection);
   }
 
   // Tasks section

@@ -1329,6 +1329,37 @@ main { flex: 1; padding: 20px; min-width: 0; display: flex; flex-direction: colu
 .gp-task-event-link:hover { text-decoration: underline; }
 .gp-empty { font-size: 17px; color: var(--text-dim); padding: 12px 0; }
 
+/* Past Events collapsible section */
+.gp-past-section { margin-top: 28px; }
+.gp-past-header {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 18px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+  color: var(--text-dim); padding: 10px 0; cursor: pointer; user-select: none;
+  border-top: 1px solid var(--border);
+}
+.gp-past-header:hover { color: var(--silver-ice); }
+.gp-past-count {
+  font-size: 13px; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 1px 8px; color: var(--text-dim);
+}
+.gp-past-chevron { margin-left: auto; font-size: 16px; }
+.gp-past-body { display: none; padding-top: 10px; }
+.gp-past-body.open { display: block; }
+.gp-past-filter-bar {
+  display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap;
+}
+.gp-past-search {
+  flex: 1; min-width: 160px; background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 7px 12px; color: var(--silver-ice); font-size: 15px; outline: none;
+}
+.gp-past-search:focus { border-color: var(--teal); }
+.gp-past-year-select {
+  background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+  padding: 7px 12px; color: var(--silver-ice); font-size: 15px; cursor: pointer; outline: none;
+}
+.gp-past-year-select:focus { border-color: var(--teal); }
+.gp-past-list { display: flex; flex-direction: column; gap: 8px; }
+
 /* SUB-EVENT STYLES */
 .event-pill.sub-event {
   margin-left: 10px;
