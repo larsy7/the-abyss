@@ -199,7 +199,7 @@ body::before {
   .logo img { width: 24px; height: 24px; }
   .logo { gap: 2px; flex-shrink: 0; }
   .nav-center { gap: 2px; flex: 1; min-width: 0; }
-  .nav-btn { padding: 4px 5px; font-size: 18px; }
+  .nav-btn { padding: 2px 4px; font-size: 18px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .period-label { font-size: 16px; min-width: 0; flex: 1; text-align: center; padding: 2px 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .today-btn { display: none !important; }
   .sync-status { display: none !important; }
