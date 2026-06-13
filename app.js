@@ -479,7 +479,7 @@ function renderMonth() {
       const isNewRow = date.getDay() === 0;   // Sunday — starts a new row
 
       pill.style.borderLeftColor = mdPos && mdPos !== 'start' ? 'transparent' : pillColor;
-      pill.style.color = pillColor;
+      pill.style.setProperty('--ev-color', pillColor);
 
       if (group || mdPos) {
         if (mdPos === 'mid') {
@@ -677,6 +677,7 @@ function renderWeek() {
       slots[row].push([colStart, colEnd]);
 
       const banner = document.createElement('div');
+      banner.className = 'wk-banner';
       banner.style.cssText = `
         position:absolute;
         left:calc(${colStart} / 7 * 100%);
@@ -688,7 +689,7 @@ function renderWeek() {
         white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
         cursor:pointer;
         background:${evColor + (startsThisWeek || endsThisWeek ? '28' : 'AA')};
-        color:${evColor};
+        --ev-color:${evColor};
         border-left:${startsThisWeek ? `3px solid ${evColor}` : 'none'};
         border-right:${endsThisWeek ? `3px solid ${evColor}` : 'none'};
         border-radius:${startsThisWeek ? '5px' : '0'} ${endsThisWeek ? '5px' : '0'} ${endsThisWeek ? '5px' : '0'} ${startsThisWeek ? '5px' : '0'};
@@ -766,9 +767,9 @@ function renderWeek() {
       const evColor = (weekGroup ? weekGroup.color : null) || ev.color || (parent ? parent.color : null) || '#00B2A9';
       el.style.borderLeftColor = evColor;
       el.style.background = evColor + (ev.parentId ? '18' : '28');
-      el.style.color = evColor;
+      el.style.setProperty('--ev-color', evColor);
       const parentLabel = ev.parentId && parent ? `<div style="font-size:13px;opacity:0.6;margin-bottom:1px">↳ ${parent.title}</div>` : '';
-      const groupLabel = weekGroup ? `<span style="font-size:13px;background:${weekGroup.color}22;color:${weekGroup.color};border-radius:3px;padding:0 4px;margin-right:3px">${weekGroup.name}</span>` : '';
+      const groupLabel = weekGroup ? `<span class="group-chip">${weekGroup.name}</span>` : '';
       el.innerHTML = `${parentLabel}<strong>${groupLabel}${ev.title}</strong>${recurLabel(ev)}<br>${fmtTime(ev.start)}`;
       el.title = `${ev.title}\n${fmtTime(ev.start)} – ${fmtTime(ev.end)}${ev.location ? '\n📍 ' + ev.location : ''}${weekGroup ? '\n🏷 ' + weekGroup.name : ''}`;
       if (matches || !state.activeFilters.length) el.onclick = e => { e.stopPropagation(); openDetail(ev.id); };
@@ -807,7 +808,7 @@ function renderDay() {
     banner.style.background = evColor + '28';
     banner.style.borderLeft = (dayMdPos === 'mid' || dayMdPos === 'end') ? 'none' : `3px solid ${evColor}`;
     banner.style.borderRight = (dayMdPos === 'end' || !dayMdPos) ? `3px solid ${evColor}` : 'none';
-    banner.style.color = evColor;
+    banner.style.setProperty('--ev-color', evColor);
     banner.textContent = ev.title;
     banner.onclick = () => openDetail(ev.id);
     adCol.appendChild(banner);
@@ -868,9 +869,9 @@ function renderDay() {
     const evColor = (dayGroup ? dayGroup.color : null) || ev.color || (parent ? parent.color : null) || '#00B2A9';
     el.style.borderLeftColor = evColor;
     el.style.background = evColor + (ev.parentId ? '18' : '22');
-    el.style.color = evColor;
+    el.style.setProperty('--ev-color', evColor);
     const parentLabel = ev.parentId && parent ? `<div style="font-size:14px;opacity:0.6;margin-bottom:2px">↳ ${parent.title}</div>` : '';
-    const groupLabel = dayGroup ? `<span style="font-size:14px;background:${dayGroup.color}22;color:${dayGroup.color};border-radius:3px;padding:0 5px;margin-right:4px">${dayGroup.name}</span>` : '';
+    const groupLabel = dayGroup ? `<span class="group-chip" style="font-size:14px;padding:0 5px;margin-right:4px">${dayGroup.name}</span>` : '';
     el.innerHTML = `${parentLabel}<strong>${groupLabel}${ev.title}</strong>${recurLabel(ev)}<br>${fmtTime(ev.start)} – ${fmtTime(ev.end)}${ev.location?'<br>📍 '+ev.location:''}`;
     if (matches || !state.activeFilters.length) el.onclick = e => { e.stopPropagation(); openDetail(ev.id); };
     makeDraggable(el, ev, ds);
@@ -1389,17 +1390,27 @@ if (mobileFab) mobileFab.onclick = () => openAddModal();
   });
 })();
 
-// Theme toggle — light/dark mode (header & sidebar always stay dark)
+// Theme toggle — light/dark mode. First visit follows the OS
+// preference; the toggle saves an explicit choice after that.
 (function() {
   const btn = document.getElementById('themeToggle');
-  const apply = (light) => {
+  const meta = document.querySelector('meta[name=theme-color]');
+  const apply = (light, persist = true) => {
     document.body.classList.toggle('light-mode', light);
     btn.textContent = light ? '🌙' : '☀️';
     btn.title = light ? 'Switch to dark mode' : 'Switch to light mode';
-    localStorage.setItem('krakenTheme', light ? 'light' : 'dark');
+    if (meta) meta.content = light ? '#F4FAFB' : '#0A1F33';
+    if (persist) localStorage.setItem('krakenTheme', light ? 'light' : 'dark');
   };
-  // Load saved preference
-  apply(localStorage.getItem('krakenTheme') === 'light');
+  const saved = localStorage.getItem('krakenTheme');
+  const osLight = window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches;
+  apply(saved ? saved === 'light' : osLight, false);
+  // Follow OS changes until the user picks a theme explicitly
+  if (window.matchMedia) {
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', e => {
+      if (!localStorage.getItem('krakenTheme')) apply(e.matches, false);
+    });
+  }
   btn.onclick = () => apply(!document.body.classList.contains('light-mode'));
 })();
 
@@ -1572,7 +1583,7 @@ function renderTasksList() {
       const dLabel = overdue ? '⚠ ' : '📅 ';
       const dt = new Date(t.dueDate + 'T00:00:00');
       dueBadge.textContent = dLabel + `${MONTHS[dt.getMonth()].slice(0,3)} ${dt.getDate()}`;
-      if (overdue) dueBadge.style.color = 'var(--danger)';
+      if (overdue) dueBadge.style.color = 'var(--danger-ink)';
       // already shown via input — skip duplicate text badge in compact form
     }
 
@@ -1835,7 +1846,7 @@ function openDetail(id) {
     let dueTxt = '';
     if (t.dueDate) {
       const dt = new Date(t.dueDate + 'T00:00:00');
-      dueTxt = `<span style="font-size:15px;font-family:'Barlow Condensed',sans-serif;font-weight:700;color:${overdue?'var(--danger)':'var(--gold)'};">${overdue?'⚠':'📅'} ${MONTHS[dt.getMonth()].slice(0,3)} ${dt.getDate()}</span>`;
+      dueTxt = `<span style="font-size:15px;font-family:'Barlow Condensed',sans-serif;font-weight:700;color:${overdue?'var(--danger-ink)':'var(--gold-ink)'};">${overdue?'⚠':'📅'} ${MONTHS[dt.getMonth()].slice(0,3)} ${dt.getDate()}</span>`;
     }
     let assignTxt = '';
     if (t.assignee) {
@@ -1863,7 +1874,7 @@ function openDetail(id) {
     ${ev.parentId && parent ? `
       <div style="margin-bottom:10px">
         <span class="parent-badge" id="goToParentBtn" data-parent-id="${parent.id}">
-          <span style="color:${parent.color||'var(--kraken-teal)'}">◈</span> ${parent.title}
+          <span class="ev-ink" style="--ev-color:${parent.color||'var(--kraken-teal)'}">◈</span> ${parent.title}
           <span style="opacity:.6;font-size:14px;margin-left:2px">↗</span>
         </span>
       </div>` : ''}
@@ -1883,10 +1894,10 @@ function openDetail(id) {
               </span>`).join('')}
           </div>
         </div>`:''}
-      ${tasksTotal?`<div class="detail-row"><span class="detail-icon">🎯</span>${tasksDone}/${tasksTotal} tasks complete${overdueCount?` &nbsp;<span style="color:var(--danger);font-size:15px;">⚠ ${overdueCount} overdue</span>`:''}</div>`:''}
+      ${tasksTotal?`<div class="detail-row"><span class="detail-icon">🎯</span>${tasksDone}/${tasksTotal} tasks complete${overdueCount?` &nbsp;<span style="color:var(--danger-ink);font-size:15px;">⚠ ${overdueCount} overdue</span>`:''}</div>`:''}
       ${attachTotal?`<div class="detail-row"><span class="detail-icon">🔗</span>${attachTotal} attachment${attachTotal>1?'s':''}</div>`:''}
       ${subEvents.length?`<div class="detail-row"><span class="detail-icon">📎</span>${subEvents.length} sub-event${subEvents.length>1?'s':''}</div>`:''}
-      ${ev.groupId ? (()=>{ const g=getGroupById(ev.groupId); return g?`<div class="detail-row"><span class="detail-icon">🏷️</span><span style="background:${g.color}22;color:${g.color};border:1px solid ${g.color}44;border-radius:5px;padding:2px 9px;font-size:16px;font-weight:700;cursor:pointer" class="gp-group-link" data-gid="${g.id}">${g.name} ↗</span></div>`:''; })() : ''}
+      ${ev.groupId ? (()=>{ const g=getGroupById(ev.groupId); return g?`<div class="detail-row"><span class="detail-icon">🏷️</span><span style="--ev-color:${g.color};background:${g.color}22;border:1px solid ${g.color}44;border-radius:5px;padding:2px 9px;font-size:16px;font-weight:700;cursor:pointer" class="gp-group-link ev-ink" data-gid="${g.id}">${g.name} ↗</span></div>`:''; })() : ''}
     </div>
     ${ev.desc?`<div class="detail-desc">${ev.desc.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div>`:''}
     ${subEvents.length?`
@@ -2272,23 +2283,23 @@ function renderGroupPageBody(g) {
   const statsHTML = `
     <div class="group-page-stats">
       <div class="gp-stat">
-        <div class="gp-stat-num" style="color:${g.color}">${groupEvents.length}</div>
+        <div class="gp-stat-num ev-ink" style="--ev-color:${g.color}">${groupEvents.length}</div>
         <div class="gp-stat-label">Total Events</div>
       </div>
       <div class="gp-stat">
-        <div class="gp-stat-num" style="color:${g.color}">${upcomingEvs}</div>
+        <div class="gp-stat-num ev-ink" style="--ev-color:${g.color}">${upcomingEvs}</div>
         <div class="gp-stat-label">Upcoming</div>
       </div>
       <div class="gp-stat">
-        <div class="gp-stat-num" style="color:${g.color}">${allTasks.length}</div>
+        <div class="gp-stat-num ev-ink" style="--ev-color:${g.color}">${allTasks.length}</div>
         <div class="gp-stat-label">Total Tasks</div>
       </div>
       <div class="gp-stat">
-        <div class="gp-stat-num" style="color:${overdueTasks > 0 ? 'var(--danger)' : g.color}">${overdueTasks}</div>
+        <div class="gp-stat-num ev-ink" style="--ev-color:${overdueTasks > 0 ? 'var(--danger)' : g.color}">${overdueTasks}</div>
         <div class="gp-stat-label">Overdue Tasks</div>
       </div>
       <div class="gp-stat">
-        <div class="gp-stat-num" style="color:${g.color}">${allTasks.length ? Math.round(doneTasks/allTasks.length*100) : 0}%</div>
+        <div class="gp-stat-num ev-ink" style="--ev-color:${g.color}">${allTasks.length ? Math.round(doneTasks/allTasks.length*100) : 0}%</div>
         <div class="gp-stat-label">Tasks Done</div>
       </div>
     </div>`;
@@ -2298,7 +2309,7 @@ function renderGroupPageBody(g) {
   // Events section
   const evSecTitle = document.createElement('div');
   evSecTitle.className = 'group-page-section-title';
-  evSecTitle.innerHTML = `<span style="color:${g.color}">◈</span> Events`;
+  evSecTitle.innerHTML = `<span class="ev-ink" style="--ev-color:${g.color}">◈</span> Events`;
   body.appendChild(evSecTitle);
 
   if (!groupEvents.length) {
@@ -2350,7 +2361,7 @@ function renderGroupPageBody(g) {
   // Tasks section
   const taskSecTitle = document.createElement('div');
   taskSecTitle.className = 'group-page-section-title';
-  taskSecTitle.innerHTML = `<span style="color:${g.color}">◆</span> All Tasks`;
+  taskSecTitle.innerHTML = `<span class="ev-ink" style="--ev-color:${g.color}">◆</span> All Tasks`;
   body.appendChild(taskSecTitle);
 
   if (!allTasks.length) {
@@ -2376,7 +2387,7 @@ function renderGroupPageBody(g) {
         <div class="gp-task-text${t.done?' done':''}">${t.text}</div>
         <div class="gp-task-meta">
           ${t.assignee?`<span>👤 ${t.assignee}</span>`:''}
-          ${dt2?`<span style="color:${overdue?'var(--danger)':'var(--gold)'}">${overdue?'⚠':''} Due ${MONTHS[dt2.getMonth()].slice(0,3)} ${dt2.getDate()}</span>`:''}
+          ${dt2?`<span style="color:${overdue?'var(--danger-ink)':'var(--gold-ink)'}">${overdue?'⚠':''} Due ${MONTHS[dt2.getMonth()].slice(0,3)} ${dt2.getDate()}</span>`:''}
           <span class="gp-task-event-link" data-ev-id="${ev.id}">→ ${ev.title}</span>
         </div>`;
 
@@ -3551,9 +3562,9 @@ function renderMondayBody() {
   const stats = document.createElement('div');
   stats.className = 'group-page-stats';
   const statDefs = [
-    [overdueCount, 'Overdue tasks', overdueCount ? 'var(--danger)' : null],
+    [overdueCount, 'Overdue tasks', overdueCount ? 'var(--danger-ink)' : null],
     [openCount, 'Open tasks', null],
-    [verifyCount, 'To verify', verifyCount ? 'var(--gold)' : null],
+    [verifyCount, 'To verify', verifyCount ? 'var(--gold-ink)' : null],
     [data.away.length, 'Away', null],
   ];
   if (data.lastMeeting) statDefs.push([data.badges.size, 'New / changed', null]);
@@ -3567,17 +3578,17 @@ function renderMondayBody() {
   body.appendChild(stats);
 
   // needs attention
-  body.appendChild(mmSectionTitle('⚠', 'var(--danger)', 'Needs Attention', '⚠ overdue · ○ open · ✔? done, confirm it · click an item to view or edit'));
+  body.appendChild(mmSectionTitle('⚠', 'var(--danger-ink)', 'Needs Attention', '⚠ overdue · ○ open · ✔? done, confirm it · click an item to view or edit'));
   if (!data.attention.length) body.appendChild(mmEmpty('No open or overdue tasks in the next ' + MONDAY_WINDOW_DAYS + ' days — smooth sailing.'));
   else data.attention.forEach(a => body.appendChild(mmEventCard(a, data.badges)));
 
   // away from the rink
-  body.appendChild(mmSectionTitle('🏒', 'var(--ice-blue)', 'Away From The Rink', null));
+  body.appendChild(mmSectionTitle('🏒', 'var(--cyan-ink)', 'Away From The Rink', null));
   if (!data.away.length) body.appendChild(mmEmpty('Nobody away in the next ' + MONDAY_WINDOW_DAYS + ' days.'));
   else data.away.forEach(a => body.appendChild(mmAwayRow(a, data.badges)));
 
   // everything else coming up
-  body.appendChild(mmSectionTitle('📅', 'var(--kraken-teal)', 'Coming Up', 'everything else in the next ' + MONDAY_WINDOW_DAYS + ' days'));
+  body.appendChild(mmSectionTitle('📅', 'var(--teal-ink)', 'Coming Up', 'everything else in the next ' + MONDAY_WINDOW_DAYS + ' days'));
   const weeksWithRows = data.weeks.filter(w => w.rows.length);
   if (!weeksWithRows.length) body.appendChild(mmEmpty('Nothing else on the calendar.'));
   weeksWithRows.forEach(w => {
@@ -3598,7 +3609,7 @@ function renderMondayHistory() {
   const view = document.getElementById('mondayHistoryView');
   if (!view) return;
   view.innerHTML = '';
-  view.appendChild(mmSectionTitle('🗃', 'var(--kraken-teal)', 'Meeting History', 'what got covered, week by week'));
+  view.appendChild(mmSectionTitle('🗃', 'var(--teal-ink)', 'Meeting History', 'what got covered, week by week'));
   const ms = loadMondayMeetings().slice().sort((a, b) => (b.endedAt || '').localeCompare(a.endedAt || ''));
   if (!ms.length) {
     view.appendChild(mmEmpty('No meetings archived yet — run one from the Agenda tab and it will show up here.'));
@@ -3627,7 +3638,7 @@ function renderMondayHistory() {
       r.className = 'mm-history-item' + (it.discussed ? '' : ' skipped');
       const mark = document.createElement('span');
       mark.textContent = it.discussed ? '✓' : '—';
-      mark.style.color = it.discussed ? 'var(--kraken-teal)' : 'var(--text-dim)';
+      mark.style.color = it.discussed ? 'var(--teal-ink)' : 'var(--text-dim)';
       const ic = document.createElement('span');
       ic.textContent = ICONS[it.type] || '·';
       ic.style.opacity = '0.6';
