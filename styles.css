@@ -153,6 +153,8 @@ body.light-mode .mobile-groups-sheet { background: #F4FAFB; box-shadow: 0 -4px 3
 body.light-mode .mgs-group-card { background: rgba(255,255,255,0.85); }
 body.light-mode .mgs-view-btn,
 body.light-mode .mgs-action-btn { background: rgba(255,255,255,0.85); }
+body.light-mode .fab-menu-item { background: #F4FAFB; }
+body.light-mode .monday-topic-form input { background: rgba(255,255,255,0.9); color: #0D2535; }
 
 /* Event pills — ungrouped pills only; grouped pills carry their own tint */
 body.light-mode .event-pill { background: rgba(0,178,169,0.12); }
@@ -501,6 +503,9 @@ body::before {
 .mobile-groups-overlay { display: none; }
 .mobile-upnext-overlay { display: none; }
 .mobile-groups-sheet { display: none; }
+.fab-menu { display: none; }
+.fab-backdrop { display: none; }
+.monday-topic-sheet { display: none; }
 .view-tab[data-view="list"] { display: none; }
 .logo-text { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; text-shadow: var(--glow-sm); }
 
@@ -533,6 +538,73 @@ body::before {
 }
 @media (max-width: 768px) {
   .mobile-fab { display: flex; }
+  .fab-menu {
+    display: none;
+    position: fixed;
+    bottom: 84px; right: 20px;
+    z-index: 151;
+    flex-direction: column; gap: 8px;
+  }
+  .fab-menu.open { display: flex; }
+  .fab-menu-item {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--anchor);
+    border: 1px solid var(--border-bright);
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: var(--silver-ice);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 17px; font-weight: 700;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .fab-menu-item:active { transform: scale(0.97); }
+  .fab-menu-icon { font-size: 20px; }
+  .fab-backdrop {
+    display: none;
+    position: fixed; inset: 0;
+    z-index: 149;
+  }
+  .fab-backdrop.open { display: block; }
+  .mobile-fab.open {
+    transform: rotate(45deg);
+  }
+
+  /* Monday Topic sheet */
+  .monday-topic-sheet { display: block !important; }
+  .monday-topic-form {
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .monday-topic-form input {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: var(--silver-ice);
+    font-family: 'Barlow', sans-serif;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .monday-topic-form input:focus { border-color: var(--kraken-teal); }
+  .monday-topic-form input::placeholder { color: var(--text-dim); }
+  .monday-topic-submit {
+    background: var(--kraken-teal);
+    border: none;
+    border-radius: 10px;
+    padding: 12px;
+    color: var(--deep-sea);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 18px; font-weight: 700;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .monday-topic-submit:active { transform: scale(0.98); }
 }
 
 /* HEADER */

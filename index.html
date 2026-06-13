@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#0A1F33">
 <title>The Abyss</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=12">
+<link rel="stylesheet" href="styles.css?v=13">
 </head>
 <body>
 
@@ -602,8 +602,27 @@
   <div class="mgs-actions" id="mobileGroupsActions"></div>
 </div>
 
-<button class="mobile-fab" id="mobileFab" title="Add Event">+</button>
+<button class="mobile-fab" id="mobileFab" title="Add">+</button>
+<div class="fab-menu" id="fabMenu">
+  <button class="fab-menu-item" id="fabNewEvent"><span class="fab-menu-icon">📅</span>New Event</button>
+  <button class="fab-menu-item" id="fabMondayTopic"><span class="fab-menu-icon">📋</span>Monday Topic</button>
+</div>
+<div class="fab-backdrop" id="fabBackdrop"></div>
 
-<script src="app.js?v=12"></script>
+<!-- MONDAY TOPIC QUICK-ADD -->
+<div class="mobile-groups-overlay" id="mondayTopicOverlay" style="display:none"></div>
+<div class="mobile-groups-sheet monday-topic-sheet" id="mondayTopicSheet">
+  <div class="mgs-handle"></div>
+  <div class="mgs-header">
+    <span class="mgs-title">Add Monday Topic</span>
+    <button class="mgs-close" id="mondayTopicClose">✕</button>
+  </div>
+  <div class="monday-topic-form">
+    <input type="text" id="mondayTopicInput" placeholder="What should we discuss?" autocomplete="off">
+    <button class="monday-topic-submit" id="mondayTopicSubmit">Add to Agenda</button>
+  </div>
+</div>
+
+<script src="app.js?v=13"></script>
 </body>
 </html>
