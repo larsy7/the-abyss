@@ -1118,23 +1118,58 @@ main { flex: 1; padding: 20px; min-width: 0; display: flex; flex-direction: colu
 /* ===================== TOPIC GROUPS ===================== */
 /* Sidebar group rows */
 .group-row {
-  display: flex; align-items: center; gap: 8px;
+  display: flex; align-items: center; gap: 9px;
   padding: 6px 9px; border-radius: 8px; cursor: pointer;
   border: 1px solid transparent; margin-bottom: 3px;
   transition: all 0.2s; user-select: none;
 }
 .group-row:hover { background: var(--surface); border-color: var(--border); }
-.group-row.hidden-group { opacity: 0.45; }
+.group-row:focus-visible { outline: 2px solid var(--border-bright); outline-offset: -1px; }
 .group-swatch {
-  width: 12px; height: 12px; border-radius: 3px; flex-shrink: 0;
-  transition: opacity 0.2s;
+  width: 18px; height: 18px; border-radius: 4px; flex-shrink: 0;
+  border: 1.5px solid rgba(255,255,255,0.15);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
 }
 .group-row-name {
   flex: 1; font-size: 17px; color: var(--silver-ice); font-weight: 500;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.group-row.hidden-group .group-row-name { text-decoration: line-through; color: var(--text-dim); }
-.group-row-actions { display: flex; gap: 3px; flex-shrink: 0; }
+.group-row.hidden-group .group-row-name { color: var(--text-dim); }
+
+/* Right-hand slot: count badge at rest, actions revealed on hover/focus.
+   Both live in the same grid cell so the swap never shifts the row. */
+.group-row-end { display: grid; align-items: center; justify-items: end; flex-shrink: 0; }
+.group-row-end > * { grid-area: 1 / 1; }
+.group-row-count {
+  min-width: 27px; padding: 1px 7px; border-radius: 999px;
+  background: var(--surface); border: 1px solid var(--border);
+  font-size: 13px; font-variant-numeric: tabular-nums; text-align: center;
+  color: var(--text-dim); transition: opacity 0.15s;
+}
+.group-row-count.zero { opacity: 0.5; }
+.group-row-actions {
+  display: flex; gap: 2px; z-index: 1;
+  opacity: 0; pointer-events: none; transition: opacity 0.15s;
+}
+.group-row:hover .group-row-actions,
+.group-row:focus-within .group-row-actions { opacity: 1; pointer-events: auto; }
+.group-row:hover .group-row-count,
+.group-row:focus-within .group-row-count { opacity: 0; }
+/* Hidden groups keep their visibility toggle in view at rest */
+.group-row.hidden-group .group-row-count { opacity: 0; }
+.group-row.hidden-group .group-row-actions { opacity: 1; pointer-events: auto; }
+.group-row.hidden-group .menu-btn { opacity: 0; pointer-events: none; transition: opacity 0.15s; }
+.group-row.hidden-group:hover .menu-btn,
+.group-row.hidden-group:focus-within .menu-btn { opacity: 1; pointer-events: auto; }
+/* Touch devices have no hover: show count and actions side by side */
+@media (hover: none) {
+  .group-row-end { display: flex; align-items: center; gap: 5px; }
+  .group-row-count, .group-row-actions, .group-row.hidden-group .menu-btn {
+    opacity: 1 !important; pointer-events: auto !important;
+  }
+  .group-row-count.zero, .group-row.hidden-group .group-row-count { opacity: 0.5 !important; }
+}
 .group-action-btn {
   background: none; border: none; cursor: pointer; padding: 2px 4px;
   color: var(--text-dim); font-size: 15px; border-radius: 4px;
@@ -1143,6 +1178,7 @@ main { flex: 1; padding: 20px; min-width: 0; display: flex; flex-direction: colu
 .group-action-btn:hover { color: var(--white); background: rgba(255,255,255,0.08); }
 .group-action-btn.view-btn:hover { color: var(--teal-ink); }
 .group-action-btn.del-btn:hover { color: var(--danger-ink); }
+.group-action-btn.menu-btn { font-weight: 800; }
 .group-eye { font-size: 17px; flex-shrink: 0; }
 
 /* Group badge on pills */

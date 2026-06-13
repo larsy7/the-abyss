@@ -2021,33 +2021,25 @@ function renderSidebarGroups() {
 
     const row = document.createElement('div');
     row.className = 'group-row' + (hidden ? ' hidden-group' : '');
-    row.title = `Right-click to edit or delete`;
+    row.title = `Open ${g.name} page`;
+    row.tabIndex = 0;
+    row.setAttribute('role', 'button');
 
-    // Color swatch — clicking opens an inline color picker
-    const swatchWrap = document.createElement('div');
-    swatchWrap.style.cssText = 'position:relative;flex-shrink:0;';
-
+    // Color swatch — clicking opens an inline color picker.
+    // Hidden groups render hollow: an outline in the group color, no fill.
     const swatch = document.createElement('div');
     swatch.className = 'group-swatch';
-    swatch.style.background = hidden ? '#555' : g.color;
-    swatch.style.cursor = 'pointer';
     swatch.title = 'Click to change color';
-    swatch.style.width = '28px';
-    swatch.style.height = '28px';
-    swatch.style.borderRadius = '50%';
-    swatch.style.border = '1.5px solid rgba(255,255,255,0.15)';
-    swatch.style.transition = 'transform 0.15s, box-shadow 0.15s';
-    swatch.style.flexShrink = '0';
-
-    // Hidden native color input
-    const colorPicker = document.createElement('input');
-    colorPicker.type = 'color';
-    colorPicker.value = g.color;
-    colorPicker.style.cssText = 'position:absolute;width:0;height:0;opacity:0;pointer-events:none;top:0;left:0';
+    if (hidden) {
+      swatch.style.background = 'transparent';
+      swatch.style.border = `2px solid ${g.color}`;
+    } else {
+      swatch.style.background = g.color;
+    }
 
     swatch.onmouseenter = () => {
-      swatch.style.transform = 'scale(1.25)';
-      swatch.style.boxShadow = `0 0 6px ${g.color}99`;
+      swatch.style.transform = 'scale(1.12)';
+      swatch.style.boxShadow = `0 0 0 3px ${g.color}33`;
     };
     swatch.onmouseleave = () => {
       swatch.style.transform = '';
@@ -2064,7 +2056,10 @@ function renderSidebarGroups() {
       // Position near the clicked swatch
       const rect = swatch.getBoundingClientRect();
       fresh.style.cssText = `position:fixed;width:0;height:0;opacity:0;pointer-events:none;top:${rect.bottom}px;left:${rect.left}px;`;
-      fresh.oninput = () => { swatch.style.background = fresh.value; };
+      fresh.oninput = () => {
+        if (hidden) swatch.style.borderColor = fresh.value;
+        else swatch.style.background = fresh.value;
+      };
       fresh.onchange = () => {
         const gs = loadGroups();
         const idx = gs.findIndex(x => x.id === g.id);
@@ -2078,16 +2073,18 @@ function renderSidebarGroups() {
       fresh.click();
     };
 
-    swatchWrap.appendChild(colorPicker);
-    swatchWrap.appendChild(swatch);
-
     const nm = document.createElement('div');
     nm.className = 'group-row-name';
     nm.textContent = g.name;
 
+    // Right-hand slot: count badge at rest, actions revealed on hover
+    const end = document.createElement('div');
+    end.className = 'group-row-end';
+
     const countEl = document.createElement('div');
-    countEl.style.cssText = 'font-size:14px;color:var(--text-dim);flex-shrink:0';
-    countEl.textContent = evCount || '';
+    countEl.className = 'group-row-count' + (evCount ? '' : ' zero');
+    countEl.textContent = evCount;
+    countEl.title = `${evCount} event${evCount === 1 ? '' : 's'} on the calendar`;
 
     const actions = document.createElement('div');
     actions.className = 'group-row-actions';
@@ -2095,6 +2092,8 @@ function renderSidebarGroups() {
     const eyeBtn = document.createElement('button');
     eyeBtn.className = 'group-action-btn view-btn';
     eyeBtn.title = hidden ? 'Show group' : 'Hide group';
+    eyeBtn.setAttribute('aria-label', hidden ? `Show ${g.name} on calendar` : `Hide ${g.name} from calendar`);
+    eyeBtn.setAttribute('aria-pressed', String(hidden));
     eyeBtn.textContent = hidden ? '👁' : '🙈';
     eyeBtn.onclick = (e) => {
       e.stopPropagation();
@@ -2103,14 +2102,26 @@ function renderSidebarGroups() {
       saveHiddenGroups(); render();
     };
 
-    const viewBtn = document.createElement('button');
-    viewBtn.className = 'group-action-btn view-btn';
-    viewBtn.title = `Open ${g.name} page`;
-    viewBtn.textContent = '↗';
-    viewBtn.onclick = (e) => { e.stopPropagation(); openGroupPage(g.id); };
+    const menuBtn = document.createElement('button');
+    menuBtn.className = 'group-action-btn menu-btn';
+    menuBtn.title = 'Rename, recolor, or delete';
+    menuBtn.setAttribute('aria-label', `Options for ${g.name}`);
+    menuBtn.textContent = '⋯';
+    menuBtn.onclick = (e) => {
+      e.stopPropagation();
+      const rect = menuBtn.getBoundingClientRect();
+      openGroupCtxMenu({ clientX: rect.left, clientY: rect.bottom + 4 }, g);
+    };
 
-    actions.appendChild(eyeBtn); actions.appendChild(viewBtn);
-    row.appendChild(swatchWrap); row.appendChild(nm); row.appendChild(countEl); row.appendChild(actions);
+    actions.appendChild(eyeBtn); actions.appendChild(menuBtn);
+    end.appendChild(countEl); end.appendChild(actions);
+    row.appendChild(swatch); row.appendChild(nm); row.appendChild(end);
+
+    row.onclick = () => openGroupPage(g.id);
+    row.onkeydown = (e) => {
+      if (e.target !== row) return;
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openGroupPage(g.id); }
+    };
     row.oncontextmenu = (e) => { e.preventDefault(); openGroupCtxMenu(e, g); };
     list.appendChild(row);
   });
