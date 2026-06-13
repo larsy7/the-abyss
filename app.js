@@ -160,6 +160,7 @@ document.addEventListener('visibilitychange', () => {
 const MONTHS = ['January','February','March','April','May','June',
                 'July','August','September','October','November','December'];
 const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const DAYS_FULL = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
 let state = {
   view: 'month',
@@ -359,7 +360,7 @@ function isoDate(d) {
 function renderHeader() {
   const d = state.date;
   let label = '';
-  if (state.view === 'month') label = `${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+  if (state.view === 'month' || state.view === 'list') label = `${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
   else if (state.view === 'week') {
     const sun = new Date(d); sun.setDate(d.getDate() - d.getDay());
     const sat = new Date(sun); sat.setDate(sun.getDate()+6);
@@ -887,6 +888,129 @@ function renderDay() {
 }
 
 // ============================================================
+// AGENDA / LIST VIEW
+// ============================================================
+function renderAgenda() {
+  const container = document.getElementById('agendaView');
+  container.innerHTML = '';
+
+  const d = state.date;
+  const firstDay = new Date(d.getFullYear(), d.getMonth(), 1);
+  const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0);
+
+  for (let day = new Date(firstDay); day <= lastDay; day.setDate(day.getDate() + 1)) {
+    const ds = isoDate(day);
+    const allEvs = eventsForDate(ds);
+    const evs = state.activeFilters.length ? allEvs.filter(e => eventMatchesFilter(e)) : allEvs;
+
+    const group = document.createElement('div');
+    group.className = 'agenda-day-group';
+
+    const header = document.createElement('div');
+    header.className = 'agenda-day-header' + (isToday(ds) ? ' agenda-day-today' : '');
+
+    const dateEl = document.createElement('div');
+    dateEl.className = 'agenda-day-date';
+    dateEl.textContent = day.getDate();
+    header.appendChild(dateEl);
+
+    const meta = document.createElement('div');
+    meta.className = 'agenda-day-meta';
+    const nameEl = document.createElement('div');
+    nameEl.className = 'agenda-day-name';
+    nameEl.textContent = DAYS_FULL[day.getDay()];
+    meta.appendChild(nameEl);
+    const myEl = document.createElement('div');
+    myEl.className = 'agenda-day-monthyear';
+    myEl.textContent = `${MONTHS[day.getMonth()]} ${day.getFullYear()}`;
+    meta.appendChild(myEl);
+    header.appendChild(meta);
+
+    const line = document.createElement('div');
+    line.className = 'agenda-day-line';
+    header.appendChild(line);
+
+    group.appendChild(header);
+
+    if (evs.length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'agenda-empty';
+      empty.textContent = 'No events';
+      group.appendChild(empty);
+    } else {
+      evs.sort((a, b) => {
+        if (a.allDay && !b.allDay) return -1;
+        if (!a.allDay && b.allDay) return 1;
+        return (a.start || '99') < (b.start || '99') ? -1 : 1;
+      });
+      const eventsEl = document.createElement('div');
+      eventsEl.className = 'agenda-events';
+
+      for (const ev of evs) {
+        const evGroup = ev.groupId ? getGroupById(ev.groupId) : null;
+        const color = (evGroup ? evGroup.color : null) || ev.color || 'var(--kraken-teal)';
+        const dimmed = state.activeFilters.length && !eventMatchesFilter(ev);
+
+        const card = document.createElement('div');
+        card.className = 'agenda-event' + (dimmed ? ' dimmed' : '');
+        card.onclick = () => openDetail(ev.id);
+
+        const colorBar = document.createElement('div');
+        colorBar.className = 'agenda-event-color';
+        colorBar.style.background = color;
+        card.appendChild(colorBar);
+
+        const body = document.createElement('div');
+        body.className = 'agenda-event-body';
+
+        if (ev.allDay) {
+          const allDayLabel = document.createElement('div');
+          allDayLabel.className = 'agenda-event-allday';
+          allDayLabel.textContent = 'All day';
+          body.appendChild(allDayLabel);
+        }
+
+        const title = document.createElement('div');
+        title.className = 'agenda-event-title';
+        title.textContent = (ev.parentId ? '↳ ' : '') + ev.title;
+        title.style.color = `color-mix(in srgb, ${color} var(--ev-mix), var(--ev-mix-base))`;
+        body.appendChild(title);
+
+        if (!ev.allDay && (ev.start || ev.end)) {
+          const time = document.createElement('div');
+          time.className = 'agenda-event-time';
+          let timeText = '';
+          if (ev.start) timeText += fmtTime(ev.start);
+          if (ev.end) timeText += ' – ' + fmtTime(ev.end);
+          time.textContent = timeText;
+
+          const taskCount = (ev.tasks || []).filter(t => !t.done).length;
+          if (taskCount > 0) {
+            const tasks = document.createElement('span');
+            tasks.className = 'agenda-event-tasks';
+            tasks.textContent = '◆ ' + taskCount + ' task' + (taskCount > 1 ? 's' : '');
+            time.appendChild(tasks);
+          }
+          body.appendChild(time);
+        }
+
+        if ((ev.attendees || []).length > 0) {
+          const people = document.createElement('div');
+          people.className = 'agenda-event-people';
+          people.textContent = ev.attendees.join(', ');
+          body.appendChild(people);
+        }
+
+        card.appendChild(body);
+        eventsEl.appendChild(card);
+      }
+      group.appendChild(eventsEl);
+    }
+    container.appendChild(group);
+  }
+}
+
+// ============================================================
 // RENDER ALL
 // ============================================================
 function render() {
@@ -895,10 +1019,12 @@ function render() {
   renderSidebar();
   renderFilterBanner();
   renderUpNext();
+  document.getElementById('agendaView').className = 'agenda-view' + (state.view==='list'?' active':'');
   document.getElementById('monthView').className = 'month-grid' + (state.view==='month'?' active':'');
   document.getElementById('weekView').className = 'week-grid' + (state.view==='week'?' active':'');
   document.getElementById('dayView').className = 'day-view' + (state.view==='day'?' active':'');
-  if (state.view === 'month') renderMonth();
+  if (state.view === 'list') renderAgenda();
+  else if (state.view === 'month') renderMonth();
   else if (state.view === 'week') renderWeek();
   else renderDay();
   renderMondayPageIfOpen();
@@ -1215,14 +1341,14 @@ document.getElementById('attendeeSelect').onchange = () => {
 
 document.getElementById('prevBtn').onclick = () => {
   const d = state.date;
-  if (state.view==='month') state.date = new Date(d.getFullYear(), d.getMonth()-1, 1);
+  if (state.view==='month' || state.view==='list') state.date = new Date(d.getFullYear(), d.getMonth()-1, 1);
   else if (state.view==='week') { const n = new Date(d); n.setDate(d.getDate()-7); state.date=n; }
   else { const n = new Date(d); n.setDate(d.getDate()-1); state.date=n; }
   render();
 };
 document.getElementById('nextBtn').onclick = () => {
   const d = state.date;
-  if (state.view==='month') state.date = new Date(d.getFullYear(), d.getMonth()+1, 1);
+  if (state.view==='month' || state.view==='list') state.date = new Date(d.getFullYear(), d.getMonth()+1, 1);
   else if (state.view==='week') { const n = new Date(d); n.setDate(d.getDate()+7); state.date=n; }
   else { const n = new Date(d); n.setDate(d.getDate()+1); state.date=n; }
   render();
@@ -1257,8 +1383,10 @@ function renderMonthPicker() {
     btn.textContent = m.slice(0,3);
     btn.onclick = () => {
       state.date = new Date(state.mpYear, i, 1);
-      state.view = 'month';
-      document.querySelectorAll('.view-tab').forEach(t=>{ t.classList.toggle('active', t.dataset.view==='month'); });
+      if (state.view !== 'list') {
+        state.view = 'month';
+        document.querySelectorAll('.view-tab').forEach(t=>{ t.classList.toggle('active', t.dataset.view==='month'); });
+      }
       document.getElementById('monthPickerOverlay').classList.remove('open');
       render();
     };
@@ -3953,6 +4081,7 @@ document.addEventListener('keydown', e => {
   if (document.getElementById('detailModalOverlay').classList.contains('open')) return;
   if (e.key==='ArrowLeft') document.getElementById('prevBtn').click();
   if (e.key==='ArrowRight') document.getElementById('nextBtn').click();
+  if (e.key==='l') { document.querySelector('[data-view=list]').click(); }
   if (e.key==='m') { document.querySelector('[data-view=month]').click(); }
   if (e.key==='w') { document.querySelector('[data-view=week]').click(); }
   if (e.key==='d') { document.querySelector('[data-view=day]').click(); }
@@ -4132,6 +4261,10 @@ async function startApp() {
   // Default the Monday quick-note name to the signed-in identity (still editable)
   if (!getMondayName() && AUTH.email) setMondayName(AUTH.email.split('@')[0]);
   await migrateLegacyData();
+  if (window.innerWidth <= 768) {
+    state.view = 'list';
+    document.querySelectorAll('.view-tab').forEach(t => t.classList.toggle('active', t.dataset.view === 'list'));
+  }
   initFirebase();
 }
 
