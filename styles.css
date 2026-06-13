@@ -999,38 +999,32 @@ textarea { resize: vertical; min-height: 72px; }
   margin-bottom: 10px;
 }
 
-/* FILTER PERSON CHIPS */
-.filter-person {
-  display: flex; align-items: center; gap: 8px;
-  padding: 7px 9px; border-radius: 8px;
-  cursor: pointer; transition: all 0.2s;
-  border: 1px solid transparent; margin-bottom: 4px;
-  user-select: none;
+/* FILTER PERSON PILLS – dual column */
+#filterPeopleList {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 5px;
 }
-.filter-person:hover { background: var(--surface); border-color: var(--border); }
-.filter-person.active { background: rgba(0,178,169,0.12); border-color: var(--border-bright); }
+.filter-person {
+  display: flex; align-items: center; gap: 6px;
+  padding: 5px 10px; border-radius: 20px;
+  cursor: pointer; transition: all 0.2s;
+  border: 1px solid var(--border);
+  user-select: none; min-width: 0;
+}
+.filter-person:hover { background: var(--surface); border-color: var(--border-bright); }
+.filter-person.active { background: rgba(0,178,169,0.18); border-color: var(--kraken-teal); }
 .filter-person.active .fp-name { color: var(--white); }
 .fp-avatar {
-  width: 19px; height: 19px; border-radius: 50%;
+  width: 20px; height: 20px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 12px; font-weight: 800; color: var(--deep-sea);
+  font-size: 11px; font-weight: 800; color: var(--deep-sea);
   flex-shrink: 0; transition: opacity 0.2s;
 }
 .filter-person:not(.active) .fp-avatar { opacity: 0.5; }
 .fp-name {
-  font-size: 17px; color: var(--text-dim); font-weight: 500;
+  font-size: 14px; color: var(--text-dim); font-weight: 600;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   flex: 1; transition: color 0.2s;
-}
-.fp-check {
-  width: 14px; height: 14px; border-radius: 3px;
-  border: 1.5px solid var(--border-bright); flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; transition: all 0.2s;
-}
-.filter-person.active .fp-check {
-  background: var(--kraken-teal); border-color: var(--kraken-teal); color: var(--deep-sea);
 }
 
 .filter-all-btn {

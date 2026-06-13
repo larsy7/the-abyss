@@ -1004,11 +1004,7 @@ function renderSidebar() {
     nm.className = 'fp-name';
     nm.textContent = p.name;
 
-    const chk = document.createElement('div');
-    chk.className = 'fp-check';
-    if (active) chk.textContent = '✓';
-
-    row.appendChild(av); row.appendChild(nm); row.appendChild(chk);
+    row.appendChild(av); row.appendChild(nm);
     row.onclick = () => {
       const idx = state.activeFilters.indexOf(p.name);
       if (idx >= 0) state.activeFilters.splice(idx, 1);
