@@ -66,12 +66,10 @@
 
     <!-- Scrollable expanded content -->
     <div class="sidebar-inner">
-      <div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-          <div class="sidebar-section-title" style="margin-bottom:0">Topic Groups</div>
-          <button id="manageGroupsBtn" class="sidebar-new-person-btn">+ New</button>
-        </div>
-        <div id="sidebarGroupsList"></div>
+      <div style="margin-bottom:16px">
+        <div class="sidebar-section-title">Up Next · 7 Days</div>
+        <div id="upNextOverdue"></div>
+        <div class="upnext-list" id="upNextList"></div>
       </div>
       <div style="border-top:1px solid var(--border);padding-top:16px">
         <div class="sidebar-section-title" id="peopleFilterToggle" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;user-select:none;" title="Click to collapse">
@@ -91,10 +89,12 @@
           </div>
         </div>
       </div>
-      <div style="border-top:1px solid var(--border);padding-top:16px;margin-bottom:16px">
-        <div class="sidebar-section-title">Up Next · 7 Days</div>
-        <div id="upNextOverdue"></div>
-        <div class="upnext-list" id="upNextList"></div>
+      <div style="border-top:1px solid var(--border);padding-top:16px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <div class="sidebar-section-title" style="margin-bottom:0">Topic Groups</div>
+          <button id="manageGroupsBtn" class="sidebar-new-person-btn">+ New</button>
+        </div>
+        <div id="sidebarGroupsList"></div>
       </div>
       <div style="border-top:1px solid var(--border);padding-top:16px">
         <div class="sidebar-section-title">Display</div>
