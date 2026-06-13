@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#0A1F33">
 <title>The Abyss</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=5">
+<link rel="stylesheet" href="styles.css?v=6">
 </head>
 <body>
 
@@ -43,6 +43,7 @@
     </div>
     <button class="theme-toggle" id="themeToggle" title="Toggle light/dark mode">☀️</button>
     <button class="add-btn" id="addEventBtn">+ New Event</button>
+    <button class="mobile-groups-btn" id="mobileGroupsBtn" title="Topic Groups"><span class="groups-grid-icon"></span></button>
   </div>
 </header>
 
@@ -575,8 +576,23 @@
   </div>
 </div>
 
+<!-- MOBILE GROUPS MENU -->
+<div class="mobile-groups-overlay" id="mobileGroupsOverlay"></div>
+<div class="mobile-groups-sheet" id="mobileGroupsSheet">
+  <div class="mgs-handle"></div>
+  <div class="mgs-header">
+    <span class="mgs-title">Topic Groups</span>
+    <button class="mgs-close" id="mobileGroupsClose">✕</button>
+  </div>
+  <div class="mgs-grid" id="mobileGroupsGrid"></div>
+  <div class="mgs-section-label">Views</div>
+  <div class="mgs-views" id="mobileGroupsViews"></div>
+  <div class="mgs-section-label">Actions</div>
+  <div class="mgs-actions" id="mobileGroupsActions"></div>
+</div>
+
 <button class="mobile-fab" id="mobileFab" title="Add Event">+</button>
 
-<script src="app.js?v=5"></script>
+<script src="app.js?v=6"></script>
 </body>
 </html>
