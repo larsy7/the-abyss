@@ -31,6 +31,7 @@
       <div class="search-results" id="searchResults" role="listbox"></div>
     </div>
     <div class="view-tabs">
+      <button class="view-tab" data-view="list">List</button>
       <button class="view-tab active" data-view="month">Month</button>
       <button class="view-tab" data-view="week">Week</button>
       <button class="view-tab" data-view="day">Day</button>
@@ -121,6 +122,9 @@
       <button class="filter-banner-close" id="filterBannerClose" title="Clear filter">✕ Clear</button>
     </div>
 
+    <!-- AGENDA/LIST VIEW (mobile-first) -->
+    <div class="agenda-view" id="agendaView"></div>
+
     <!-- MONTH VIEW -->
     <div class="month-grid active" id="monthView">
       <div class="dow-headers">
@@ -189,7 +193,7 @@
       <button id="shortcutsClose" style="background:none;border:none;color:var(--text-dim);font-size:24px;cursor:pointer;line-height:1">✕</button>
     </div>
     <div class="shortcut-row"><span class="shortcut-desc">Previous / next period</span><span class="shortcut-keys"><kbd>←</kbd><kbd>→</kbd></span></div>
-    <div class="shortcut-row"><span class="shortcut-desc">Month / Week / Day view</span><span class="shortcut-keys"><kbd>M</kbd><kbd>W</kbd><kbd>D</kbd></span></div>
+    <div class="shortcut-row"><span class="shortcut-desc">List / Month / Week / Day view</span><span class="shortcut-keys"><kbd>L</kbd><kbd>M</kbd><kbd>W</kbd><kbd>D</kbd></span></div>
     <div class="shortcut-row"><span class="shortcut-desc">Jump to today</span><span class="shortcut-keys"><kbd>T</kbd></span></div>
     <div class="shortcut-row"><span class="shortcut-desc">New event</span><span class="shortcut-keys"><kbd>N</kbd></span></div>
     <div class="shortcut-row"><span class="shortcut-desc">Monday meeting agenda</span><span class="shortcut-keys"><kbd>A</kbd></span></div>
