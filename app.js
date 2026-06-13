@@ -1519,6 +1519,85 @@ if (mobileFab) mobileFab.onclick = () => openAddModal();
   });
 })();
 
+// Mobile Groups Menu
+(function() {
+  const btn = document.getElementById('mobileGroupsBtn');
+  const overlay = document.getElementById('mobileGroupsOverlay');
+  const sheet = document.getElementById('mobileGroupsSheet');
+  const closeBtn = document.getElementById('mobileGroupsClose');
+
+  function openMenu() {
+    renderMobileGroupsMenu();
+    overlay.classList.add('open');
+    overlay.style.display = 'block';
+    sheet.classList.add('open');
+  }
+  function closeMenu() {
+    overlay.classList.remove('open');
+    overlay.style.display = '';
+    sheet.classList.remove('open');
+  }
+  btn.onclick = openMenu;
+  closeBtn.onclick = closeMenu;
+  overlay.onclick = closeMenu;
+
+  window._openMobileGroupsMenu = openMenu;
+  window._closeMobileGroupsMenu = closeMenu;
+})();
+
+function renderMobileGroupsMenu() {
+  const groups = loadGroups();
+  const grid = document.getElementById('mobileGroupsGrid');
+  grid.innerHTML = '';
+
+  if (!groups.length) {
+    grid.innerHTML = '<div class="mgs-empty">No topic groups yet.<br>Open the sidebar to create groups.</div>';
+  } else {
+    groups.forEach(g => {
+      const evCount = state.events.filter(e => e.groupId === g.id).length;
+      const card = document.createElement('div');
+      card.className = 'mgs-group-card';
+      card.innerHTML = `<div class="mgs-group-bar" style="background:${g.color}"></div><div class="mgs-group-name">${g.name}</div><div class="mgs-group-count">${evCount} event${evCount !== 1 ? 's' : ''}</div>`;
+      card.onclick = () => { window._closeMobileGroupsMenu(); openGroupPage(g.id); };
+      grid.appendChild(card);
+    });
+  }
+
+  const viewsEl = document.getElementById('mobileGroupsViews');
+  viewsEl.innerHTML = '';
+  [{l:'List',v:'list'},{l:'Month',v:'month'},{l:'Week',v:'week'},{l:'Day',v:'day'}].forEach(x => {
+    const b = document.createElement('button');
+    b.className = 'mgs-view-btn' + (state.view === x.v ? ' active' : '');
+    b.textContent = x.l;
+    b.onclick = () => {
+      state.view = x.v;
+      document.querySelectorAll('.view-tab').forEach(t => t.classList.toggle('active', t.dataset.view === x.v));
+      window._closeMobileGroupsMenu();
+      render();
+    };
+    viewsEl.appendChild(b);
+  });
+
+  const actionsEl = document.getElementById('mobileGroupsActions');
+  actionsEl.innerHTML = '';
+  const isDark = !document.body.classList.contains('light-mode');
+  const actionDefs = [
+    { icon: '📌', label: 'Today', fn: () => { state.date = new Date(); window._closeMobileGroupsMenu(); render(); }},
+    { icon: isDark ? '☀️' : '🌙', label: isDark ? 'Light' : 'Dark', fn: () => {
+      document.getElementById('themeToggle').click();
+      window._closeMobileGroupsMenu();
+    }},
+    { icon: '＋', label: 'New Event', fn: () => { window._closeMobileGroupsMenu(); openAddModal(); }},
+  ];
+  actionDefs.forEach(a => {
+    const b = document.createElement('button');
+    b.className = 'mgs-action-btn';
+    b.innerHTML = `<span class="mgs-action-icon">${a.icon}</span>${a.label}`;
+    b.onclick = a.fn;
+    actionsEl.appendChild(b);
+  });
+}
+
 // Theme toggle — light/dark mode. First visit follows the OS
 // preference; the toggle saves an explicit choice after that.
 (function() {
