@@ -1588,6 +1588,7 @@ function renderMobileGroupsMenu() {
       window._closeMobileGroupsMenu();
     }},
     { icon: '＋', label: 'New Event', fn: () => { window._closeMobileGroupsMenu(); openAddModal(); }},
+    { icon: '👤', label: 'Sign Out', fn: () => { window._closeMobileGroupsMenu(); document.getElementById('signOutBtn').click(); }},
   ];
   actionDefs.forEach(a => {
     const b = document.createElement('button');
