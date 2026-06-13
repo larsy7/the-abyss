@@ -195,11 +195,11 @@ body::before {
   .nav-center { gap: 2px; flex: 1; min-width: 0; }
   .nav-btn { padding: 4px 5px; font-size: 18px; }
   .period-label { font-size: 16px; min-width: 0; flex: 1; text-align: center; padding: 2px 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .today-btn { display: none; }
-  .sync-status { display: none; }
-  .theme-toggle { display: none; }
-  .add-btn { display: none; }
-  .monday-btn { display: none; }
+  .today-btn { display: none !important; }
+  .sync-status { display: none !important; }
+  .theme-toggle { display: none !important; }
+  .add-btn { display: none !important; }
+  .monday-btn { display: none !important; }
   .header-right { gap: 2px; flex-shrink: 0; }
   .view-tabs { gap: 1px; padding: 2px; }
   .view-tab { padding: 4px 8px; font-size: 14px; letter-spacing: 0.5px; }
