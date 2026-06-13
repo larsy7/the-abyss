@@ -1487,8 +1487,65 @@ document.getElementById('eventModalClose').onclick = closeEventModal;
 document.getElementById('eventCancelBtn').onclick = closeEventModal;
 document.getElementById('eventModalOverlay').onclick = (e) => { if (e.target.id==='eventModalOverlay') closeEventModal(); };
 document.getElementById('addEventBtn').onclick = () => openAddModal();
-const mobileFab = document.getElementById('mobileFab');
-if (mobileFab) mobileFab.onclick = () => openAddModal();
+// FAB menu (mobile)
+(function() {
+  const fab = document.getElementById('mobileFab');
+  const menu = document.getElementById('fabMenu');
+  const backdrop = document.getElementById('fabBackdrop');
+  if (!fab) return;
+
+  function toggleFab() {
+    const open = menu.classList.toggle('open');
+    backdrop.classList.toggle('open', open);
+    fab.classList.toggle('open', open);
+  }
+  function closeFab() {
+    menu.classList.remove('open');
+    backdrop.classList.remove('open');
+    fab.classList.remove('open');
+  }
+
+  fab.onclick = toggleFab;
+  backdrop.onclick = closeFab;
+
+  document.getElementById('fabNewEvent').onclick = () => { closeFab(); openAddModal(); };
+  document.getElementById('fabMondayTopic').onclick = () => { closeFab(); openMondayTopicSheet(); };
+
+  const topicOverlay = document.getElementById('mondayTopicOverlay');
+  const topicSheet = document.getElementById('mondayTopicSheet');
+  const topicClose = document.getElementById('mondayTopicClose');
+  const topicInput = document.getElementById('mondayTopicInput');
+  const topicSubmit = document.getElementById('mondayTopicSubmit');
+
+  function openMondayTopicSheet() {
+    topicOverlay.style.display = 'block';
+    topicOverlay.classList.add('open');
+    topicSheet.classList.add('open');
+    topicInput.value = '';
+    setTimeout(() => topicInput.focus(), 350);
+  }
+  function closeMondayTopicSheet() {
+    topicOverlay.style.display = '';
+    topicOverlay.classList.remove('open');
+    topicSheet.classList.remove('open');
+  }
+
+  topicClose.onclick = closeMondayTopicSheet;
+  topicOverlay.onclick = closeMondayTopicSheet;
+
+  topicSubmit.onclick = () => {
+    const text = topicInput.value.trim();
+    if (!text) { topicInput.focus(); return; }
+    const name = getMondayName() || (AUTH ? AUTH.email.split('@')[0] : 'Someone');
+    const note = { id: uid(), text, createdBy: name, createdAt: new Date().toISOString(), carriedOver: 0 };
+    saveMondayNotes([...loadMondayNotes(), note]);
+    closeMondayTopicSheet();
+  };
+
+  topicInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') topicSubmit.click();
+  });
+})();
 
 // Mobile sidebar toggle (desktop) / Up Next sheet (mobile)
 (function() {
