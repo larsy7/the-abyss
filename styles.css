@@ -312,9 +312,9 @@ body::before {
   }
   .mobile-groups-btn:active { background: var(--surface); color: var(--teal-ink); border-color: var(--border-bright); }
   .groups-grid-icon {
-    display: block; width: 4px; height: 4px;
-    background: currentColor; border-radius: 1px;
-    box-shadow: 7px 0 0 currentColor, 0 7px 0 currentColor, 7px 7px 0 currentColor;
+    display: block; width: 5px; height: 5px;
+    background: currentColor; border-radius: 1.5px;
+    box-shadow: 9px 0 0 currentColor, 0 9px 0 currentColor, 9px 9px 0 currentColor;
   }
 
   /* Mobile Groups Overlay & Sheet */
@@ -324,8 +324,9 @@ body::before {
     z-index: 299;
     backdrop-filter: blur(2px);
   }
-  .mobile-groups-overlay.open { display: block; }
+  .mobile-groups-overlay.open { display: block !important; }
   .mobile-groups-sheet {
+    display: block !important;
     position: fixed; bottom: 0; left: 0; right: 0;
     background: var(--anchor);
     border-top: 1px solid var(--border-bright);
