@@ -187,22 +187,24 @@ body::before {
    ============================================================ */
 @media (max-width: 768px) {
 
-  /* Header */
-  header { padding: 0 12px; gap: 8px; height: 52px; }
+  /* Header — strip to essentials: hamburger, nav, view tabs */
+  header { padding: 0 8px; gap: 4px; height: 48px; }
   .logo-text { display: none; }
-  .logo-icon { font-size: 26px; }
-  .logo { gap: 6px; }
-  .nav-btn { padding: 6px 8px; font-size: 20px; }
-  .period-label { font-size: 19px; min-width: 0; flex: 1; text-align: center; padding: 4px 6px; }
+  .logo img { width: 24px; height: 24px; }
+  .logo { gap: 4px; }
+  .nav-btn { padding: 4px 6px; font-size: 18px; }
+  .period-label { font-size: 17px; min-width: 0; flex: 1; text-align: center; padding: 2px 4px; }
+  .today-btn { padding: 4px 8px; font-size: 14px; }
   .sync-status { display: none; }
-  .theme-toggle { width: 28px; height: 28px; font-size: 17px; }
-  .add-btn { padding: 7px 10px; font-size: 16px; letter-spacing: 0.5px; white-space: nowrap; }
+  .theme-toggle { display: none; }
+  .add-btn { display: none; }
+  .monday-btn { display: none; }
   .view-tabs { gap: 2px; }
-  .view-tab { padding: 5px 8px; font-size: 15px; letter-spacing: 0.5px; }
+  .view-tab { padding: 4px 8px; font-size: 14px; letter-spacing: 0.5px; }
   .view-tab[data-view="list"] { display: inline-flex; }
   .view-tab[data-view="week"] { display: none; }
   .view-tab[data-view="day"] { display: none; }
-  .header-right { gap: 6px; }
+  .header-right { gap: 4px; }
 
   /* App body — sidebar becomes a drawer */
   .app-body { position: relative; height: calc(100vh - 52px); }
@@ -304,9 +306,6 @@ body::before {
 
 /* Extra small screens (phones < 480px) */
 @media (max-width: 480px) {
-  .add-btn { display: none; } /* replaced by floating button */
-  .view-tab { padding: 5px 6px; font-size: 14px; }
-  .today-btn { padding: 5px 8px; font-size: 15px; }
   .cal-cell { min-height: 58px; padding: 3px; }
   .event-pill { font-size: 13px; }
   .week-event { font-size: 12px; }
@@ -332,7 +331,7 @@ body::before {
   transform: scale(1.1);
   box-shadow: 0 6px 28px rgba(0,178,169,0.7);
 }
-@media (max-width: 480px) {
+@media (max-width: 768px) {
   .mobile-fab { display: flex; }
 }
 
@@ -2341,8 +2340,6 @@ kbd {
   .monday-name-wrap input { width: 90px; }
 }
 @media (max-width: 480px) {
-  .monday-btn-label { display: none; }
-  .monday-btn { padding: 6px 9px; }
   .monday-tab { padding: 5px 9px; font-size: 15px; }
 }
 
