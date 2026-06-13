@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mobile Agenda View — Mockups</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --deep-sea: #0A1F33;
+    --kraken-teal: #00B2A9;
+    --ice-blue: #7FCECD;
+    --storm-blue: #003F5C;
+    --anchor: #0C2340;
+    --silver-ice: #C8E0E8;
+    --tentacle: #005F73;
+    --white: #D9E6EC;
+    --danger: #FF6B6B;
+    --gold: #FFB84D;
+    --surface: rgba(0, 63, 92, 0.45);
+    --surface2: rgba(0, 22, 40, 0.75);
+    --border: rgba(0, 178, 169, 0.25);
+    --border-bright: rgba(0, 178, 169, 0.6);
+    --text-dim: rgba(200, 224, 232, 0.62);
+    --glow: 0 0 20px rgba(0, 178, 169, 0.18);
+    --glow-sm: 0 0 10px rgba(0, 178, 169, 0.12);
+    --teal-ink: var(--kraken-teal);
+    --cyan-ink: var(--ice-blue);
+    --gold-ink: var(--gold);
+    --danger-ink: var(--danger);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Barlow', sans-serif;
+    background: #111;
+    color: #ccc;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 32px 16px 80px;
+    gap: 48px;
+  }
+
+  h1 {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--kraken-teal);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    text-align: center;
+  }
+  .subtitle {
+    color: var(--text-dim);
+    font-size: 15px;
+    text-align: center;
+    max-width: 500px;
+    line-height: 1.5;
+    margin-top: -28px;
+  }
+
+  .mockup-section {
+    width: 100%;
+    max-width: 440px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .mockup-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--silver-ice);
+    letter-spacing: 1px;
+  }
+  .mockup-desc {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.5;
+  }
+
+  /* Phone frame */
+  .phone-frame {
+    width: 375px;
+    height: 720px;
+    background: var(--deep-sea);
+    border-radius: 24px;
+    border: 2px solid rgba(0,178,169,0.3);
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+    align-self: center;
+  }
+  .phone-frame::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 20% 80%, rgba(0,95,115,0.18) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(0,178,169,0.08) 0%, transparent 55%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ─── Shared header ─── */
+  .mock-header {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(0,12,26,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border-bright);
+    padding: 0 12px;
+    display: flex; align-items: center; gap: 8px;
+    height: 52px;
+    box-shadow: 0 2px 30px rgba(0,0,0,0.5), 0 1px 0 rgba(0,178,169,0.2);
+  }
+  .mock-hamburger {
+    display: flex; align-items: center; justify-content: center;
+    background: none; border: 1px solid var(--border);
+    color: var(--text-dim); width: 32px; height: 32px;
+    border-radius: 8px; font-size: 22px;
+  }
+  .mock-nav {
+    display: flex; align-items: center; gap: 4px; flex: 1; justify-content: center;
+  }
+  .mock-nav-btn {
+    background: none; border: none;
+    color: var(--teal-ink); font-size: 20px;
+    padding: 6px 8px; cursor: pointer;
+  }
+  .mock-period {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 19px; font-weight: 700;
+    color: var(--white);
+    padding: 4px 6px;
+  }
+  .mock-today-btn {
+    background: none; border: 1px solid var(--border);
+    color: var(--teal-ink); font-size: 15px;
+    padding: 5px 8px; border-radius: 6px;
+    font-family: 'Barlow', sans-serif; font-weight: 600;
+  }
+  .mock-tabs {
+    display: flex; gap: 2px;
+  }
+  .mock-tab {
+    background: none; border: 1px solid var(--border);
+    color: var(--text-dim); font-size: 14px;
+    padding: 5px 6px; border-radius: 6px;
+    font-family: 'Barlow', sans-serif; font-weight: 600;
+  }
+  .mock-tab.active {
+    background: var(--kraken-teal);
+    color: var(--deep-sea);
+    border-color: var(--kraken-teal);
+  }
+
+  /* ─── FAB ─── */
+  .mock-fab {
+    position: absolute;
+    bottom: 24px; right: 20px;
+    width: 52px; height: 52px;
+    background: var(--kraken-teal);
+    color: var(--deep-sea);
+    border: none; border-radius: 50%;
+    font-size: 30px; font-weight: 300;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 4px 20px rgba(0,178,169,0.5);
+    z-index: 20;
+  }
+
+  /* ============================================================
+     OPTION A: Scrolling Agenda
+     ============================================================ */
+  .agenda-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 8px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .agenda-day-group {
+    margin-top: 8px;
+  }
+  .agenda-day-group:first-child { margin-top: 8px; }
+
+  .agenda-day-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 10px 8px 6px;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: rgba(10,31,51,0.92);
+    backdrop-filter: blur(8px);
+  }
+  .agenda-day-date {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--silver-ice);
+    line-height: 1;
+  }
+  .agenda-day-today .agenda-day-date {
+    color: var(--deep-sea);
+    background: var(--kraken-teal);
+    border-radius: 50%;
+    width: 38px; height: 38px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+  .agenda-day-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .agenda-day-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--silver-ice);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .agenda-day-today .agenda-day-name {
+    color: var(--kraken-teal);
+  }
+  .agenda-day-monthyear {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .agenda-day-line {
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+    align-self: center;
+    margin-top: 2px;
+  }
+
+  .agenda-events {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0 0 4px;
+  }
+
+  .agenda-event {
+    display: flex;
+    align-items: stretch;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .agenda-event:active {
+    background: rgba(0,63,92,0.55);
+    border-color: var(--border-bright);
+  }
+  .agenda-event-color {
+    width: 4px;
+    flex-shrink: 0;
+  }
+  .agenda-event-body {
+    flex: 1;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+  .agenda-event-title {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--white);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .agenda-event-time {
+    font-size: 13px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .agenda-event-people {
+    font-size: 12px;
+    color: var(--text-dim);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .agenda-event-tasks {
+    color: var(--gold-ink);
+    font-size: 12px;
+  }
+  .agenda-empty {
+    padding: 12px 8px;
+    font-size: 14px;
+    color: var(--text-dim);
+    font-style: italic;
+  }
+
+  /* ============================================================
+     OPTION B: Date Ribbon + Day List
+     ============================================================ */
+  .ribbon-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+  }
+
+  .date-ribbon {
+    display: flex;
+    gap: 2px;
+    padding: 8px 8px 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex-shrink: 0;
+    background: rgba(0,12,26,0.6);
+    border-bottom: 1px solid var(--border);
+  }
+  .date-ribbon::-webkit-scrollbar { display: none; }
+
+  .ribbon-day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    padding: 6px 10px 8px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    min-width: 44px;
+    flex-shrink: 0;
+  }
+  .ribbon-day:hover { background: var(--surface); }
+  .ribbon-day.selected {
+    background: var(--kraken-teal);
+  }
+  .ribbon-day-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .ribbon-day.selected .ribbon-day-name { color: rgba(10,31,51,0.7); }
+  .ribbon-day-num {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--silver-ice);
+  }
+  .ribbon-day.selected .ribbon-day-num { color: var(--deep-sea); }
+  .ribbon-day.today .ribbon-day-num {
+    color: var(--kraken-teal);
+  }
+  .ribbon-day.today.selected .ribbon-day-num { color: var(--deep-sea); }
+  .ribbon-dot-row {
+    display: flex; gap: 3px; height: 4px;
+  }
+  .ribbon-dot {
+    width: 4px; height: 4px; border-radius: 50%;
+  }
+  .ribbon-day.selected .ribbon-dot { opacity: 0.6; }
+
+  .day-list-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px 8px;
+  }
+
+  .day-list-header {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 0 8px 8px;
+  }
+
+  .day-list-events {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .day-event-card {
+    display: flex;
+    align-items: stretch;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .day-event-card:active {
+    background: rgba(0,63,92,0.55);
+    border-color: var(--border-bright);
+  }
+  .day-event-color {
+    width: 4px;
+    flex-shrink: 0;
+  }
+  .day-event-body {
+    flex: 1;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+  }
+  .day-event-title {
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--white);
+  }
+  .day-event-time {
+    font-size: 14px;
+    color: var(--text-dim);
+  }
+  .day-event-detail {
+    font-size: 13px;
+    color: var(--text-dim);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 2px;
+  }
+
+  .day-allday-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--kraken-teal);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .day-list-empty {
+    padding: 32px 8px;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 15px;
+  }
+</style>
+</head>
+<body>
+
+<h1>Mobile Agenda View Mockups</h1>
+<p class="subtitle">Two options for replacing the calendar grid on mobile (&le; 768px). Both use the same Abyss design language. Tap/scroll to imagine interaction.</p>
+
+<!-- ════════════════════════════════════════════════════════
+     OPTION A: Scrolling Agenda
+     ════════════════════════════════════════════════════════ -->
+<div class="mockup-section">
+  <div class="mockup-label">Option A — Scrolling Agenda</div>
+  <div class="mockup-desc">
+    A continuous scrollable list of days with events underneath. Days without events are collapsed to a single line. Today is highlighted. Sticky day headers keep you oriented while scrolling. This is the pattern Google Calendar and Apple Calendar use on mobile.
+  </div>
+
+  <div class="phone-frame">
+    <div class="mock-header">
+      <div class="mock-hamburger">&#9776;</div>
+      <div class="mock-nav">
+        <div class="mock-nav-btn">&lsaquo;</div>
+        <div class="mock-period">June 2026</div>
+        <div class="mock-nav-btn">&rsaquo;</div>
+        <div class="mock-today-btn">Today</div>
+      </div>
+      <div class="mock-tabs">
+        <div class="mock-tab active">List</div>
+        <div class="mock-tab">Month</div>
+      </div>
+    </div>
+
+    <div class="agenda-scroll">
+      <!-- Today -->
+      <div class="agenda-day-group">
+        <div class="agenda-day-header agenda-day-today">
+          <div class="agenda-day-date">13</div>
+          <div class="agenda-day-meta">
+            <div class="agenda-day-name">Saturday</div>
+            <div class="agenda-day-monthyear">June 2026</div>
+          </div>
+          <div class="agenda-day-line"></div>
+        </div>
+        <div class="agenda-events">
+          <div class="agenda-event">
+            <div class="agenda-event-color" style="background: #00B2A9"></div>
+            <div class="agenda-event-body">
+              <div class="agenda-event-title">Sprint Planning</div>
+              <div class="agenda-event-time">9:00 AM &ndash; 10:30 AM</div>
+              <div class="agenda-event-people">Lars, Maria, Jon</div>
+            </div>
+          </div>
+          <div class="agenda-event">
+            <div class="agenda-event-color" style="background: #FFB84D"></div>
+            <div class="agenda-event-body">
+              <div class="agenda-event-title">Design Review &mdash; Mobile Views</div>
+              <div class="agenda-event-time">11:00 AM &ndash; 12:00 PM</div>
+              <div class="agenda-event-people">Lars, Sarah</div>
+            </div>
+          </div>
+          <div class="agenda-event">
+            <div class="agenda-event-color" style="background: #FF6B6B"></div>
+            <div class="agenda-event-body">
+              <div class="agenda-event-title">Dentist Appointment</div>
+              <div class="agenda-event-time">2:30 PM &ndash; 3:30 PM</div>
+            </div>
+          </div>
+          <div class="agenda-event">
+            <div class="agenda-event-color" style="background: #7FCECD"></div>
+            <div class="agenda-event-body">
+              <div class="agenda-event-title">Team Dinner at Nobu</div>
+              <div class="agenda-event-time">7:00 PM &ndash; 9:00 PM</div>
+              <div class="agenda-event-people">Entire team</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sun Jun 14 -->
+      <div class="agenda-day-group">
+        <div class="agenda-day-header">
+          <div class="agenda-day-date">14</div>
+          <div class="agenda-day-meta">
+            <div class="agenda-day-name">Sunday</div>
+            <div class="agenda-day-monthyear">June 2026</div>
+          </div>
+          <div class="agenda-day-line"></div>
+        </div>
+        <div class="agenda-empty">No events</div>
+      </div>
+
+      <!-- Mon Jun 15 -->
+      <div class="agenda-day-group">
+        <div class="agenda-day-header">
+          <div class="agenda-day-date">15</div>
+          <div class="agenda-day-meta">
+            <div class="agenda-day-name">Monday</div>
+            <div class="agenda-day-monthyear">June 2026</div>
+          </div>
+          <div class="agenda-day-line"></div>
+        </div>
+        <div class="agenda-events">
+          <div class="agenda-event">
+            <div class="agenda-event-color" style="background: #00B2A9"></div>
+            <div class="agenda-event-body">
+              <div class="agenda-event-title">Monday Meeting</div>
+              <div class="agenda-event-time">9:00 AM &ndash; 10:00 AM</div>
+              <div class="agenda-event-people">Lars, Maria, Jon, Sarah</div>
+            </div>
+          </div>
+          <div class="agenda-event">
+            <div class="agenda-event-color" style="background: #FFB84D"></div>
+            <div class="agenda-event-body">
+              <div class="agenda-event-title">1:1 with Maria</div>
+              <div class="agenda-event-time">11:00 AM &ndash; 11:30 AM</div>
+            </div>
+          </div>
+          <div class="agenda-event">
+            <div class="agenda-event-color" style="background: #00B2A9"></div>
+            <div class="agenda-event-body">
+              <div class="agenda-event-title">API Integration Workshop</div>
+              <div class="agenda-event-time">1:00 PM &ndash; 3:00 PM <span class="agenda-event-tasks">&#9670; 3 tasks</span></div>
+              <div class="agenda-event-people">Lars, Jon</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tue Jun 16 -->
+      <div class="agenda-day-group">
+        <div class="agenda-day-header">
+          <div class="agenda-day-date">16</div>
+          <div class="agenda-day-meta">
+            <div class="agenda-day-name">Tuesday</div>
+            <div class="agenda-day-monthyear">June 2026</div>
+          </div>
+          <div class="agenda-day-line"></div>
+        </div>
+        <div class="agenda-events">
+          <div class="agenda-event">
+            <div class="agenda-event-color" style="background: #7FCECD"></div>
+            <div class="agenda-event-body">
+              <div class="agenda-event-title">Investor Call</div>
+              <div class="agenda-event-time">10:00 AM &ndash; 11:00 AM</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wed Jun 17 -->
+      <div class="agenda-day-group">
+        <div class="agenda-day-header">
+          <div class="agenda-day-date">17</div>
+          <div class="agenda-day-meta">
+            <div class="agenda-day-name">Wednesday</div>
+            <div class="agenda-day-monthyear">June 2026</div>
+          </div>
+          <div class="agenda-day-line"></div>
+        </div>
+        <div class="agenda-events">
+          <div class="agenda-event">
+            <div class="agenda-event-color" style="background: #FF6B6B"></div>
+            <div class="agenda-event-body">
+              <div class="agenda-event-title">Q3 Roadmap Review</div>
+              <div class="agenda-event-time">2:00 PM &ndash; 4:00 PM</div>
+              <div class="agenda-event-people">Lars, Maria, Sarah, Jon</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mock-fab">+</div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     OPTION B: Date Ribbon + Day List
+     ════════════════════════════════════════════════════════ -->
+<div class="mockup-section">
+  <div class="mockup-label">Option B — Date Ribbon + Day List</div>
+  <div class="mockup-desc">
+    A horizontally scrollable ribbon of dates at the top, with colored dots indicating events. Tapping a date shows that day's events below in a card list. Gives a quick visual overview of the week while focusing on one day at a time. Similar to Outlook mobile.
+  </div>
+
+  <div class="phone-frame">
+    <div class="mock-header">
+      <div class="mock-hamburger">&#9776;</div>
+      <div class="mock-nav">
+        <div class="mock-nav-btn">&lsaquo;</div>
+        <div class="mock-period">June 2026</div>
+        <div class="mock-nav-btn">&rsaquo;</div>
+        <div class="mock-today-btn">Today</div>
+      </div>
+      <div class="mock-tabs">
+        <div class="mock-tab active">List</div>
+        <div class="mock-tab">Month</div>
+      </div>
+    </div>
+
+    <div class="ribbon-container">
+      <div class="date-ribbon">
+        <div class="ribbon-day">
+          <div class="ribbon-day-name">Wed</div>
+          <div class="ribbon-day-num">10</div>
+          <div class="ribbon-dot-row"></div>
+        </div>
+        <div class="ribbon-day">
+          <div class="ribbon-day-name">Thu</div>
+          <div class="ribbon-day-num">11</div>
+          <div class="ribbon-dot-row">
+            <div class="ribbon-dot" style="background:#00B2A9"></div>
+          </div>
+        </div>
+        <div class="ribbon-day">
+          <div class="ribbon-day-name">Fri</div>
+          <div class="ribbon-day-num">12</div>
+          <div class="ribbon-dot-row">
+            <div class="ribbon-dot" style="background:#FFB84D"></div>
+            <div class="ribbon-dot" style="background:#00B2A9"></div>
+          </div>
+        </div>
+        <div class="ribbon-day today selected">
+          <div class="ribbon-day-name">Sat</div>
+          <div class="ribbon-day-num">13</div>
+          <div class="ribbon-dot-row">
+            <div class="ribbon-dot" style="background:#00B2A9"></div>
+            <div class="ribbon-dot" style="background:#FFB84D"></div>
+            <div class="ribbon-dot" style="background:#FF6B6B"></div>
+          </div>
+        </div>
+        <div class="ribbon-day">
+          <div class="ribbon-day-name">Sun</div>
+          <div class="ribbon-day-num">14</div>
+          <div class="ribbon-dot-row"></div>
+        </div>
+        <div class="ribbon-day">
+          <div class="ribbon-day-name">Mon</div>
+          <div class="ribbon-day-num">15</div>
+          <div class="ribbon-dot-row">
+            <div class="ribbon-dot" style="background:#00B2A9"></div>
+            <div class="ribbon-dot" style="background:#FFB84D"></div>
+          </div>
+        </div>
+        <div class="ribbon-day">
+          <div class="ribbon-day-name">Tue</div>
+          <div class="ribbon-day-num">16</div>
+          <div class="ribbon-dot-row">
+            <div class="ribbon-dot" style="background:#7FCECD"></div>
+          </div>
+        </div>
+        <div class="ribbon-day">
+          <div class="ribbon-day-name">Wed</div>
+          <div class="ribbon-day-num">17</div>
+          <div class="ribbon-dot-row">
+            <div class="ribbon-dot" style="background:#FF6B6B"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="day-list-scroll">
+        <div class="day-list-header">Saturday, June 13</div>
+        <div class="day-list-events">
+          <div class="day-event-card">
+            <div class="day-event-color" style="background: #00B2A9"></div>
+            <div class="day-event-body">
+              <div class="day-event-title">Sprint Planning</div>
+              <div class="day-event-time">9:00 AM &ndash; 10:30 AM</div>
+              <div class="day-event-detail">
+                <span>Lars, Maria, Jon</span>
+              </div>
+            </div>
+          </div>
+          <div class="day-event-card">
+            <div class="day-event-color" style="background: #FFB84D"></div>
+            <div class="day-event-body">
+              <div class="day-event-title">Design Review &mdash; Mobile Views</div>
+              <div class="day-event-time">11:00 AM &ndash; 12:00 PM</div>
+              <div class="day-event-detail">
+                <span>Lars, Sarah</span>
+              </div>
+            </div>
+          </div>
+          <div class="day-event-card">
+            <div class="day-event-color" style="background: #FF6B6B"></div>
+            <div class="day-event-body">
+              <div class="day-event-title">Dentist Appointment</div>
+              <div class="day-event-time">2:30 PM &ndash; 3:30 PM</div>
+            </div>
+          </div>
+          <div class="day-event-card">
+            <div class="day-event-color" style="background: #7FCECD"></div>
+            <div class="day-event-body">
+              <div class="day-allday-label">All day</div>
+              <div class="day-event-title">Team Offsite Week</div>
+              <div class="day-event-detail">
+                <span>Entire team</span>
+              </div>
+            </div>
+          </div>
+          <div class="day-event-card">
+            <div class="day-event-color" style="background: #7FCECD"></div>
+            <div class="day-event-body">
+              <div class="day-event-title">Team Dinner at Nobu</div>
+              <div class="day-event-time">7:00 PM &ndash; 9:00 PM</div>
+              <div class="day-event-detail">
+                <span>Entire team</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mock-fab">+</div>
+  </div>
+</div>
+
+</body>
+</html>
