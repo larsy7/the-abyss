@@ -1546,6 +1546,29 @@ if (mobileFab) mobileFab.onclick = () => openAddModal();
 })();
 
 function renderMobileGroupsMenu() {
+  const todayStr = isoDate(new Date());
+  const upNextEl = document.getElementById('mobileUpNext');
+  upNextEl.innerHTML = '';
+  const upcoming = state.events
+    .filter(e => e.date >= todayStr && eventIsVisible(e))
+    .sort((a,b) => a.date.localeCompare(b.date) || (a.start||'').localeCompare(b.start||''))
+    .slice(0, 6);
+  if (!upcoming.length) {
+    upNextEl.innerHTML = '<div class="mgs-upnext-empty">No upcoming events</div>';
+  } else {
+    upcoming.forEach(ev => {
+      const g = ev.groupId ? getGroupById(ev.groupId) : null;
+      const color = ev.color || (g ? g.color : 'var(--kraken-teal)');
+      const item = document.createElement('div');
+      item.className = 'mgs-upnext-item';
+      const timeStr = ev.allDay ? 'All Day' : (ev.start ? fmtTime(ev.start) : '');
+      const dateLabel = ev.date === todayStr ? 'Today' : fmtDate(ev.date);
+      item.innerHTML = `<div class="mgs-upnext-dot" style="background:${color}"></div><div class="mgs-upnext-info"><div class="mgs-upnext-title">${ev.title}</div><div class="mgs-upnext-meta">${dateLabel}${timeStr ? ' · ' + timeStr : ''}</div></div>`;
+      item.onclick = () => { window._closeMobileGroupsMenu(); openDetail(ev.id); };
+      upNextEl.appendChild(item);
+    });
+  }
+
   const groups = loadGroups();
   const grid = document.getElementById('mobileGroupsGrid');
   grid.innerHTML = '';
