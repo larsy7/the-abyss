@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#0A1F33">
 <title>The Abyss</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=11">
+<link rel="stylesheet" href="styles.css?v=12">
 </head>
 <body>
 
@@ -576,17 +576,25 @@
   </div>
 </div>
 
-<!-- MOBILE GROUPS MENU -->
+<!-- MOBILE UP NEXT SHEET (hamburger) -->
+<div class="mobile-upnext-overlay" id="mobileUpNextOverlay"></div>
+<div class="mobile-groups-sheet mobile-upnext-sheet" id="mobileUpNextSheet">
+  <div class="mgs-handle"></div>
+  <div class="mgs-header">
+    <span class="mgs-title">Up Next</span>
+    <button class="mgs-close" id="mobileUpNextClose">✕</button>
+  </div>
+  <div class="mgs-upnext" id="mobileUpNext"></div>
+</div>
+
+<!-- MOBILE GROUPS MENU (grid button) -->
 <div class="mobile-groups-overlay" id="mobileGroupsOverlay"></div>
 <div class="mobile-groups-sheet" id="mobileGroupsSheet">
   <div class="mgs-handle"></div>
   <div class="mgs-header">
-    <span class="mgs-title">Menu</span>
+    <span class="mgs-title">Topic Groups</span>
     <button class="mgs-close" id="mobileGroupsClose">✕</button>
   </div>
-  <div class="mgs-section-label">Up Next</div>
-  <div class="mgs-upnext" id="mobileUpNext"></div>
-  <div class="mgs-section-label">Topic Groups</div>
   <div class="mgs-grid" id="mobileGroupsGrid"></div>
   <div class="mgs-section-label">Views</div>
   <div class="mgs-views" id="mobileGroupsViews"></div>
@@ -596,6 +604,6 @@
 
 <button class="mobile-fab" id="mobileFab" title="Add Event">+</button>
 
-<script src="app.js?v=11"></script>
+<script src="app.js?v=12"></script>
 </body>
 </html>

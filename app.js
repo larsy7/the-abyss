@@ -1490,28 +1490,50 @@ document.getElementById('addEventBtn').onclick = () => openAddModal();
 const mobileFab = document.getElementById('mobileFab');
 if (mobileFab) mobileFab.onclick = () => openAddModal();
 
-// Mobile sidebar toggle
+// Mobile sidebar toggle (desktop) / Up Next sheet (mobile)
 (function() {
   const menuBtn = document.getElementById('mobileMenuBtn');
   const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('mobileSidebarOverlay');
+  const sidebarOverlay = document.getElementById('mobileSidebarOverlay');
 
   function openSidebar() {
     sidebar.classList.add('mobile-open');
-    overlay.classList.add('open');
+    sidebarOverlay.classList.add('open');
   }
   function closeSidebar() {
     sidebar.classList.remove('mobile-open');
-    overlay.classList.remove('open');
+    sidebarOverlay.classList.remove('open');
+  }
+
+  const upNextOverlay = document.getElementById('mobileUpNextOverlay');
+  const upNextSheet = document.getElementById('mobileUpNextSheet');
+  const upNextClose = document.getElementById('mobileUpNextClose');
+
+  function openUpNext() {
+    renderMobileUpNext();
+    upNextOverlay.classList.add('open');
+    upNextOverlay.style.display = 'block';
+    upNextSheet.classList.add('open');
+  }
+  function closeUpNext() {
+    upNextOverlay.classList.remove('open');
+    upNextOverlay.style.display = '';
+    upNextSheet.classList.remove('open');
   }
 
   menuBtn.onclick = () => {
-    if (sidebar.classList.contains('mobile-open')) closeSidebar();
-    else openSidebar();
+    if (window.innerWidth <= 768) {
+      upNextSheet.classList.contains('open') ? closeUpNext() : openUpNext();
+    } else {
+      sidebar.classList.contains('mobile-open') ? closeSidebar() : openSidebar();
+    }
   };
-  overlay.onclick = closeSidebar;
+  sidebarOverlay.onclick = closeSidebar;
+  upNextOverlay.onclick = closeUpNext;
+  upNextClose.onclick = closeUpNext;
 
-  // Close sidebar when navigating on mobile
+  window._closeMobileUpNext = closeUpNext;
+
   document.querySelectorAll('.view-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       if (window.innerWidth <= 768) closeSidebar();
@@ -1545,7 +1567,7 @@ if (mobileFab) mobileFab.onclick = () => openAddModal();
   window._closeMobileGroupsMenu = closeMenu;
 })();
 
-function renderMobileGroupsMenu() {
+function renderMobileUpNext() {
   const todayStr = isoDate(new Date());
   const upNextEl = document.getElementById('mobileUpNext');
   upNextEl.innerHTML = '';
@@ -1564,11 +1586,13 @@ function renderMobileGroupsMenu() {
       const timeStr = ev.allDay ? 'All Day' : (ev.start ? fmtTime(ev.start) : '');
       const dateLabel = ev.date === todayStr ? 'Today' : fmtDate(ev.date);
       item.innerHTML = `<div class="mgs-upnext-dot" style="background:${color}"></div><div class="mgs-upnext-info"><div class="mgs-upnext-title">${ev.title}</div><div class="mgs-upnext-meta">${dateLabel}${timeStr ? ' · ' + timeStr : ''}</div></div>`;
-      item.onclick = () => { window._closeMobileGroupsMenu(); openDetail(ev.id); };
+      item.onclick = () => { window._closeMobileUpNext(); openDetail(ev.id); };
       upNextEl.appendChild(item);
     });
   }
+}
 
+function renderMobileGroupsMenu() {
   const groups = loadGroups();
   const grid = document.getElementById('mobileGroupsGrid');
   grid.innerHTML = '';
