@@ -198,7 +198,6 @@ body::before {
   .logo-text { display: none; }
   .logo img { width: 24px; height: 24px; }
   .logo { gap: 2px; flex-shrink: 0; }
-  .mobile-menu-btn { display: none !important; }
   .nav-center { gap: 2px; flex: 1; min-width: 0; }
   .nav-btn { display: none !important; }
   .period-label { font-size: 16px; min-width: 0; flex: 1; text-align: center; padding: 2px 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -318,14 +317,16 @@ body::before {
     box-shadow: 9px 0 0 currentColor, 0 9px 0 currentColor, 9px 9px 0 currentColor;
   }
 
-  /* Mobile Groups Overlay & Sheet */
-  .mobile-groups-overlay {
+  /* Mobile Overlays & Sheets */
+  .mobile-groups-overlay,
+  .mobile-upnext-overlay {
     position: fixed; inset: 0; top: 48px;
     background: rgba(0,0,0,0.5);
     z-index: 299;
     backdrop-filter: blur(2px);
   }
-  .mobile-groups-overlay.open { display: block !important; }
+  .mobile-groups-overlay.open,
+  .mobile-upnext-overlay.open { display: block !important; }
   .mobile-groups-sheet {
     display: block !important;
     position: fixed; bottom: 0; left: 0; right: 0;
@@ -498,6 +499,7 @@ body::before {
 .mobile-menu-btn { display: none; }
 .mobile-groups-btn { display: none; }
 .mobile-groups-overlay { display: none; }
+.mobile-upnext-overlay { display: none; }
 .mobile-groups-sheet { display: none; }
 .view-tab[data-view="list"] { display: none; }
 .logo-text { font-family: 'Barlow Condensed', sans-serif; font-size: 26px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; text-shadow: var(--glow-sm); }
