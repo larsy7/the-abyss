@@ -193,11 +193,12 @@ body::before {
    ============================================================ */
 @media (max-width: 768px) {
 
-  /* Header — strip to essentials: hamburger, nav, view tabs */
+  /* Header — strip to essentials: logo, period label, groups button */
   header { padding: 0 6px; gap: 2px; height: 48px; overflow: hidden; }
   .logo-text { display: none; }
   .logo img { width: 24px; height: 24px; }
   .logo { gap: 2px; flex-shrink: 0; }
+  .mobile-menu-btn { display: none !important; }
   .nav-center { gap: 2px; flex: 1; min-width: 0; }
   .nav-btn { display: none !important; }
   .period-label { font-size: 16px; min-width: 0; flex: 1; text-align: center; padding: 2px 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
