@@ -483,7 +483,7 @@ header {
 .dow-header {
   text-align: center; padding: 6px;
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 16px; font-weight: 700; letter-spacing: 2px;
+  font-size: 18px; font-weight: 700; letter-spacing: 2px;
   color: var(--teal-ink); text-transform: uppercase;
 }
 .calendar-grid {
@@ -511,18 +511,18 @@ header {
 }
 .day-num {
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 20px; font-weight: 700;
+  font-size: 22px; font-weight: 700;
   color: var(--silver-ice);
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0;
 }
 .cal-cell.today .day-num {
   background: var(--kraken-teal); color: var(--deep-sea);
-  border-radius: 50%; width: 26px; height: 26px;
-  font-size: 18px;
+  border-radius: 50%; width: 28px; height: 28px;
+  font-size: 20px;
 }
 .day-annotation {
-  font-size: 14px; color: var(--text-dim);
+  font-size: 15px; color: var(--text-dim);
   font-family: 'Barlow', sans-serif; font-weight: 500;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   flex: 1; line-height: 1.2; cursor: pointer;
@@ -546,13 +546,13 @@ header {
   background: rgba(0,178,169,0.18);
   border-left: 3px solid var(--kraken-teal);
   border-radius: 0 4px 4px 0;
-  padding: 2px 5px; margin-bottom: 2px;
-  font-size: 15px; font-weight: 700; color: var(--cyan-ink);
+  padding: 3px 6px; margin-bottom: 2px;
+  font-size: 17px; font-weight: 700; color: var(--cyan-ink);
   cursor: pointer; transition: all 0.15s;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .event-pill:hover { background: rgba(0,178,169,0.3); }
-.event-pill.has-tasks::after { content: '◆'; font-size: 12px; color: var(--gold-ink); margin-left: auto; flex-shrink: 0; }
+.event-pill.has-tasks::after { content: '◆'; font-size: 13px; color: var(--gold-ink); margin-left: auto; flex-shrink: 0; }
 .more-label { font-size: 14px; color: var(--text-dim); cursor: pointer; }
 .more-label:hover { color: var(--teal-ink); }
 
@@ -605,15 +605,15 @@ header {
   border: 1px solid var(--border);
   border-bottom: none;
 }
-.week-day-name { font-size: 15px; font-weight: 700; letter-spacing: 2px; color: var(--teal-ink); text-transform: uppercase; }
+.week-day-name { font-size: 17px; font-weight: 700; letter-spacing: 2px; color: var(--teal-ink); text-transform: uppercase; }
 .week-day-num {
-  font-size: 26px; font-weight: 800;
+  font-size: 28px; font-weight: 800;
   font-family: 'Barlow Condensed', sans-serif;
   color: var(--white);
 }
 .week-day-num.today-num {
   background: var(--kraken-teal); color: var(--deep-sea);
-  border-radius: 50%; width: 34px; height: 34px;
+  border-radius: 50%; width: 36px; height: 36px;
   display: flex; align-items: center; justify-content: center;
   margin: 0 auto;
 }
@@ -621,7 +621,7 @@ header {
 .week-hour-label {
   height: 60px; display: flex; align-items: flex-start;
   justify-content: flex-end; padding-right: 8px; padding-top: 2px;
-  font-size: 15px; color: var(--text-dim);
+  font-size: 16px; color: var(--text-dim);
   font-family: 'Barlow Condensed', sans-serif; letter-spacing: 0.5px;
 }
 .week-day-col {
@@ -646,7 +646,7 @@ header {
   background: rgba(0,178,169,0.2);
   border-left: 3px solid var(--kraken-teal);
   border-radius: 0 5px 5px 0;
-  padding: 3px 5px; font-size: 15px;
+  padding: 3px 6px; font-size: 17px;
   color: var(--cyan-ink); cursor: pointer;
   overflow: hidden; transition: all 0.15s;
   z-index: 2;
