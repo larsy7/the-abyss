@@ -406,6 +406,41 @@ body::before {
     letter-spacing: 1px;
     margin-bottom: 8px;
   }
+  .mgs-upnext {
+    display: flex; flex-direction: column; gap: 6px;
+    margin-bottom: 16px;
+  }
+  .mgs-upnext-item {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .mgs-upnext-item:active { transform: scale(0.98); border-color: var(--border-bright); }
+  .mgs-upnext-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .mgs-upnext-info { flex: 1; min-width: 0; }
+  .mgs-upnext-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 16px; font-weight: 700;
+    color: var(--silver-ice);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .mgs-upnext-meta {
+    font-size: 13px;
+    color: var(--text-dim);
+  }
+  .mgs-upnext-empty {
+    font-size: 14px;
+    color: var(--text-dim);
+    padding: 8px 0;
+  }
   .mgs-views {
     display: flex; gap: 6px;
     margin-bottom: 14px;
