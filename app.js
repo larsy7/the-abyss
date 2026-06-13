@@ -1824,10 +1824,9 @@ function openDetail(id) {
   if (!ev) return;
   state.detailId = id;
   const content = document.getElementById('detailContent');
-  const tasksDone = (ev.tasks||[]).filter(t=>t.done).length;
-  const tasksTotal = (ev.tasks||[]).length;
-  const attachTotal = (ev.attachments||[]).length;
-  const overdueCount = (ev.tasks||[]).filter(t=>taskIsOverdue(t)).length;
+  const parent = getParent(ev);
+  const subEvents = getSubEvents(ev.id);
+  const attendees = ev.attendees || [];
 
   function buildAttachHTML(a) {
     const icon = a.type==='link' ? '🔗' : fileIcon(a.mimeType);
@@ -1864,100 +1863,220 @@ function openDetail(id) {
     </div>`;
   }
 
-  const parent = getParent(ev);
-  const subEvents = getSubEvents(ev.id);
+  // --- Logistics bar (compact, read-only) ---
+  let logParts = [];
+  logParts.push(`📅 ${fmtDate(ev.date)}${ev.endDate && ev.endDate > ev.date ? ' → '+fmtDate(ev.endDate) : ''}`);
+  if (!ev.allDay) logParts.push(`${fmtTime(ev.start)} – ${fmtTime(ev.end)}`);
+  else logParts.push('All Day');
+  if (ev.recurrence && ev.recurrence.freq !== 'none') {
+    const freqMap = {daily:'Daily',weekly:'Weekly',monthly:'Monthly',yearly:'Yearly'};
+    const unitMap = {daily:'days',weekly:'weeks',monthly:'months',yearly:'years'};
+    let r = '🔁 ' + freqMap[ev.recurrence.freq];
+    if (ev.recurrence.interval > 1) r += ' every ' + ev.recurrence.interval + ' ' + unitMap[ev.recurrence.freq];
+    logParts.push(r);
+  }
+  if (ev.location) logParts.push('📍 ' + ev.location);
+
+  // --- Group badge ---
+  const group = ev.groupId ? getGroupById(ev.groupId) : null;
+
+  // --- Attendee avatars ---
+  const attendeeAvatars = attendees.map(name =>
+    `<div class="detail-attendee-av" style="background:${avatarColor(name)}" title="${name}" data-name="${name}">${initials(name)}</div>`
+  ).join('');
+
+  // Available people not yet attending
+  const availablePeople = _localPeople.filter(p => !attendees.includes(p.name));
 
   content.innerHTML = `
-    <div class="detail-title">
-      ${ev.parentId && parent ? `<div style="font-size:15px;color:var(--text-dim);margin-bottom:4px;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase">Sub-event of</div>` : ''}
-      ${ev.title}
-    </div>
     ${ev.parentId && parent ? `
-      <div style="margin-bottom:10px">
+      <div style="margin-bottom:6px">
         <span class="parent-badge" id="goToParentBtn" data-parent-id="${parent.id}">
           <span class="ev-ink" style="--ev-color:${parent.color||'var(--kraken-teal)'}">◈</span> ${parent.title}
           <span style="opacity:.6;font-size:14px;margin-left:2px">↗</span>
         </span>
       </div>` : ''}
-    <div class="detail-meta">
-      <div class="detail-row"><span class="detail-icon">📅</span>${fmtDate(ev.date)}${ev.endDate && ev.endDate > ev.date ? ` → ${fmtDate(ev.endDate)}` : ''}</div>
-      ${!ev.allDay?`<div class="detail-row"><span class="detail-icon">🕐</span>${fmtTime(ev.start)} – ${fmtTime(ev.end)}</div>`:'<div class="detail-row"><span class="detail-icon">🌊</span>All Day</div>'}
-      ${ev.recurrence && ev.recurrence.freq !== 'none' ? `<div class="detail-row"><span class="detail-icon">🔁</span>${({'daily':'Daily','weekly':'Weekly','monthly':'Monthly','yearly':'Yearly'})[ev.recurrence.freq]}${ev.recurrence.interval>1?' every '+ev.recurrence.interval+' '+({'daily':'days','weekly':'weeks','monthly':'months','yearly':'years'})[ev.recurrence.freq]:''}${ev.recurrence.endDate?' until '+fmtDate(ev.recurrence.endDate):''}</div>` : ''}
-      ${ev.location?`<div class="detail-row"><span class="detail-icon">📍</span>${ev.location}</div>`:''}
-      ${(ev.attendees||[]).length?`
-        <div class="detail-row" style="align-items:flex-start">
-          <span class="detail-icon">👤</span>
-          <div class="detail-attendees">
-            ${(ev.attendees||[]).map(name=>`
-              <span class="attendee-chip">
-                <span class="assignee-avatar" style="background:${avatarColor(name)};width:20px;height:20px;font-size:14px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font-weight:800;color:var(--deep-sea)">${initials(name)}</span>
-                ${name}
-              </span>`).join('')}
-          </div>
-        </div>`:''}
-      ${tasksTotal?`<div class="detail-row"><span class="detail-icon">🎯</span>${tasksDone}/${tasksTotal} tasks complete${overdueCount?` &nbsp;<span style="color:var(--danger-ink);font-size:15px;">⚠ ${overdueCount} overdue</span>`:''}</div>`:''}
-      ${attachTotal?`<div class="detail-row"><span class="detail-icon">🔗</span>${attachTotal} attachment${attachTotal>1?'s':''}</div>`:''}
-      ${subEvents.length?`<div class="detail-row"><span class="detail-icon">📎</span>${subEvents.length} sub-event${subEvents.length>1?'s':''}</div>`:''}
-      ${ev.groupId ? (()=>{ const g=getGroupById(ev.groupId); return g?`<div class="detail-row"><span class="detail-icon">🏷️</span><span style="--ev-color:${g.color};background:${g.color}22;border:1px solid ${g.color}44;border-radius:5px;padding:2px 9px;font-size:16px;font-weight:700;cursor:pointer" class="gp-group-link ev-ink" data-gid="${g.id}">${g.name} ↗</span></div>`:''; })() : ''}
+    <input class="detail-title-input" id="detailTitleInput" value="${(ev.title||'').replace(/"/g,'&quot;')}" placeholder="Event title…">
+    <div class="detail-logistics-bar">${logParts.join(' <span style="opacity:0.4">·</span> ')}</div>
+    ${group ? `<div style="margin-bottom:12px"><span style="--ev-color:${group.color};background:${group.color}22;border:1px solid ${group.color}44;border-radius:5px;padding:2px 9px;font-size:15px;font-weight:700;cursor:pointer" class="gp-group-link ev-ink" data-gid="${group.id}">${group.name} ↗</span></div>` : ''}
+    <div class="detail-attendee-row" style="position:relative">
+      ${attendeeAvatars}
+      <div class="detail-attendee-add" id="detailAttendeeAdd" title="Add attendee">+</div>
+      <div class="detail-attendee-dropdown" id="detailAttendeeDropdown" style="display:none">
+        ${availablePeople.length ? availablePeople.map(p =>
+          `<div class="detail-attendee-dropdown-item" data-name="${p.name}">
+            <span class="assignee-avatar" style="background:${avatarColor(p.name)};width:22px;height:22px;font-size:12px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;font-weight:800;color:var(--deep-sea)">${initials(p.name)}</span>
+            ${p.name}
+          </div>`
+        ).join('') : '<div style="padding:8px 10px;font-size:14px;color:var(--text-dim)">No people available</div>'}
+      </div>
     </div>
-    ${ev.desc?`<div class="detail-desc">${ev.desc.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>')}</div>`:''}
+    <textarea class="detail-desc-textarea" id="detailDescInput" placeholder="Notes, agenda, details…" rows="3">${(ev.desc||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea>
+
     ${subEvents.length?`
-    <div class="subevents-section" style="margin-top:12px">
-      <div class="subevents-label" style="margin-bottom:10px">📎 Sub-Events</div>
-      ${subEvents.map(sub=>{
-        const subDt = new Date(sub.date+'T00:00:00');
-        return `<div class="subevent-item" data-sub-id="${sub.id}" style="border-left-color:${sub.color||ev.color||'var(--kraken-teal)'}">
-          <div class="subevent-title">${sub.title}</div>
-          <div class="subevent-date">${MONTHS[subDt.getMonth()].slice(0,3)} ${subDt.getDate()}${!sub.allDay?' · '+fmtTime(sub.start):''}</div>
-          <button class="subevent-open" data-sub-id="${sub.id}">View ↗</button>
-        </div>`;
-      }).join('')}
-    </div>`:''}
-    ${tasksTotal?`
-    <div class="tasks-section" style="margin-top:12px">
-      <div class="tasks-label" style="margin-bottom:10px">🎯 Tasks</div>
+    <div class="detail-section-header" style="margin-top:6px">
+      <span class="detail-section-label">📎 Sub-Events</span>
+    </div>
+    ${subEvents.map(sub=>{
+      const subDt = new Date(sub.date+'T00:00:00');
+      return `<div class="subevent-item" data-sub-id="${sub.id}" style="border-left-color:${sub.color||ev.color||'var(--kraken-teal)'}">
+        <div class="subevent-title">${sub.title}</div>
+        <div class="subevent-date">${MONTHS[subDt.getMonth()].slice(0,3)} ${subDt.getDate()}${!sub.allDay?' · '+fmtTime(sub.start):''}</div>
+        <button class="subevent-open" data-sub-id="${sub.id}">View ↗</button>
+      </div>`;
+    }).join('')}`:''}
+
+    <div class="detail-section-header" style="${subEvents.length?'':'margin-top:6px'}">
+      <span class="detail-section-label">🎯 Tasks</span>
+      <button class="detail-inline-btn" id="detailAddTaskToggle">+ Add</button>
+    </div>
+    <div id="detailTasksList">
       ${(ev.tasks||[]).map((t,i)=>buildTaskHTML(t,i)).join('')}
-    </div>`:''}
-    ${attachTotal?`
-    <div class="attach-section" style="margin-top:12px;border-top:1px solid var(--border);padding-top:14px">
-      <div class="attach-label" style="margin-bottom:10px;font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:700;letter-spacing:1px;color:var(--silver-ice);text-transform:uppercase">🔗 Links &amp; Files</div>
+    </div>
+    <div class="detail-add-task-row" id="detailAddTaskRow" style="display:none">
+      <input type="text" id="detailNewTaskInput" placeholder="Task description…">
+      <button id="detailSaveTaskBtn">Add</button>
+    </div>
+
+    <div class="detail-section-header">
+      <span class="detail-section-label">🔗 Links & Files</span>
+      <div style="display:flex;gap:4px">
+        <button class="detail-inline-btn" id="detailAddLinkToggle">+ Link</button>
+        <button class="detail-inline-btn" id="detailAddFileToggle">+ File</button>
+      </div>
+    </div>
+    <div id="detailAttachList">
       ${(ev.attachments||[]).map(a=>buildAttachHTML(a)).join('')}
-    </div>`:''}
+    </div>
+    <div class="detail-add-link-row" id="detailAddLinkRow" style="display:none">
+      <input type="text" id="detailLinkLabel" placeholder="Label">
+      <input type="text" id="detailLinkUrl" placeholder="https://…">
+      <button id="detailSaveLinkBtn">Add</button>
+    </div>
+    <div class="detail-file-drop" id="detailFileDrop" style="display:none">
+      <div>Drop file or <strong>click to browse</strong></div>
+      <input type="file" id="detailFileInput" multiple>
+    </div>
   `;
 
-  // wire up go-to-parent
+  // --- Wire up inline title save ---
+  const titleInput = content.querySelector('#detailTitleInput');
+  titleInput.onblur = () => {
+    const v = titleInput.value.trim();
+    if (v && v !== ev.title) { ev.title = v; save(); render(); }
+  };
+  titleInput.onkeydown = (e) => { if (e.key === 'Enter') titleInput.blur(); };
+
+  // --- Wire up inline description save ---
+  const descInput = content.querySelector('#detailDescInput');
+  descInput.onblur = () => {
+    const v = descInput.value.trim();
+    if (v !== (ev.desc||'')) { ev.desc = v; save(); }
+  };
+
+  // --- Wire up attendees ---
+  const addBtn = content.querySelector('#detailAttendeeAdd');
+  const dropdown = content.querySelector('#detailAttendeeDropdown');
+  addBtn.onclick = (e) => { e.stopPropagation(); dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none'; };
+  document.addEventListener('click', function closeDD(e) {
+    if (!dropdown.contains(e.target) && e.target !== addBtn) { dropdown.style.display = 'none'; document.removeEventListener('click', closeDD); }
+  });
+  content.querySelectorAll('.detail-attendee-dropdown-item').forEach(el => {
+    el.onclick = () => {
+      if (!ev.attendees) ev.attendees = [];
+      ev.attendees.push(el.dataset.name);
+      save(); render(); openDetail(ev.id);
+    };
+  });
+  content.querySelectorAll('.detail-attendee-av').forEach(el => {
+    el.onclick = () => {
+      ev.attendees = (ev.attendees||[]).filter(n => n !== el.dataset.name);
+      save(); render(); openDetail(ev.id);
+    };
+  });
+
+  // --- Wire up go-to-parent ---
   const parentBtn = content.querySelector('#goToParentBtn');
   if (parentBtn) parentBtn.onclick = () => { document.getElementById('detailModalOverlay').classList.remove('open'); openDetail(parentBtn.dataset.parentId); };
 
-  // wire up group link
+  // --- Wire up group link ---
   content.querySelectorAll('.gp-group-link').forEach(el => {
     el.onclick = () => { document.getElementById('detailModalOverlay').classList.remove('open'); openGroupPage(el.dataset.gid); };
   });
 
-  // wire up sub-event view buttons
+  // --- Wire up sub-event view buttons ---
   content.querySelectorAll('[data-sub-id]').forEach(el => {
-    el.onclick = (e) => {
-      e.stopPropagation();
-      document.getElementById('detailModalOverlay').classList.remove('open');
-      openDetail(el.dataset.subId);
-    };
+    el.onclick = (e) => { e.stopPropagation(); document.getElementById('detailModalOverlay').classList.remove('open'); openDetail(el.dataset.subId); };
   });
 
-  // wire up task checkboxes — toggle done directly from the detail view
+  // --- Wire up task checkboxes ---
   content.querySelectorAll('.task-check[data-task-idx]').forEach(el => {
     const toggle = (e) => {
       e.stopPropagation();
       const t = (ev.tasks || [])[parseInt(el.dataset.taskIdx)];
       if (!t) return;
       t.done = !t.done;
-      save();
-      render();          // refresh calendar markers + Up Next overdue count
-      openDetail(ev.id); // re-render the detail view with updated progress
+      save(); render(); openDetail(ev.id);
     };
     el.onclick = toggle;
     el.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(e); } };
   });
 
+  // --- Wire up inline add task ---
+  const addTaskRow = content.querySelector('#detailAddTaskRow');
+  content.querySelector('#detailAddTaskToggle').onclick = () => {
+    addTaskRow.style.display = addTaskRow.style.display === 'none' ? 'flex' : 'none';
+    if (addTaskRow.style.display === 'flex') content.querySelector('#detailNewTaskInput').focus();
+  };
+  const saveTask = () => {
+    const inp = content.querySelector('#detailNewTaskInput');
+    const text = inp.value.trim();
+    if (!text) return;
+    if (!ev.tasks) ev.tasks = [];
+    ev.tasks.push({ id: uid(), text, done: false, dueDate: '', assignee: '' });
+    save(); render(); openDetail(ev.id);
+  };
+  content.querySelector('#detailSaveTaskBtn').onclick = saveTask;
+  content.querySelector('#detailNewTaskInput').onkeydown = (e) => { if (e.key === 'Enter') saveTask(); };
+
+  // --- Wire up inline add link ---
+  const addLinkRow = content.querySelector('#detailAddLinkRow');
+  content.querySelector('#detailAddLinkToggle').onclick = () => {
+    addLinkRow.style.display = addLinkRow.style.display === 'none' ? 'flex' : 'none';
+    content.querySelector('#detailFileDrop').style.display = 'none';
+    if (addLinkRow.style.display === 'flex') content.querySelector('#detailLinkLabel').focus();
+  };
+  content.querySelector('#detailSaveLinkBtn').onclick = () => {
+    const label = content.querySelector('#detailLinkLabel').value.trim();
+    const url = content.querySelector('#detailLinkUrl').value.trim();
+    if (!url) return;
+    if (!ev.attachments) ev.attachments = [];
+    ev.attachments.push({ id: uid(), type: 'link', label: label || url, url });
+    save(); render(); openDetail(ev.id);
+  };
+
+  // --- Wire up inline add file ---
+  const fileDrop = content.querySelector('#detailFileDrop');
+  const fileInput = content.querySelector('#detailFileInput');
+  content.querySelector('#detailAddFileToggle').onclick = () => {
+    fileDrop.style.display = fileDrop.style.display === 'none' ? 'block' : 'none';
+    addLinkRow.style.display = 'none';
+  };
+  fileDrop.onclick = () => fileInput.click();
+  fileInput.onchange = () => {
+    if (!ev.attachments) ev.attachments = [];
+    Array.from(fileInput.files).forEach(f => {
+      if (f.size > 5*1024*1024) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        ev.attachments.push({ id: uid(), type: 'file', name: f.name, mimeType: f.type, size: f.size, data: reader.result });
+        save(); render(); openDetail(ev.id);
+      };
+      reader.readAsDataURL(f);
+    });
+  };
+
+  // --- Wire up attachment clicks ---
   content.querySelectorAll('.detail-attach-item').forEach(el => {
     el.onclick = () => {
       const a = (ev.attachments||[]).find(x=>x.id===el.dataset.attachId);
