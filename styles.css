@@ -242,21 +242,24 @@ body::before {
   }
   .mobile-sidebar-overlay.open { display: block; }
 
-  /* Main content full width */
-  main { padding: 8px; }
+  /* Main content full width.
+     !important: the desktop `main { padding: 20px }` rule sits later in the
+     file and otherwise wins here, leaving mobile with 20px gutters. */
+  main { padding: 8px !important; }
 
   /* Month view — compact, Google-style cells.
      NOTE: the base (desktop) rules live later in this file, so on equal
      specificity they win; !important is required for these mobile shrinks
      to take effect (same pattern as the other mobile overrides here). */
+  .month-grid.active { margin: 0 -8px !important; } /* full-bleed calendar, like the Google app */
   .dow-header { font-size: 11px !important; letter-spacing: 0.5px !important; padding: 2px !important; }
   .cal-cell { min-height: 0 !important; padding: 2px 3px !important; border-radius: 5px !important; }
   .day-header { min-height: 0 !important; margin-bottom: 1px !important; gap: 3px !important; }
-  .day-num { font-size: 12px !important; font-weight: 600 !important; }
+  .day-num { font-size: 11px !important; font-weight: 600 !important; }
   .cal-cell.today .day-num { width: 18px !important; height: 18px !important; font-size: 11px !important; }
   .day-annotation { display: none; } /* hide annotations on mobile */
   .event-pill {
-    font-size: 11px !important; font-weight: 600 !important;
+    font-size: 10px !important; font-weight: 600 !important;
     padding: 0 4px !important; margin-bottom: 1px !important; gap: 3px !important;
     border-left-width: 2px !important;
     line-height: 1.5 !important;
@@ -531,9 +534,9 @@ body::before {
 /* Extra small screens (phones < 480px) */
 @media (max-width: 480px) {
   .cal-cell { min-height: 0 !important; padding: 2px !important; }
-  .day-num { font-size: 11px !important; }
-  .cal-cell.today .day-num { width: 16px !important; height: 16px !important; font-size: 10px !important; }
-  .event-pill { font-size: 10px !important; padding: 0 3px !important; gap: 2px !important; }
+  .day-num { font-size: 10px !important; }
+  .cal-cell.today .day-num { width: 15px !important; height: 15px !important; font-size: 9px !important; }
+  .event-pill { font-size: 9px !important; padding: 0 3px !important; gap: 2px !important; }
   .more-label { font-size: 9.5px !important; }
   .week-event { font-size: 12px; }
 }
