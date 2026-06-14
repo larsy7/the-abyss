@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#0A1F33">
 <title>The Abyss</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=13">
+<link rel="stylesheet" href="styles.css?v=15">
 </head>
 <body>
 
@@ -31,10 +31,11 @@
       <div class="search-results" id="searchResults" role="listbox"></div>
     </div>
     <div class="view-tabs">
-      <button class="view-tab" data-view="list">List</button>
-      <button class="view-tab active" data-view="month">Month</button>
-      <button class="view-tab" data-view="week">Week</button>
+      <button class="view-tab" data-view="list">Schedule</button>
       <button class="view-tab" data-view="day">Day</button>
+      <button class="view-tab" data-view="3day">3 Day</button>
+      <button class="view-tab" data-view="week">Week</button>
+      <button class="view-tab active" data-view="month">Month</button>
     </div>
     <button class="monday-btn" id="mondayBtn" title="Monday Meeting agenda (A)">📋<span class="monday-btn-label">Monday</span></button>
     <div class="sync-status syncing" id="syncStatus">
@@ -585,6 +586,8 @@
     <button class="mgs-close" id="mobileUpNextClose">✕</button>
   </div>
   <div class="mgs-upnext" id="mobileUpNext"></div>
+  <div class="mgs-section-label">View</div>
+  <div class="mgs-views" id="mobileUpNextViews"></div>
 </div>
 
 <!-- MOBILE GROUPS MENU (grid button) -->
@@ -596,8 +599,6 @@
     <button class="mgs-close" id="mobileGroupsClose">✕</button>
   </div>
   <div class="mgs-grid" id="mobileGroupsGrid"></div>
-  <div class="mgs-section-label">Views</div>
-  <div class="mgs-views" id="mobileGroupsViews"></div>
   <div class="mgs-section-label">Actions</div>
   <div class="mgs-actions" id="mobileGroupsActions"></div>
 </div>
@@ -623,6 +624,6 @@
   </div>
 </div>
 
-<script src="app.js?v=13"></script>
+<script src="app.js?v=14"></script>
 </body>
 </html>
