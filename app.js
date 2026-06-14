@@ -361,10 +361,12 @@ function renderHeader() {
   const d = state.date;
   let label = '';
   if (state.view === 'month' || state.view === 'list') label = `${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
-  else if (state.view === 'week') {
-    const sun = new Date(d); sun.setDate(d.getDate() - d.getDay());
-    const sat = new Date(sun); sat.setDate(sun.getDate()+6);
-    label = `${MONTHS[sun.getMonth()]} ${sun.getDate()} – ${sun.getMonth()!==sat.getMonth()?MONTHS[sat.getMonth()]+' ':''}${sat.getDate()}, ${sat.getFullYear()}`;
+  else if (state.view === 'week' || state.view === '3day') {
+    const count = state.view === 'week' ? 7 : 3;
+    const start = new Date(d);
+    if (state.view === 'week') start.setDate(d.getDate() - d.getDay());
+    const end = new Date(start); end.setDate(start.getDate() + count - 1);
+    label = `${MONTHS[start.getMonth()]} ${start.getDate()} – ${start.getMonth()!==end.getMonth()?MONTHS[end.getMonth()]+' ':''}${end.getDate()}, ${end.getFullYear()}`;
   } else {
     label = `${DAYS[d.getDay()]}, ${MONTHS[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
   }
@@ -584,9 +586,16 @@ function renderMonth() {
 // ============================================================
 // WEEK VIEW
 // ============================================================
-function renderWeek() {
+// Renders a multi-day time-grid. numDays = 7 for the Week view (starting
+// Sunday) and 3 for the 3-Day view (starting on the current date).
+function renderWeek(numDays = 7) {
   const d = state.date;
-  const sun = new Date(d); sun.setDate(d.getDate() - d.getDay());
+  const start = new Date(d);
+  if (numDays === 7) start.setDate(d.getDate() - d.getDay());
+  start.setHours(0, 0, 0, 0);
+
+  // Column count drives the CSS grid via a custom property.
+  document.getElementById('weekView').style.setProperty('--week-days', numDays);
 
   const headerRow = document.getElementById('weekHeaderRow');
   const layout = document.getElementById('weekLayout');
@@ -595,8 +604,8 @@ function renderWeek() {
   // gutter header spacer
   headerRow.appendChild(document.createElement('div'));
 
-  for (let i = 0; i < 7; i++) {
-    const day = new Date(sun); day.setDate(sun.getDate()+i);
+  for (let i = 0; i < numDays; i++) {
+    const day = new Date(start); day.setDate(start.getDate()+i);
     const hdr = document.createElement('div');
     hdr.className = 'week-day-header';
     const numEl = document.createElement('div');
@@ -604,7 +613,7 @@ function renderWeek() {
     numEl.textContent = day.getDate();
     const nameEl = document.createElement('div');
     nameEl.className = 'week-day-name';
-    nameEl.textContent = DAYS[i];
+    nameEl.textContent = DAYS[day.getDay()];
     hdr.appendChild(nameEl); hdr.appendChild(numEl);
     headerRow.appendChild(hdr);
   }
@@ -624,7 +633,6 @@ function renderWeek() {
   const allDayRow = document.getElementById('weekAllDayRow');
   allDayRow.innerHTML = '';
   allDayRow.style.display = 'grid';
-  allDayRow.style.gridTemplateColumns = '52px repeat(7, 1fr)';
   allDayRow.style.gap = '2px';
 
   const allDayGutter = document.createElement('div');
@@ -632,9 +640,9 @@ function renderWeek() {
   allDayGutter.style.cssText = 'font-size:13px;color:var(--text-dim);text-align:right;padding:4px 6px 0 0;font-family:"Barlow Condensed",sans-serif;letter-spacing:1px';
   allDayRow.appendChild(allDayGutter);
 
-  // Span columns 2-8 (all 7 day columns), relative container for absolute banners
+  // Span all day columns, relative container for absolute banners
   const bannerGrid = document.createElement('div');
-  bannerGrid.style.cssText = 'position:relative;grid-column:2/9;min-height:4px;';
+  bannerGrid.style.cssText = `position:relative;grid-column:2/${numDays + 2};min-height:4px;`;
   allDayRow.appendChild(bannerGrid);
 
   let hasAllDay = false;
@@ -654,8 +662,8 @@ function renderWeek() {
 
   // Collect unique multi-day/all-day events visible this week
   const seen = new Set();
-  for (let i = 0; i < 7; i++) {
-    const day = new Date(sun); day.setDate(sun.getDate()+i);
+  for (let i = 0; i < numDays; i++) {
+    const day = new Date(start); day.setDate(start.getDate()+i);
     const ds = isoDate(day);
     const adEvs = eventsForDate(ds).filter(ev => ev.allDay || (ev.endDate && ev.endDate > ev.date));
     adEvs.forEach(ev => {
@@ -668,11 +676,11 @@ function renderWeek() {
 
       const evStart = new Date(ev.date + 'T00:00:00');
       const evEnd = ev.endDate ? new Date(ev.endDate + 'T00:00:00') : evStart;
-      const weekStart = new Date(sun);
-      const weekEnd = new Date(sun); weekEnd.setDate(sun.getDate() + 6);
+      const weekStart = new Date(start);
+      const weekEnd = new Date(start); weekEnd.setDate(start.getDate() + (numDays - 1));
 
       const colStart = Math.max(0, Math.round((Math.max(evStart, weekStart) - weekStart) / 86400000));
-      const colEnd   = Math.min(6, Math.round((Math.min(evEnd,   weekEnd)   - weekStart) / 86400000));
+      const colEnd   = Math.min(numDays - 1, Math.round((Math.min(evEnd,   weekEnd)   - weekStart) / 86400000));
       const spanCols = colEnd - colStart + 1;
 
       const startsThisWeek = evStart >= weekStart;
@@ -686,8 +694,8 @@ function renderWeek() {
       banner.className = 'wk-banner';
       banner.style.cssText = `
         position:absolute;
-        left:calc(${colStart} / 7 * 100%);
-        width:calc(${spanCols} / 7 * 100%);
+        left:calc(${colStart} / ${numDays} * 100%);
+        width:calc(${spanCols} / ${numDays} * 100%);
         top:${BANNER_TOP + row * BANNER_H}px;
         height:22px;
         padding:3px 8px;
@@ -716,8 +724,8 @@ function renderWeek() {
   allDayRow.classList.toggle('has-events', hasAllDay);
   if (hasAllDay) allDayGutter.textContent = 'ALL DAY';
 
-  for (let i = 0; i < 7; i++) {
-    const day = new Date(sun); day.setDate(sun.getDate()+i);
+  for (let i = 0; i < numDays; i++) {
+    const day = new Date(start); day.setDate(start.getDate()+i);
     const ds = isoDate(day);
     const col = document.createElement('div');
     col.className = 'week-day-col';
@@ -1021,11 +1029,12 @@ function render() {
   renderUpNext();
   document.getElementById('agendaView').className = 'agenda-view' + (state.view==='list'?' active':'');
   document.getElementById('monthView').className = 'month-grid' + (state.view==='month'?' active':'');
-  document.getElementById('weekView').className = 'week-grid' + (state.view==='week'?' active':'');
+  document.getElementById('weekView').className = 'week-grid' + (state.view==='week'||state.view==='3day'?' active':'');
   document.getElementById('dayView').className = 'day-view' + (state.view==='day'?' active':'');
   if (state.view === 'list') renderAgenda();
   else if (state.view === 'month') renderMonth();
-  else if (state.view === 'week') renderWeek();
+  else if (state.view === 'week') renderWeek(7);
+  else if (state.view === '3day') renderWeek(3);
   else renderDay();
   renderMondayPageIfOpen();
 }
@@ -1343,6 +1352,7 @@ document.getElementById('prevBtn').onclick = () => {
   const d = state.date;
   if (state.view==='month' || state.view==='list') state.date = new Date(d.getFullYear(), d.getMonth()-1, 1);
   else if (state.view==='week') { const n = new Date(d); n.setDate(d.getDate()-7); state.date=n; }
+  else if (state.view==='3day') { const n = new Date(d); n.setDate(d.getDate()-3); state.date=n; }
   else { const n = new Date(d); n.setDate(d.getDate()-1); state.date=n; }
   render();
 };
@@ -1350,6 +1360,7 @@ document.getElementById('nextBtn').onclick = () => {
   const d = state.date;
   if (state.view==='month' || state.view==='list') state.date = new Date(d.getFullYear(), d.getMonth()+1, 1);
   else if (state.view==='week') { const n = new Date(d); n.setDate(d.getDate()+7); state.date=n; }
+  else if (state.view==='3day') { const n = new Date(d); n.setDate(d.getDate()+3); state.date=n; }
   else { const n = new Date(d); n.setDate(d.getDate()+1); state.date=n; }
   render();
 };
@@ -1624,6 +1635,33 @@ document.getElementById('addEventBtn').onclick = () => openAddModal();
   window._closeMobileGroupsMenu = closeMenu;
 })();
 
+// Shared view-switcher pills (Schedule / Day / 3 Day / Week / Month) for the
+// mobile sheets — mirrors Google Calendar's view options.
+const MOBILE_VIEW_DEFS = [
+  { label: 'Schedule', view: 'list' },
+  { label: 'Day',      view: 'day' },
+  { label: '3 Day',    view: '3day' },
+  { label: 'Week',     view: 'week' },
+  { label: 'Month',    view: 'month' },
+];
+function buildViewSwitcher(container, closeFn) {
+  if (!container) return;
+  container.innerHTML = '';
+  MOBILE_VIEW_DEFS.forEach(x => {
+    const b = document.createElement('button');
+    b.className = 'mgs-view-btn' + (state.view === x.view ? ' active' : '');
+    b.textContent = x.label;
+    b.onclick = () => {
+      state.view = x.view;
+      document.querySelectorAll('.view-tab').forEach(t => t.classList.toggle('active', t.dataset.view === x.view));
+      if (closeFn) closeFn();
+      render();
+      if (x.view === 'week' || x.view === '3day' || x.view === 'day') scrollToHour(8);
+    };
+    container.appendChild(b);
+  });
+}
+
 function renderMobileUpNext() {
   const todayStr = isoDate(new Date());
   const upNextEl = document.getElementById('mobileUpNext');
@@ -1647,6 +1685,7 @@ function renderMobileUpNext() {
       upNextEl.appendChild(item);
     });
   }
+  buildViewSwitcher(document.getElementById('mobileUpNextViews'), window._closeMobileUpNext);
 }
 
 function renderMobileGroupsMenu() {
@@ -1666,21 +1705,6 @@ function renderMobileGroupsMenu() {
       grid.appendChild(card);
     });
   }
-
-  const viewsEl = document.getElementById('mobileGroupsViews');
-  viewsEl.innerHTML = '';
-  [{l:'List',v:'list'},{l:'Month',v:'month'},{l:'Week',v:'week'},{l:'Day',v:'day'}].forEach(x => {
-    const b = document.createElement('button');
-    b.className = 'mgs-view-btn' + (state.view === x.v ? ' active' : '');
-    b.textContent = x.l;
-    b.onclick = () => {
-      state.view = x.v;
-      document.querySelectorAll('.view-tab').forEach(t => t.classList.toggle('active', t.dataset.view === x.v));
-      window._closeMobileGroupsMenu();
-      render();
-    };
-    viewsEl.appendChild(b);
-  });
 
   const actionsEl = document.getElementById('mobileGroupsActions');
   actionsEl.innerHTML = '';
@@ -4269,6 +4293,7 @@ document.addEventListener('keydown', e => {
   if (e.key==='m') { document.querySelector('[data-view=month]').click(); }
   if (e.key==='w') { document.querySelector('[data-view=week]').click(); }
   if (e.key==='d') { document.querySelector('[data-view=day]').click(); }
+  if (e.key==='3') { document.querySelector('[data-view="3day"]').click(); }
   if (e.key==='t') document.getElementById('todayBtn').click();
   if (e.key==='n') openAddModal();
   if (e.key==='a') openMondayPage();
@@ -4324,7 +4349,7 @@ document.querySelectorAll('.view-tab').forEach(tab => {
   const orig = tab.onclick;
   tab.onclick = (e) => {
     orig && orig.call(tab, e);
-    if (tab.dataset.view==='week'||tab.dataset.view==='day') scrollToHour(8);
+    if (tab.dataset.view==='week'||tab.dataset.view==='3day'||tab.dataset.view==='day') scrollToHour(8);
   };
 });
 
