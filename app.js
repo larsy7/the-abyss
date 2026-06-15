@@ -2735,10 +2735,14 @@ document.getElementById('groupPageBack').onclick = () => {
 function renderGroupPageBody(g) {
   const body = document.getElementById('groupPageBody');
   const today = isoDate(new Date());
+  const cutoffDt = new Date(); cutoffDt.setDate(cutoffDt.getDate() + 30);
+  const cutoff = isoDate(cutoffDt);
+
   const allGroupEvents = state.events.filter(e => e.groupId === g.id)
     .sort((a,b) => a.date.localeCompare(b.date));
-  const upcomingEvents = allGroupEvents.filter(e => e.date >= today);
-  const pastEvents = allGroupEvents.filter(e => e.date < today).reverse(); // newest-first
+  const nearEvents   = allGroupEvents.filter(e => e.date >= today && e.date <= cutoff);
+  const futureEvents = allGroupEvents.filter(e => e.date > cutoff);
+  const pastEvents   = allGroupEvents.filter(e => e.date < today).reverse(); // newest-first
 
   // collect all tasks from group events
   const allTasks = [];
@@ -2748,6 +2752,11 @@ function renderGroupPageBody(g) {
   const doneTasks = allTasks.filter(x => x.t.done).length;
   const overdueTasks = allTasks.filter(x => taskIsOverdue(x.t)).length;
 
+  // upcoming tasks: not done, dueDate within next 30 days
+  const upcomingTasks = allTasks.filter(({t}) =>
+    !t.done && t.dueDate && t.dueDate >= today && t.dueDate <= cutoff
+  ).sort((a,b) => a.t.dueDate.localeCompare(b.t.dueDate));
+
   // Stats
   const statsHTML = `
     <div class="group-page-stats">
@@ -2756,7 +2765,7 @@ function renderGroupPageBody(g) {
         <div class="gp-stat-label">Total Events</div>
       </div>
       <div class="gp-stat">
-        <div class="gp-stat-num ev-ink" style="--ev-color:${g.color}">${upcomingEvents.length}</div>
+        <div class="gp-stat-num ev-ink" style="--ev-color:${g.color}">${nearEvents.length + futureEvents.length}</div>
         <div class="gp-stat-label">Upcoming</div>
       </div>
       <div class="gp-stat">
@@ -2775,7 +2784,8 @@ function renderGroupPageBody(g) {
 
   body.innerHTML = statsHTML;
 
-  // Helper to build an event card element
+  // --- Helpers ---
+
   function buildEventCard(ev) {
     const parent = getParent(ev);
     const subs = getSubEvents(ev.id);
@@ -2790,10 +2800,8 @@ function renderGroupPageBody(g) {
 
     const info = document.createElement('div');
     info.className = 'gp-event-info';
-
     const tasksDone = (ev.tasks||[]).filter(t=>t.done).length;
     const tasksTotal = (ev.tasks||[]).length;
-
     info.innerHTML = `
       <div class="gp-event-title">${ev.parentId && parent ? `<span style="opacity:.5;font-size:15px">↳ ${parent.title} / </span>`:''} ${ev.title}</div>
       <div class="gp-event-meta">
@@ -2816,124 +2824,163 @@ function renderGroupPageBody(g) {
     return card;
   }
 
-  // Upcoming Events section
-  const evSecTitle = document.createElement('div');
-  evSecTitle.className = 'group-page-section-title';
-  evSecTitle.innerHTML = `<span class="ev-ink" style="--ev-color:${g.color}">◈</span> Upcoming Events`;
-  body.appendChild(evSecTitle);
-
-  if (!upcomingEvents.length) {
-    const empty = document.createElement('div'); empty.className = 'gp-empty';
-    empty.textContent = 'No upcoming events in this group.'; body.appendChild(empty);
-  } else {
-    upcomingEvents.forEach(ev => body.appendChild(buildEventCard(ev)));
+  function buildTaskRow({t, ev}) {
+    const overdue = taskIsOverdue(t);
+    const row = document.createElement('div');
+    row.className = 'gp-task-row';
+    const check = document.createElement('div');
+    check.className = 'gp-task-check' + (t.done?' done':'');
+    if (t.done) check.textContent = '✓';
+    const taskInfo = document.createElement('div');
+    taskInfo.className = 'gp-task-info';
+    const dt2 = t.dueDate ? new Date(t.dueDate+'T00:00:00') : null;
+    taskInfo.innerHTML = `
+      <div class="gp-task-text${t.done?' done':''}">${t.text}</div>
+      <div class="gp-task-meta">
+        ${t.assignee?`<span>👤 ${t.assignee}</span>`:''}
+        ${dt2?`<span style="color:${overdue?'var(--danger-ink)':'var(--gold-ink)'}">${overdue?'⚠':''} Due ${MONTHS[dt2.getMonth()].slice(0,3)} ${dt2.getDate()}</span>`:''}
+        <span class="gp-task-event-link" data-ev-id="${ev.id}">→ ${ev.title}</span>
+      </div>`;
+    row.appendChild(check); row.appendChild(taskInfo);
+    return row;
   }
 
-  // Past Events collapsible section
-  if (pastEvents.length) {
-    const pastSection = document.createElement('div');
-    pastSection.className = 'gp-past-section';
+  function buildCollapsibleEventSection({title, icon, events, emptyText, searchPlaceholder, yearSortDesc}) {
+    const section = document.createElement('div');
+    section.className = 'gp-past-section';
 
-    const pastHeader = document.createElement('div');
-    pastHeader.className = 'gp-past-header';
-    pastHeader.innerHTML = `
-      <span class="ev-ink" style="--ev-color:${g.color}">◈</span>
-      <span>Past Events</span>
-      <span class="gp-past-count">${pastEvents.length}</span>
+    const header = document.createElement('div');
+    header.className = 'gp-past-header';
+    header.innerHTML = `
+      <span class="ev-ink" style="--ev-color:${g.color}">${icon}</span>
+      <span>${title}</span>
+      <span class="gp-past-count">${events.length}</span>
       <span class="gp-past-chevron">▸</span>`;
-    pastSection.appendChild(pastHeader);
+    section.appendChild(header);
 
-    const pastBody = document.createElement('div');
-    pastBody.className = 'gp-past-body';
+    const sectionBody = document.createElement('div');
+    sectionBody.className = 'gp-past-body';
 
-    // Filter bar
+    const years = [...new Set(events.map(e => e.date.slice(0,4)))];
+    years.sort((a,b) => yearSortDesc ? b-a : a-b);
+
     const filterBar = document.createElement('div');
     filterBar.className = 'gp-past-filter-bar';
     filterBar.innerHTML = `
-      <input class="gp-past-search" type="text" placeholder="Search past events…" />
+      <input class="gp-past-search" type="text" placeholder="${searchPlaceholder}" />
       <select class="gp-past-year-select">
         <option value="">All Years</option>
-        ${[...new Set(pastEvents.map(e => e.date.slice(0,4)))].sort((a,b)=>b-a)
-          .map(y => `<option value="${y}">${y}</option>`).join('')}
+        ${years.map(y => `<option value="${y}">${y}</option>`).join('')}
       </select>`;
-    pastBody.appendChild(filterBar);
+    sectionBody.appendChild(filterBar);
 
-    const pastList = document.createElement('div');
-    pastList.className = 'gp-past-list';
-    pastBody.appendChild(pastList);
+    const list = document.createElement('div');
+    list.className = 'gp-past-list';
+    sectionBody.appendChild(list);
 
-    function renderPastList() {
-      const query = pastBody.querySelector('.gp-past-search').value.toLowerCase();
-      const year = pastBody.querySelector('.gp-past-year-select').value;
-      const filtered = pastEvents.filter(ev => {
+    function rerender() {
+      const query = sectionBody.querySelector('.gp-past-search').value.toLowerCase();
+      const year = sectionBody.querySelector('.gp-past-year-select').value;
+      const filtered = events.filter(ev => {
         if (year && !ev.date.startsWith(year)) return false;
         if (query && !ev.title.toLowerCase().includes(query) && !ev.date.includes(query)) return false;
         return true;
       });
-      pastList.innerHTML = '';
+      list.innerHTML = '';
       if (!filtered.length) {
         const empty = document.createElement('div'); empty.className = 'gp-empty';
-        empty.textContent = 'No past events match the filter.'; pastList.appendChild(empty);
+        empty.textContent = emptyText; list.appendChild(empty);
       } else {
-        filtered.forEach(ev => pastList.appendChild(buildEventCard(ev)));
+        filtered.forEach(ev => list.appendChild(buildEventCard(ev)));
       }
     }
 
-    renderPastList();
-    pastBody.querySelector('.gp-past-search').addEventListener('input', renderPastList);
-    pastBody.querySelector('.gp-past-year-select').addEventListener('change', renderPastList);
-    pastSection.appendChild(pastBody);
+    rerender();
+    sectionBody.querySelector('.gp-past-search').addEventListener('input', rerender);
+    sectionBody.querySelector('.gp-past-year-select').addEventListener('change', rerender);
+    section.appendChild(sectionBody);
 
-    // Toggle expand/collapse
     let expanded = false;
-    pastHeader.onclick = () => {
+    header.onclick = () => {
       expanded = !expanded;
-      pastBody.classList.toggle('open', expanded);
-      pastHeader.querySelector('.gp-past-chevron').textContent = expanded ? '▾' : '▸';
+      sectionBody.classList.toggle('open', expanded);
+      header.querySelector('.gp-past-chevron').textContent = expanded ? '▾' : '▸';
     };
 
-    body.appendChild(pastSection);
+    return section;
   }
 
-  // Tasks section
-  const taskSecTitle = document.createElement('div');
-  taskSecTitle.className = 'group-page-section-title';
-  taskSecTitle.innerHTML = `<span class="ev-ink" style="--ev-color:${g.color}">◆</span> All Tasks`;
-  body.appendChild(taskSecTitle);
+  function addSectionTitle(icon, text) {
+    const el = document.createElement('div');
+    el.className = 'group-page-section-title';
+    el.innerHTML = `<span class="ev-ink" style="--ev-color:${g.color}">${icon}</span> ${text}`;
+    body.appendChild(el);
+  }
 
+  // --- 1. Upcoming Events (next 30 days) ---
+  addSectionTitle('◈', 'Upcoming Events');
+  if (!nearEvents.length) {
+    const empty = document.createElement('div'); empty.className = 'gp-empty';
+    empty.textContent = 'No events in the next 30 days.'; body.appendChild(empty);
+  } else {
+    nearEvents.forEach(ev => body.appendChild(buildEventCard(ev)));
+  }
+
+  // --- 2. Upcoming Tasks (due within next 30 days) ---
+  addSectionTitle('◆', 'Upcoming Tasks');
+  if (!upcomingTasks.length) {
+    const empty = document.createElement('div'); empty.className = 'gp-empty';
+    empty.textContent = 'No tasks due in the next 30 days.'; body.appendChild(empty);
+  } else {
+    upcomingTasks.forEach(item => {
+      const row = buildTaskRow(item);
+      body.appendChild(row);
+    });
+    body.querySelectorAll('.gp-task-event-link').forEach(el => {
+      el.onclick = e => {
+        e.stopPropagation();
+        document.getElementById('groupPage').classList.remove('open');
+        openDetail(el.dataset.evId);
+      };
+    });
+  }
+
+  // --- 3. Future Events (beyond 30 days, collapsible + filterable) ---
+  if (futureEvents.length) {
+    body.appendChild(buildCollapsibleEventSection({
+      title: 'Future Events',
+      icon: '◈',
+      events: futureEvents,
+      emptyText: 'No future events match the filter.',
+      searchPlaceholder: 'Search future events…',
+      yearSortDesc: false,
+    }));
+  }
+
+  // --- 4. Past Events (collapsible + filterable) ---
+  if (pastEvents.length) {
+    body.appendChild(buildCollapsibleEventSection({
+      title: 'Past Events',
+      icon: '◈',
+      events: pastEvents,
+      emptyText: 'No past events match the filter.',
+      searchPlaceholder: 'Search past events…',
+      yearSortDesc: true,
+    }));
+  }
+
+  // --- 5. All Tasks ---
+  addSectionTitle('◆', 'All Tasks');
   if (!allTasks.length) {
     const empty = document.createElement('div'); empty.className = 'gp-empty';
     empty.textContent = 'No tasks linked to events in this group.'; body.appendChild(empty);
   } else {
-    // Group by done/not done
     const pending = allTasks.filter(x => !x.t.done);
     const done = allTasks.filter(x => x.t.done);
-    [...pending, ...done].forEach(({t, ev}) => {
-      const overdue = taskIsOverdue(t);
-      const row = document.createElement('div');
-      row.className = 'gp-task-row';
-
-      const check = document.createElement('div');
-      check.className = 'gp-task-check' + (t.done?' done':'');
-      if (t.done) check.textContent = '✓';
-
-      const taskInfo = document.createElement('div');
-      taskInfo.className = 'gp-task-info';
-      const dt2 = t.dueDate ? new Date(t.dueDate+'T00:00:00') : null;
-      taskInfo.innerHTML = `
-        <div class="gp-task-text${t.done?' done':''}">${t.text}</div>
-        <div class="gp-task-meta">
-          ${t.assignee?`<span>👤 ${t.assignee}</span>`:''}
-          ${dt2?`<span style="color:${overdue?'var(--danger-ink)':'var(--gold-ink)'}">${overdue?'⚠':''} Due ${MONTHS[dt2.getMonth()].slice(0,3)} ${dt2.getDate()}</span>`:''}
-          <span class="gp-task-event-link" data-ev-id="${ev.id}">→ ${ev.title}</span>
-        </div>`;
-
-      row.appendChild(check); row.appendChild(taskInfo);
-      body.appendChild(row);
-    });
-
-    // wire task event links
-    body.querySelectorAll('.gp-task-event-link').forEach(el => {
+    const taskContainer = document.createElement('div');
+    [...pending, ...done].forEach(item => taskContainer.appendChild(buildTaskRow(item)));
+    body.appendChild(taskContainer);
+    taskContainer.querySelectorAll('.gp-task-event-link').forEach(el => {
       el.onclick = e => {
         e.stopPropagation();
         document.getElementById('groupPage').classList.remove('open');
