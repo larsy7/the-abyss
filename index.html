@@ -106,6 +106,9 @@
           <span class="fp-name" style="color:var(--gold-ink)">Task Markers</span>
           <div class="fp-check" id="taskToggleCheck">✓</div>
         </div>
+        <div class="sidebar-shortcut-hint" id="subscribeHint" title="Subscribe to this calendar in Outlook or any calendar app" style="cursor:pointer">
+          <span>📅</span><span>Subscribe in <strong style="color:var(--cyan-ink)">Outlook</strong> / iCal</span>
+        </div>
         <div class="sidebar-shortcut-hint" id="shortcutHint" title="View keyboard shortcuts">
           <span>⌨</span><span>Press <strong style="color:var(--cyan-ink)">?</strong> for keyboard shortcuts</span>
         </div>
@@ -186,6 +189,50 @@
 <!-- DAY CLICK POPUP -->
 <!-- Persistent group color picker (outside sidebar so re-renders don't destroy it) -->
 <input type="color" id="groupColorPickerGlobal" style="position:fixed;width:0;height:0;opacity:0;pointer-events:none;top:0;left:0">
+
+<!-- OUTLOOK / ICAL SUBSCRIBE OVERLAY -->
+<div class="modal-overlay" id="subscribeOverlay">
+  <div class="modal" style="max-width:480px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;letter-spacing:1px;color:var(--silver-ice);text-transform:uppercase">📅 Subscribe to Calendar</div>
+      <button id="subscribeClose" style="background:none;border:none;color:var(--text-dim);font-size:24px;cursor:pointer;line-height:1">✕</button>
+    </div>
+    <p style="color:var(--text-dim);font-size:14px;margin:0 0 16px">
+      This is a <strong style="color:var(--silver-ice)">read-only</strong> feed — events from The Abyss appear in your calendar app, but nothing syncs back.
+    </p>
+
+    <!-- Feed URL row (shown when ICAL_FEED_URL is set) -->
+    <div id="subscribeFeedSection">
+      <label style="font-size:12px;color:var(--text-dim);text-transform:uppercase;letter-spacing:.5px;font-weight:700;display:block;margin-bottom:6px">Your subscription URL</label>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="subscribeFeedUrl" type="text" readonly
+          style="flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:6px;padding:8px 10px;color:var(--silver-ice);font-size:13px;font-family:monospace;outline:none;min-width:0"
+          onclick="this.select()">
+        <button id="subscribeCopyBtn"
+          style="padding:8px 14px;background:var(--kraken-teal);color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;white-space:nowrap;font-size:13px">Copy URL</button>
+      </div>
+    </div>
+
+    <!-- Setup message (shown when ICAL_FEED_URL is not set yet) -->
+    <div id="subscribeSetupMsg" style="background:var(--input-bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:13px;color:var(--text-dim);line-height:1.6">
+      The iCal feed isn't deployed yet. See <code style="color:var(--cyan-ink)">functions/index.js</code> in the repo and follow the setup steps in the README.
+    </div>
+
+    <div style="margin-top:20px">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;color:var(--silver-ice);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">How to subscribe in Outlook</div>
+      <ol style="margin:0;padding-left:18px;color:var(--text-dim);font-size:13px;line-height:1.9">
+        <li>Copy the URL above.</li>
+        <li>In Outlook, go to <strong style="color:var(--silver-ice)">File → Account Settings → Account Settings</strong>.</li>
+        <li>Click the <strong style="color:var(--silver-ice)">Internet Calendars</strong> tab, then <strong style="color:var(--silver-ice)">New…</strong></li>
+        <li>Paste the URL and click <strong style="color:var(--silver-ice)">Add</strong>.</li>
+        <li>Name it "The Abyss" and click <strong style="color:var(--silver-ice)">OK</strong>.</li>
+      </ol>
+      <div style="margin-top:10px;font-size:12px;color:var(--text-dim)">
+        Outlook refreshes subscribed calendars roughly every hour. On mobile, use <strong style="color:var(--silver-ice)">Outlook → Settings → Add Calendar → Subscribe from web</strong>.
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- KEYBOARD SHORTCUTS OVERLAY -->
 <div class="modal-overlay" id="shortcutsOverlay">

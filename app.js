@@ -2,6 +2,11 @@
 const FB_URL = 'https://the-abyss-calendar-default-rtdb.firebaseio.com';
 const FB_API_KEY = 'AIzaSyAzCyXRPkkegnKVHVM96jWFkBT3UG4CNp4';
 
+// Outlook calendar subscription URL (one-way read).
+// After deploying the Cloud Function and setting ical.secret, replace the
+// placeholder below with:  https://us-central1-the-abyss-calendar.cloudfunctions.net/icalFeed?token=YOUR_SECRET
+const ICAL_FEED_URL = '';
+
 // ============================================================
 // AUTH — email/password sign-in via Firebase Identity Toolkit.
 // The admin creates accounts in the Firebase Console; users sign
@@ -4556,6 +4561,46 @@ document.getElementById('signOutBtn').onclick = () => {
   if (!confirm('Sign out of The Abyss on this device?')) return;
   AUTH = null; saveAuth();
   location.reload();
+};
+
+// ============================================================
+// OUTLOOK CALENDAR SUBSCRIBE MODAL
+// ============================================================
+function openSubscribeModal() {
+  const overlay = document.getElementById('subscribeOverlay');
+  const urlEl = document.getElementById('subscribeFeedUrl');
+  const section = document.getElementById('subscribeFeedSection');
+  const setup = document.getElementById('subscribeSetupMsg');
+
+  if (ICAL_FEED_URL) {
+    urlEl.value = ICAL_FEED_URL;
+    section.style.display = '';
+    setup.style.display = 'none';
+  } else {
+    section.style.display = 'none';
+    setup.style.display = '';
+  }
+  overlay.classList.add('open');
+}
+
+document.getElementById('subscribeClose').onclick = () =>
+  document.getElementById('subscribeOverlay').classList.remove('open');
+document.getElementById('subscribeOverlay').onclick = (e) => {
+  if (e.target.id === 'subscribeOverlay') e.target.classList.remove('open');
+};
+document.getElementById('subscribeHint').onclick = openSubscribeModal;
+
+document.getElementById('subscribeCopyBtn').onclick = () => {
+  const url = document.getElementById('subscribeFeedUrl').value;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.getElementById('subscribeCopyBtn');
+    const orig = btn.textContent;
+    btn.textContent = 'Copied!';
+    setTimeout(() => { btn.textContent = orig; }, 1800);
+  }).catch(() => {
+    document.getElementById('subscribeFeedUrl').select();
+    document.execCommand('copy');
+  });
 };
 
 if (AUTH) {
