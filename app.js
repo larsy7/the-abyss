@@ -3,12 +3,28 @@ const FB_URL = 'https://the-abyss-calendar-default-rtdb.firebaseio.com';
 const FB_API_KEY = 'AIzaSyAzCyXRPkkegnKVHVM96jWFkBT3UG4CNp4';
 
 // ============================================================
+// OUTLOOK SYNC — Microsoft Graph API (PKCE OAuth)
+// Register a free Azure AD app at portal.azure.com, then paste
+// your Application (client) ID below. Also add this page's URL
+// as a redirect URI (type: Single-page application) in the app.
+// ============================================================
+const OUTLOOK_CLIENT_ID = ''; // ← paste your Azure AD Client ID here
+const OUTLOOK_SCOPES = 'Calendars.ReadWrite offline_access';
+const OUTLOOK_REDIRECT_URI = (() => {
+  const l = window.location;
+  return l.origin + l.pathname.replace(/index\.html$/, '');
+})();
+
+// ============================================================
 // AUTH — email/password sign-in via Firebase Identity Toolkit.
 // The admin creates accounts in the Firebase Console; users sign
 // in once per device and stay signed in (tokens auto-refresh).
 // ============================================================
 let AUTH = null; // { idToken, refreshToken, email, exp }
 try { const s = localStorage.getItem('abyssAuth'); if (s) AUTH = JSON.parse(s); } catch(e) {}
+
+let OUTLOOK_AUTH = null; // { accessToken, refreshToken, expiresAt, personName, lastSynced }
+try { const _oa = localStorage.getItem('abyssOutlookAuth'); if (_oa) OUTLOOK_AUTH = JSON.parse(_oa); } catch(e) {}
 
 function saveAuth() {
   try {
@@ -4557,6 +4573,301 @@ document.getElementById('signOutBtn').onclick = () => {
   AUTH = null; saveAuth();
   location.reload();
 };
+
+// ============================================================
+// OUTLOOK CALENDAR SYNC
+// ============================================================
+
+function saveOutlookAuth() {
+  try {
+    if (OUTLOOK_AUTH) localStorage.setItem('abyssOutlookAuth', JSON.stringify(OUTLOOK_AUTH));
+    else localStorage.removeItem('abyssOutlookAuth');
+  } catch(e) {}
+}
+
+async function _base64URLEncode(buf) {
+  return btoa(String.fromCharCode(...new Uint8Array(buf)))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+async function generatePKCE() {
+  const verifier = await _base64URLEncode(crypto.getRandomValues(new Uint8Array(32)));
+  const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier));
+  const challenge = await _base64URLEncode(hash);
+  return { verifier, challenge };
+}
+
+async function handleOutlookCallback() {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get('code');
+  if (!code) return;
+  if (params.get('state') !== sessionStorage.getItem('outlookOAuthState')) return;
+
+  window.history.replaceState({}, '', window.location.pathname);
+
+  const verifier = sessionStorage.getItem('outlookCodeVerifier');
+  const personName = sessionStorage.getItem('outlookPersonName');
+  sessionStorage.removeItem('outlookOAuthState');
+  sessionStorage.removeItem('outlookCodeVerifier');
+  sessionStorage.removeItem('outlookPersonName');
+
+  if (!verifier || !personName || !OUTLOOK_CLIENT_ID) return;
+
+  try {
+    const resp = await fetch('https://login.microsoftonline.com/common/oauth2/v2.0/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: OUTLOOK_CLIENT_ID,
+        code,
+        redirect_uri: OUTLOOK_REDIRECT_URI,
+        grant_type: 'authorization_code',
+        code_verifier: verifier,
+        scope: OUTLOOK_SCOPES
+      })
+    });
+    const data = await resp.json();
+    if (data.access_token) {
+      OUTLOOK_AUTH = {
+        accessToken: data.access_token,
+        refreshToken: data.refresh_token || null,
+        expiresAt: Date.now() + (parseInt(data.expires_in || '3600') - 60) * 1000,
+        personName,
+        lastSynced: null
+      };
+      saveOutlookAuth();
+    }
+  } catch(e) {}
+}
+
+async function ensureOutlookToken() {
+  if (!OUTLOOK_AUTH) return null;
+  if (Date.now() < OUTLOOK_AUTH.expiresAt) return OUTLOOK_AUTH.accessToken;
+  if (!OUTLOOK_AUTH.refreshToken || !OUTLOOK_CLIENT_ID) {
+    OUTLOOK_AUTH = null; saveOutlookAuth(); return null;
+  }
+  try {
+    const resp = await fetch('https://login.microsoftonline.com/common/oauth2/v2.0/token', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        client_id: OUTLOOK_CLIENT_ID,
+        grant_type: 'refresh_token',
+        refresh_token: OUTLOOK_AUTH.refreshToken,
+        scope: OUTLOOK_SCOPES
+      })
+    });
+    const data = await resp.json();
+    if (data.access_token) {
+      OUTLOOK_AUTH.accessToken = data.access_token;
+      if (data.refresh_token) OUTLOOK_AUTH.refreshToken = data.refresh_token;
+      OUTLOOK_AUTH.expiresAt = Date.now() + (parseInt(data.expires_in || '3600') - 60) * 1000;
+      saveOutlookAuth();
+      return OUTLOOK_AUTH.accessToken;
+    }
+  } catch(e) {}
+  OUTLOOK_AUTH = null; saveOutlookAuth();
+  return null;
+}
+
+async function startOutlookConnect(personName) {
+  if (!OUTLOOK_CLIENT_ID) {
+    alert('Outlook sync is not configured yet. The calendar admin needs to register an Azure AD app and add the Client ID to the code.');
+    return;
+  }
+  const { verifier, challenge } = await generatePKCE();
+  const oauthState = await _base64URLEncode(crypto.getRandomValues(new Uint8Array(12)));
+  sessionStorage.setItem('outlookCodeVerifier', verifier);
+  sessionStorage.setItem('outlookOAuthState', oauthState);
+  sessionStorage.setItem('outlookPersonName', personName);
+
+  const url = new URL('https://login.microsoftonline.com/common/oauth2/v2.0/authorize');
+  url.searchParams.set('client_id', OUTLOOK_CLIENT_ID);
+  url.searchParams.set('response_type', 'code');
+  url.searchParams.set('redirect_uri', OUTLOOK_REDIRECT_URI);
+  url.searchParams.set('scope', OUTLOOK_SCOPES);
+  url.searchParams.set('state', oauthState);
+  url.searchParams.set('code_challenge', challenge);
+  url.searchParams.set('code_challenge_method', 'S256');
+  window.location.href = url.toString();
+}
+
+function buildOutlookEvent(ev) {
+  const isAllDay = !!(ev.allDay || !ev.start);
+  const date = ev.date;
+  const endDateStr = ev.endDate || date;
+
+  let start, end;
+  if (isAllDay) {
+    const endD = new Date(endDateStr + 'T00:00:00Z');
+    endD.setUTCDate(endD.getUTCDate() + 1);
+    start = { date, timeZone: 'UTC' };
+    end = { date: endD.toISOString().slice(0, 10), timeZone: 'UTC' };
+  } else {
+    const s = ev.start || '00:00';
+    const [sh, sm] = s.split(':').map(Number);
+    const endH = String((sh + 1) % 24).padStart(2, '0');
+    const e = ev.end || `${endH}:${String(sm).padStart(2, '0')}`;
+    start = { dateTime: `${date}T${s}:00`, timeZone: 'UTC' };
+    end = { dateTime: `${endDateStr}T${e}:00`, timeZone: 'UTC' };
+  }
+
+  const out = { subject: ev.title || '(No title)', isAllDay, start, end };
+  if (ev.location) out.location = { displayName: ev.location };
+  if (ev.desc) out.body = { contentType: 'Text', content: ev.desc };
+  return out;
+}
+
+async function syncEventsToOutlook() {
+  const token = await ensureOutlookToken();
+  if (!token) return { ok: false, error: 'Not connected or session expired — please reconnect.' };
+
+  const personName = OUTLOOK_AUTH.personName;
+  const myEvents = (state.events || []).filter(ev => {
+    const isAttendee = (ev.attendees || []).includes(personName);
+    const hasTask = (ev.tasks || []).some(t => t.assignee === personName);
+    return isAttendee || hasTask;
+  });
+
+  let syncMap = {};
+  try { syncMap = JSON.parse(localStorage.getItem('abyssOutlookSyncMap') || '{}'); } catch(e) {}
+
+  let created = 0, updated = 0, errors = 0;
+  const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+  for (const ev of myEvents) {
+    const body = JSON.stringify(buildOutlookEvent(ev));
+    const existingId = syncMap[ev.id];
+    try {
+      if (existingId) {
+        const r = await fetch(`https://graph.microsoft.com/v1.0/me/events/${existingId}`, {
+          method: 'PATCH', headers, body
+        });
+        if (r.ok) {
+          updated++;
+        } else if (r.status === 404) {
+          const cr = await fetch('https://graph.microsoft.com/v1.0/me/events', { method: 'POST', headers, body });
+          if (cr.ok) { const d = await cr.json(); syncMap[ev.id] = d.id; created++; }
+          else errors++;
+        } else errors++;
+      } else {
+        const r = await fetch('https://graph.microsoft.com/v1.0/me/events', { method: 'POST', headers, body });
+        if (r.ok) { const d = await r.json(); syncMap[ev.id] = d.id; created++; }
+        else errors++;
+      }
+    } catch(e) { errors++; }
+  }
+
+  localStorage.setItem('abyssOutlookSyncMap', JSON.stringify(syncMap));
+  OUTLOOK_AUTH.lastSynced = Date.now();
+  saveOutlookAuth();
+  return { ok: true, created, updated, errors, total: myEvents.length };
+}
+
+function openOutlookSyncModal() {
+  renderOutlookSyncModal();
+  document.getElementById('outlookSyncOverlay').classList.add('open');
+}
+
+function closeOutlookSyncModal() {
+  document.getElementById('outlookSyncOverlay').classList.remove('open');
+}
+
+function renderOutlookSyncModal() {
+  const body = document.getElementById('outlookSyncBody');
+  const people = _localPeople.length ? _localPeople : [];
+
+  if (!OUTLOOK_CLIENT_ID) {
+    body.innerHTML = `
+      <div style="color:var(--text-dim);font-size:15px;line-height:1.7;padding:4px 0 8px">
+        Outlook sync requires a one-time setup by your calendar admin:<br><br>
+        1. Register a free app at <strong style="color:var(--ice-blue)">portal.azure.com</strong><br>
+        2. Set the redirect URI to this page's URL (type: Single-page application)<br>
+        3. Paste the Client ID into the <code style="color:var(--cyan-ink)">OUTLOOK_CLIENT_ID</code> constant in app.js
+      </div>`;
+    return;
+  }
+
+  if (OUTLOOK_AUTH) {
+    const lastSynced = OUTLOOK_AUTH.lastSynced
+      ? new Date(OUTLOOK_AUTH.lastSynced).toLocaleString()
+      : 'Never';
+    body.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;padding:4px 0 14px;border-bottom:1px solid var(--border);margin-bottom:14px">
+        <div style="width:38px;height:38px;background:#0078d4;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">📅</div>
+        <div>
+          <div style="font-weight:600;color:var(--silver-ice);font-size:15px">Connected</div>
+          <div style="color:var(--text-dim);font-size:14px">Syncing as <strong style="color:var(--cyan-ink)">${OUTLOOK_AUTH.personName}</strong></div>
+        </div>
+      </div>
+      <div style="color:var(--text-dim);font-size:13px;margin-bottom:16px">Last synced: ${lastSynced}</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-confirm" id="outlookSyncNowBtn" style="flex:1">Sync Now</button>
+        <button class="btn-dismiss" id="outlookDisconnectBtn">Disconnect</button>
+      </div>
+      <div id="outlookSyncStatus" style="margin-top:12px;font-size:14px;min-height:20px"></div>`;
+
+    document.getElementById('outlookSyncNowBtn').onclick = async () => {
+      const btn = document.getElementById('outlookSyncNowBtn');
+      const status = document.getElementById('outlookSyncStatus');
+      btn.disabled = true; btn.textContent = 'Syncing…';
+      const r = await syncEventsToOutlook();
+      btn.disabled = false; btn.textContent = 'Sync Now';
+      if (r.ok) {
+        status.style.color = 'var(--cyan-ink)';
+        const errNote = r.errors ? `, ${r.errors} error${r.errors > 1 ? 's' : ''}` : '';
+        status.textContent = `✓ Done — ${r.total} event${r.total !== 1 ? 's' : ''} (${r.created} new, ${r.updated} updated${errNote})`;
+        document.querySelector('#outlookSyncBody [style*="Last synced"]').textContent = `Last synced: ${new Date(OUTLOOK_AUTH.lastSynced).toLocaleString()}`;
+      } else {
+        status.style.color = 'var(--danger)';
+        status.textContent = `✗ ${r.error}`;
+      }
+    };
+
+    document.getElementById('outlookDisconnectBtn').onclick = () => {
+      if (!confirm(`Disconnect Outlook for ${OUTLOOK_AUTH.personName}?\n\nThis won't remove events already synced to your Outlook calendar.`)) return;
+      OUTLOOK_AUTH = null; saveOutlookAuth();
+      localStorage.removeItem('abyssOutlookSyncMap');
+      renderOutlookSyncModal();
+    };
+  } else {
+    const opts = people.map(p => `<option value="${p.name}">${p.name}</option>`).join('');
+    body.innerHTML = `
+      <div style="color:var(--text-dim);font-size:15px;line-height:1.6;padding:4px 0 14px">
+        Connect your Microsoft account to sync events tagged to you directly into your Outlook calendar.
+      </div>
+      <div style="margin-bottom:12px">
+        <label style="display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text-dim);margin-bottom:5px">Which person are you?</label>
+        <select id="outlookPersonSelect" style="width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text-primary);padding:8px 10px;border-radius:7px;font-size:15px;font-family:inherit;outline:none">
+          <option value="">— Select your name —</option>
+          ${opts}
+        </select>
+      </div>
+      <button class="btn-confirm" id="outlookConnectMicrosoftBtn" style="width:100%">Connect to Outlook →</button>
+      <div id="outlookConnectError" style="margin-top:10px;font-size:14px;color:var(--danger);display:none"></div>`;
+
+    document.getElementById('outlookConnectMicrosoftBtn').onclick = () => {
+      const sel = document.getElementById('outlookPersonSelect');
+      const err = document.getElementById('outlookConnectError');
+      if (!sel.value) {
+        err.style.display = 'block';
+        err.textContent = 'Please select your name first.';
+        return;
+      }
+      err.style.display = 'none';
+      startOutlookConnect(sel.value);
+    };
+  }
+}
+
+document.getElementById('outlookConnectBtn').onclick = openOutlookSyncModal;
+document.getElementById('outlookSyncClose').onclick = closeOutlookSyncModal;
+document.getElementById('outlookSyncOverlay').onclick = e => {
+  if (e.target.id === 'outlookSyncOverlay') closeOutlookSyncModal();
+};
+
+// Handle Outlook OAuth redirect in background (doesn't block app startup)
+handleOutlookCallback();
 
 if (AUTH) {
   // Validate the stored session; fall back to login if it's no longer good

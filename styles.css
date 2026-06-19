@@ -1330,6 +1330,8 @@ textarea { resize: vertical; min-height: 72px; }
   transition: all 0.2s; white-space: nowrap;
 }
 .sidebar-new-person-btn:hover { border-color: var(--border-bright); color: var(--teal-ink); }
+.outlook-connect-btn { color: #4a9fd4; border-color: rgba(74,159,212,0.3); }
+.outlook-connect-btn:hover { border-color: #4a9fd4; color: #6ab8e8; }
 .sidebar-new-person-form {
   display: none; flex-direction: column; gap: 6px; margin-top: 8px;
 }
